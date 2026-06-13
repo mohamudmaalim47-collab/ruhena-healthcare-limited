@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "ruhena-healthcare-limited",
+  "buildCommand": "echo Static site - no build required",
+  "outputDirectory": ".",
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)\\.(js|css|ico|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot)$",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/$1.$2"
+    },
+    {
+      "src": "/(?!.*\\.)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
