@@ -60,7 +60,7 @@ function setSession(user) {
 }
 function requireAuth() {
   const s = getSession();
-  if (!s) { window.location.href = '/index.html'; return null; }
+  if (!s) { window.location.href = 'index.html'; return null; }
   return s;
 }
 function isOwner() {
@@ -73,7 +73,7 @@ function isSalesperson() {
 }
 function logout() {
   sessionStorage.removeItem('rhl_session');
-  window.location.href = '/index.html';
+  window.location.href = 'index.html';
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
@@ -154,18 +154,17 @@ function buildNav(activePage) {
   const s = getSession();
   if (!s) return;
   const pages = [
-    { id: 'dashboard', label: '📊 Dashboard', href: '/dashboard.html' },
-    { id: 'sales',     label: '💰 Sales',     href: '/sales.html' },
-    { id: 'debts',     label: '💳 Debts',     href: '/debts.html' },
-    { id: 'inventory', label: '📦 Inventory', href: '/inventory.html' },
-    { id: 'orders',    label: '🚚 Orders',    href: '/orders.html' },
-    { id: 'b2b',       label: '🏢 B2B',       href: '/b2b.html' },
-    { id: 'expenses',  label: '💸 Expenses',  href: '/expenses.html' },
-    { id: 'reports',   label: '📈 Reports',   href: '/reports.html' },
+    { id: 'dashboard', label: '📊 Dashboard', href: 'dashboard.html' },
+    { id: 'sales',     label: '💰 Sales',     href: 'sales.html' },
+    { id: 'debts',     label: '💳 Debts',     href: 'debts.html' },
+    { id: 'inventory', label: '📦 Inventory', href: 'inventory.html' },
+    { id: 'orders',    label: '🚚 Orders',    href: 'orders.html' },
+    { id: 'b2b',       label: '🏢 B2B',       href: 'b2b.html' },
+    { id: 'expenses',  label: '💸 Expenses',  href: 'expenses.html' },
+    { id: 'reports',   label: '📈 Reports',   href: 'reports.html' },
   ];
-  // Owners also see user management
   if (isOwner()) {
-    pages.push({ id: 'users', label: '👥 Users', href: '/users.html' });
+    pages.push({ id: 'users', label: '👥 Users', href: 'users.html' });
   }
   const navEl = document.getElementById('nav-tabs');
   if (navEl) navEl.innerHTML = pages.map(p =>
