@@ -122,7 +122,7 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 
   <div class="login-bottom">
     <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-btn">🌙 Dark Mode</button>
-    <a href="users.html" class="setup-link">⚙️ Manage Users</a>
+    <a href="setup.html" class="setup-link">⚙️ Setup / Users</a>
   </div>
 
   <div class="powered-by">Supabase + Vercel · © 2026 Ruhena Healthcare Limited</div>
@@ -155,8 +155,8 @@ async function loadUsers() {
     allUsers = await sbFetch('users?active=eq.true&order=name.asc&limit=20');
     if (!allUsers.length) {
       grid.innerHTML = `<div class="no-users">
-        No users found.<br>
-        <a href="users.html">Click here to set up your first user →</a>
+        No accounts found.<br>
+        <a href="setup.html" style="color:var(--green);font-weight:700;">→ Click here to set up your team first</a>
       </div>`;
       return;
     }
