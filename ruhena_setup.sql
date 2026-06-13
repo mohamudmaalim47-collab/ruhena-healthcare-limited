@@ -11,7 +11,22 @@ drop table if exists orders cascade;
 drop table if exists suppliers cascade;
 drop table if exists debts cascade;
 drop table if exists sales cascade;
+drop table if exists users cascade;
 
+-- ── USERS (Authentication) ─────────────────────────────────
+create table users (
+  id text primary key,
+  name text not null,
+  username text not null unique,
+  pin text not null,
+  role text not null default 'salesperson',
+  -- role: 'salesperson' | 'owner'
+  active boolean not null default true,
+  created_at text default '',
+  created_by text default ''
+);
+
+-- ── SALES ──────────────────────────────────────────────────
 create table sales (
   id text primary key,
   date text not null,
@@ -25,6 +40,7 @@ create table sales (
   added_at text default ''
 );
 
+-- ── DEBTS ──────────────────────────────────────────────────
 create table debts (
   id text primary key,
   name text not null,
@@ -40,6 +56,7 @@ create table debts (
   added_at text default ''
 );
 
+-- ── ORDERS ─────────────────────────────────────────────────
 create table orders (
   id text primary key,
   date text not null,
@@ -59,6 +76,7 @@ create table orders (
   added_at text default ''
 );
 
+-- ── SUPPLIERS ──────────────────────────────────────────────
 create table suppliers (
   id text primary key,
   name text not null,
@@ -66,6 +84,7 @@ create table suppliers (
   email text default ''
 );
 
+-- ── INVENTORY ──────────────────────────────────────────────
 create table inventory (
   id text primary key,
   name text not null,
@@ -77,6 +96,7 @@ create table inventory (
   created_at text default ''
 );
 
+-- ── EXPENSES ───────────────────────────────────────────────
 create table expenses (
   id text primary key,
   date text not null,
@@ -88,6 +108,7 @@ create table expenses (
   added_at text default ''
 );
 
+-- ── B2B CUSTOMERS ──────────────────────────────────────────
 create table b2b_customers (
   id text primary key,
   business_name text not null,
@@ -101,6 +122,7 @@ create table b2b_customers (
   created_at text default ''
 );
 
+-- ── B2B ORDERS ─────────────────────────────────────────────
 create table b2b_orders (
   id text primary key,
   customer_id text not null,
@@ -119,7 +141,8 @@ create table b2b_orders (
   added_at text default ''
 );
 
--- Row Level Security
+-- ── ROW LEVEL SECURITY ─────────────────────────────────────
+alter table users enable row level security;
 alter table sales enable row level security;
 alter table debts enable row level security;
 alter table orders enable row level security;
@@ -129,6 +152,7 @@ alter table expenses enable row level security;
 alter table b2b_customers enable row level security;
 alter table b2b_orders enable row level security;
 
+create policy "allow all" on users for all using (true) with check (true);
 create policy "allow all" on sales for all using (true) with check (true);
 create policy "allow all" on debts for all using (true) with check (true);
 create policy "allow all" on orders for all using (true) with check (true);
@@ -138,7 +162,7 @@ create policy "allow all" on expenses for all using (true) with check (true);
 create policy "allow all" on b2b_customers for all using (true) with check (true);
 create policy "allow all" on b2b_orders for all using (true) with check (true);
 
--- Explicit grants (prevents Supabase anon policy changes breaking the app)
+grant all on users to anon, authenticated;
 grant all on sales to anon, authenticated;
 grant all on debts to anon, authenticated;
 grant all on orders to anon, authenticated;

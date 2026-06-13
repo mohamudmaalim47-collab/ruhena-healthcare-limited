@@ -6,173 +6,78 @@
 <title>Ruhena Healthcare Limited — Login</title>
 <link rel="stylesheet" href="shared.css">
 <style>
-body {
-  display:grid;
-  grid-template-columns:1fr 480px;
-  min-height:100vh;
-  background:var(--bg);
-}
-
-/* LEFT PANEL — Pharmacy hero image */
-.login-hero {
-  position:relative;
-  overflow:hidden;
-  background:#050912;
-}
-.login-hero img {
-  width:100%;height:100%;object-fit:cover;opacity:0.45;
-  transition:transform 8s ease;
-}
-.login-hero:hover img { transform:scale(1.05); }
-.hero-overlay {
+body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:var(--bg);}
+.login-hero{position:relative;overflow:hidden;background:#050912;}
+.login-hero img{width:100%;height:100%;object-fit:cover;opacity:0.45;transition:transform 8s ease;}
+.login-hero:hover img{transform:scale(1.05);}
+.hero-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(0,214,143,0.15) 0%,rgba(0,5,20,0.7) 60%,rgba(0,5,20,0.95) 100%);
+  background:linear-gradient(135deg,rgba(0,214,143,0.12) 0%,rgba(0,5,20,0.65) 55%,rgba(0,5,20,0.97) 100%);
   display:flex;flex-direction:column;justify-content:flex-end;padding:48px;
 }
-.hero-badge {
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(0,214,143,0.15);border:1px solid rgba(0,214,143,0.3);
-  border-radius:20px;padding:6px 16px;font-size:12px;color:var(--green);
-  font-weight:600;margin-bottom:20px;width:fit-content;
-}
-.hero-title {
-  font-family:'Playfair Display',serif;font-size:40px;font-weight:700;
-  line-height:1.2;margin-bottom:16px;color:#fff;
-}
-.hero-title span { color:var(--green); }
-.hero-desc { font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:420px; }
-.hero-stats {
-  display:flex;gap:32px;margin-top:32px;padding-top:24px;
-  border-top:1px solid rgba(255,255,255,0.1);
-}
-.hero-stat-val { font-size:22px;font-weight:700;color:#fff; }
-.hero-stat-lbl { font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px; }
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,214,143,0.15);border:1px solid rgba(0,214,143,0.3);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--green);font-weight:600;margin-bottom:20px;width:fit-content;}
+.hero-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;line-height:1.2;margin-bottom:14px;color:#fff;}
+.hero-title span{color:var(--green);}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.75;max-width:400px;}
+.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.feature-pill{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,0.65);}
+.hero-stats{display:flex;gap:32px;margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.1);}
+.hero-stat-val{font-size:20px;font-weight:700;color:#fff;}
+.hero-stat-lbl{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
 
-/* RIGHT PANEL — Login form */
-.login-panel {
-  background:var(--surface);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:48px 40px;position:relative;
-  border-left:1px solid var(--border);
-}
-.login-logo {
-  display:flex;align-items:center;gap:12px;margin-bottom:8px;
-}
-.login-logo-icon {
-  width:48px;height:48px;border-radius:14px;
-  background:linear-gradient(135deg,var(--green),var(--teal));
-  display:flex;align-items:center;justify-content:center;font-size:24px;
-}
-.login-logo-text {
-  font-family:'Playfair Display',serif;font-size:22px;font-weight:700;
-}
-.login-logo-text span { color:var(--green); }
-.login-sub {
-  font-size:12px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;
-  margin-bottom:40px;text-align:center;
-}
-.login-form-title {
-  font-size:14px;font-weight:600;color:var(--text2);margin-bottom:20px;
-  text-align:center;
-}
+/* RIGHT PANEL */
+.login-panel{background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 40px;position:relative;border-left:1px solid var(--border);overflow-y:auto;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.login-logo-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:24px;}
+.login-logo-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.login-logo-text span{color:var(--green);}
+.login-sub{font-size:11px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px;text-align:center;}
 
-/* Role cards */
-.role-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;width:100%; }
-.role-btn {
-  padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--r);
-  background:var(--surface2);color:var(--text2);cursor:pointer;font-size:12px;
-  font-family:'Inter',sans-serif;transition:all .2s;text-align:center;font-weight:500;
-}
-.role-btn:hover { border-color:var(--border2);background:var(--surface3); }
-.role-btn.selected {
-  border-color:var(--green);background:var(--green-bg);color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,214,143,0.1);
-}
-.role-icon { font-size:24px;display:block;margin-bottom:6px; }
-.role-name { font-weight:600;font-size:13px; }
-.role-title { font-size:10px;color:var(--text3);margin-top:2px; }
-.role-btn.selected .role-title { color:var(--green);opacity:0.7; }
+/* User cards — loaded from DB */
+.users-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;width:100%;min-height:80px;}
+.user-card{padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .2s;text-align:center;font-weight:500;}
+.user-card:hover{border-color:var(--border2);background:var(--surface3);}
+.user-card.selected{border-color:var(--green);background:var(--green-bg);color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,0.1);}
+.user-card.selected .user-role-lbl{color:var(--green);opacity:0.7;}
+.user-icon{font-size:24px;display:block;margin-bottom:6px;}
+.user-name{font-weight:700;font-size:13px;}
+.user-role-lbl{font-size:10px;color:var(--text3);margin-top:3px;}
+.users-loading{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;grid-column:1/-1;}
 
-/* PIN input */
-.pin-wrap { position:relative;width:100%;margin-bottom:8px; }
-.pin-icon { position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px; }
-.pin-input {
-  width:100%;padding:13px 14px 13px 44px;
-  background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;
-  letter-spacing:.25em;transition:all .2s;
-}
-.pin-input:focus { border-color:var(--green);background:var(--surface);box-shadow:0 0 0 3px rgba(0,214,143,0.1); }
-.pin-input::placeholder { letter-spacing:.05em;color:var(--text3); }
-.pin-error {
-  font-size:12px;color:var(--red);margin-bottom:12px;min-height:18px;
-  display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .2s;
-}
-.pin-error.show { opacity:1; }
+/* No users state */
+.no-users{grid-column:1/-1;text-align:center;padding:16px;color:var(--text3);font-size:13px;line-height:1.6;}
+.no-users a{color:var(--green);font-weight:600;}
 
-/* Sign in button */
-.btn-signin {
-  width:100%;padding:14px;
-  background:linear-gradient(135deg,var(--green),var(--teal));
-  color:#001a0d;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
-  border:none;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;
-  margin-top:4px;letter-spacing:0.02em;
-}
-.btn-signin:hover { filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,214,143,0.35); }
-.btn-signin:active { transform:translateY(0); }
-
-/* Bottom */
-.login-bottom {
-  display:flex;align-items:center;justify-content:space-between;
-  margin-top:24px;width:100%;
-}
-.theme-toggle-btn {
-  background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;
-  color:var(--text3);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;
-  transition:all .2s;
-}
-.theme-toggle-btn:hover { border-color:var(--border2);color:var(--text2); }
-.login-hint { font-size:11px;color:var(--text3); }
-
-/* Powered by */
-.powered-by {
-  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
-  font-size:11px;color:var(--text3);white-space:nowrap;
-}
-
-/* Feature pills on hero */
-.feature-pills {
-  display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;
-}
-.feature-pill {
-  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
-  border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,0.7);
-  display:flex;align-items:center;gap:6px;
-}
-
-/* Mobile — stack vertically */
-@media(max-width:900px){
-  body { grid-template-columns:1fr; }
-  .login-hero { display:none; }
-  .login-panel { min-height:100vh;border-left:none; }
-}
+.pin-wrap{position:relative;width:100%;margin-bottom:8px;}
+.pin-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;}
+.pin-input{width:100%;padding:13px 14px 13px 44px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;letter-spacing:.2em;transition:all .2s;}
+.pin-input:focus{border-color:var(--green);background:var(--surface);box-shadow:0 0 0 3px rgba(0,214,143,0.1);}
+.pin-input::placeholder{letter-spacing:.05em;color:var(--text3);}
+.pin-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:18px;opacity:0;transition:opacity .2s;display:flex;align-items:center;gap:6px;}
+.pin-error.show{opacity:1;}
+.btn-signin{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),var(--teal));color:#001a0d;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-signin:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,214,143,0.35);}
+.btn-signin:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.login-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:20px;width:100%;}
+.theme-toggle-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;color:var(--text3);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+.theme-toggle-btn:hover{border-color:var(--border2);color:var(--text2);}
+.setup-link{font-size:12px;color:var(--green);cursor:pointer;font-weight:600;}
+.powered-by{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text3);white-space:nowrap;}
+@media(max-width:900px){body{grid-template-columns:1fr;}.login-hero{display:none;}.login-panel{min-height:100vh;border-left:none;}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-.shake { animation:shake .4s ease; }
+.shake{animation:shake .4s ease;}
 </style>
 </head>
 <body>
 
-<!-- LEFT: HERO -->
+<!-- LEFT HERO -->
 <div class="login-hero">
-  <img
-    src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&auto=format&fit=crop&q=80"
-    alt="Pharmacy"
-    onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?w=1200&auto=format&fit=crop&q=80'"
-  >
+  <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&auto=format&fit=crop&q=80" alt="Pharmacy"
+    onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?w=1200&auto=format&fit=crop&q=80'">
   <div class="hero-overlay">
     <div class="hero-badge">🏥 Healthcare Management System</div>
     <div class="hero-title">Smart Pharmacy<br>Management for<br><span>Ruhena Healthcare</span></div>
-    <div class="hero-desc">Complete pharmacy operations — inventory, sales, debts, B2B wholesale, and analytics in one powerful platform.</div>
+    <div class="hero-desc">Complete pharmacy operations — inventory, sales, debts, B2B wholesale, and real-time analytics.</div>
     <div class="feature-pills">
       <div class="feature-pill">💊 Inventory Control</div>
       <div class="feature-pill">💰 Sales Tracking</div>
@@ -180,77 +85,57 @@ body {
       <div class="feature-pill">🏢 B2B Wholesale</div>
     </div>
     <div class="hero-stats">
-      <div>
-        <div class="hero-stat-val">452+</div>
-        <div class="hero-stat-lbl">Medicines Stocked</div>
-      </div>
-      <div>
-        <div class="hero-stat-val">Real-time</div>
-        <div class="hero-stat-lbl">Stock Tracking</div>
-      </div>
-      <div>
-        <div class="hero-stat-val">3 Roles</div>
-        <div class="hero-stat-lbl">Access Control</div>
-      </div>
+      <div><div class="hero-stat-val">452+</div><div class="hero-stat-lbl">Medicines</div></div>
+      <div><div class="hero-stat-val">Real-time</div><div class="hero-stat-lbl">Stock Tracking</div></div>
+      <div><div class="hero-stat-val">Multi-user</div><div class="hero-stat-lbl">Role Access</div></div>
     </div>
   </div>
 </div>
 
-<!-- RIGHT: LOGIN FORM -->
+<!-- RIGHT LOGIN PANEL -->
 <div class="login-panel">
   <div class="login-logo">
     <div class="login-logo-icon">💊</div>
     <div class="login-logo-text">Ruhena <span>Healthcare</span></div>
   </div>
-  <div class="login-sub">Limited · Pharmacy Management</div>
+  <div class="login-sub">Limited · Pharmacy Management System</div>
 
-  <div class="login-form-title">Select your role and enter your PIN</div>
+  <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:16px;text-align:center;width:100%;">Select your account</div>
 
-  <div class="role-grid">
-    <div class="role-btn selected" data-role="salesperson" onclick="selectRole(this)">
-      <span class="role-icon">👩‍⚕️</span>
-      <div class="role-name">Ruhena</div>
-      <div class="role-title">Salesperson</div>
-    </div>
-    <div class="role-btn" data-role="owner1" onclick="selectRole(this)">
-      <span class="role-icon">👨‍💼</span>
-      <div class="role-name">Abuu</div>
-      <div class="role-title">Owner A</div>
-    </div>
-    <div class="role-btn" data-role="owner2" onclick="selectRole(this)">
-      <span class="role-icon">👩‍💼</span>
-      <div class="role-name">Bushro</div>
-      <div class="role-title">Owner B</div>
+  <!-- USER CARDS — loaded from Supabase -->
+  <div class="users-grid" id="users-grid">
+    <div class="users-loading">
+      <div style="width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;"></div>
+      Loading users...
     </div>
   </div>
 
   <div class="pin-wrap">
     <span class="pin-icon">🔐</span>
     <input class="pin-input" type="password" id="pin-input"
-      placeholder="Enter your PIN"
-      maxlength="11"
+      placeholder="Enter your PIN" maxlength="20"
       onkeydown="if(event.key==='Enter') doLogin()">
   </div>
   <div class="pin-error" id="pin-error">❌ Incorrect PIN. Please try again.</div>
 
-  <button class="btn-signin" onclick="doLogin()">Sign In →</button>
+  <button class="btn-signin" id="signin-btn" onclick="doLogin()" disabled>Sign In →</button>
 
   <div class="login-bottom">
-    <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-toggle-btn">🌙 Dark Mode</button>
-    <span class="login-hint">Ruhena · Abuu · Bushro</span>
+    <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-btn">🌙 Dark Mode</button>
+    <a href="users.html" class="setup-link">⚙️ Manage Users</a>
   </div>
 
-  <div class="powered-by">Powered by Supabase + Vercel · © 2026 Ruhena Healthcare Limited</div>
+  <div class="powered-by">Supabase + Vercel · © 2026 Ruhena Healthcare Limited</div>
 </div>
 
 <script src="shared.js"></script>
 <script>
-// Apply saved theme
+// Apply theme immediately
 (function(){
   const saved = localStorage.getItem('rhl_theme');
-  if(saved === 'light') {
+  if(saved === 'light'){
     document.body.classList.add('light-mode');
-    const btn = document.getElementById('theme-toggle-btn');
+    const btn = document.getElementById('theme-btn');
     if(btn) btn.textContent = '☀️ Light Mode';
   }
 })();
@@ -258,45 +143,87 @@ body {
 // Redirect if already logged in
 if(getSession()) window.location.href = 'dashboard.html';
 
-let selectedRole = 'salesperson';
+let selectedUser = null;
+let allUsers = [];
 
-function selectRole(el) {
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+const roleIcons = { salesperson: '👩‍⚕️', owner: '👨‍💼' };
+const roleLabels = { salesperson: 'Salesperson', owner: 'Owner' };
+
+async function loadUsers() {
+  const grid = document.getElementById('users-grid');
+  try {
+    allUsers = await sbFetch('users?active=eq.true&order=name.asc&limit=20');
+    if (!allUsers.length) {
+      grid.innerHTML = `<div class="no-users">
+        No users found.<br>
+        <a href="users.html">Click here to set up your first user →</a>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = allUsers.map(u => `
+      <div class="user-card" data-id="${u.id}" onclick="selectUser(this, '${u.id}')">
+        <span class="user-icon">${roleIcons[u.role] || '👤'}</span>
+        <div class="user-name">${u.name}</div>
+        <div class="user-role-lbl">${roleLabels[u.role] || u.role}</div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = `<div class="no-users" style="color:var(--red);">
+      ⚠️ Could not connect to database.<br>
+      <span style="font-size:11px;color:var(--text3);">Check your internet connection and refresh.</span>
+    </div>`;
+  }
+}
+
+function selectUser(el, userId) {
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
-  selectedRole = el.dataset.role;
-  // clear error
-  document.getElementById('pin-error').classList.remove('show');
+  selectedUser = allUsers.find(u => u.id === userId);
   document.getElementById('pin-input').focus();
+  document.getElementById('signin-btn').disabled = false;
+  document.getElementById('pin-error').classList.remove('show');
 }
 
 function toggleLoginTheme() {
   const isLight = document.body.classList.toggle('light-mode');
-  const btn = document.getElementById('theme-toggle-btn');
-  btn.textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
+  document.getElementById('theme-btn').textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
   localStorage.setItem('rhl_theme', isLight ? 'light' : 'dark');
 }
 
-function doLogin() {
+async function doLogin() {
+  const btn = document.getElementById('signin-btn');
+  if (!selectedUser) { toast('Please select your account first', 'warning'); return; }
   const pin = document.getElementById('pin-input').value;
-  const err = document.getElementById('pin-error');
-  const inp = document.getElementById('pin-input');
+  if (!pin) { document.getElementById('pin-input').focus(); return; }
 
-  if(PINS[selectedRole] === pin) {
-    err.classList.remove('show');
-    const names = { salesperson:'Ruhena', owner1:'Abuu', owner2:'Bushro' };
-    setSession(selectedRole, names[selectedRole]);
-    // Animate out
-    document.querySelector('.login-panel').style.opacity = '0';
-    document.querySelector('.login-panel').style.transition = 'opacity .3s';
-    setTimeout(() => window.location.href = 'dashboard.html', 300);
-  } else {
-    err.classList.add('show');
-    inp.classList.add('shake');
-    inp.value = '';
-    setTimeout(() => inp.classList.remove('shake'), 400);
-    inp.focus();
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+
+  try {
+    const user = await loginWithPin(selectedUser.username, pin);
+    if (user) {
+      setSession(user);
+      document.querySelector('.login-panel').style.opacity = '0';
+      document.querySelector('.login-panel').style.transition = 'opacity .3s';
+      setTimeout(() => window.location.href = 'dashboard.html', 300);
+    } else {
+      const err = document.getElementById('pin-error');
+      err.classList.add('show');
+      const inp = document.getElementById('pin-input');
+      inp.classList.add('shake');
+      inp.value = '';
+      setTimeout(() => inp.classList.remove('shake'), 400);
+      inp.focus();
+      btn.disabled = false;
+      btn.textContent = 'Sign In →';
+    }
+  } catch(e) {
+    toast('Connection error. Please try again.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Sign In →';
   }
 }
+
+loadUsers();
 </script>
 </body>
 </html>
