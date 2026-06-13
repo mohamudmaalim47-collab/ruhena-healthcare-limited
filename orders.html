@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders & Suppliers — Ruhena Healthcare</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><div class="brand">Ruhena <span>Healthcare</span></div><div class="role-badge" id="role-badge"></div></div>
+  <div class="topbar-right"><span class="topbar-date" id="topbar-date"></span><button class="theme-btn" onclick="toggleTheme()">🌙</button><button class="btn-logout" onclick="logout()">Sign Out</button></div>
+</div>
+<div class="nav-tabs" id="nav-tabs"></div>
+
+<div class="content">
+  <div class="filter-tabs" style="margin-bottom:20px;">
+    <button class="filter-tab active" id="tab-orders" onclick="switchTab('orders')">📦 Stock Orders</button>
+    <button class="filter-tab" id="tab-suppliers" onclick="switchTab('suppliers')">🏭 Suppliers</button>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div id="section-orders">
+    <div class="page-header">
+      <div class="page-title">Stock Orders Received</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <input type="date" class="date-filter" id="orders-date-filter" oninput="renderOrders()">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('orders-date-filter').value='';renderOrders()">All</button>
+        <button class="btn btn-primary" id="btn-add-order" onclick="openOrderModal()">+ Record Batch Order</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Date</th><th>Supplier</th><th>Medicine</th><th>Qty</th><th>Buy Price</th><th>Sell Price</th><th>Total Cost</th><th>Profit</th><th>Invoice</th><th id="order-action-col"></th></tr></thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPPLIERS TAB -->
+  <div id="section-suppliers" style="display:none;">
+    <div class="page-header">
+      <div class="page-title">Suppliers Directory</div>
+      <button class="btn btn-primary" id="btn-add-supplier" onclick="openModal('modal-supplier')">+ Add Supplier</button>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Supplier Name</th><th>Phone</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Last Order</th><th></th></tr></thead>
+          <tbody id="suppliers-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><span>© 2026 Ruhena Healthcare Limited</span><span>v2.0</span></footer>
+
+<!-- BATCH ORDER MODAL -->
+<div class="modal-overlay" id="modal-order">
+  <div class="modal" style="width:820px;max-width:96vw;">
+    <div class="modal-title">Record Batch Stock Order</div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="or-date"></div>
+      <div class="form-group"><label class="form-label">Supplier *</label><select class="form-input" id="or-supplier"><option value="">Select supplier...</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Invoice / Reference</label><input class="form-input" id="or-invoice" placeholder="e.g. INV-2026-001"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px;">
+      <label class="form-label" style="margin:0;font-weight:600;color:var(--text);">Order Lines *</label>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addOrderRow()">+ Add Row</button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:2fr 70px 90px 90px 90px 90px 32px;padding:7px 10px;background:var(--surface3);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">
+        <span>Medicine</span><span>Qty</span><span>Buy Price</span><span>Sell Price</span><span>Total Cost</span><span>Profit</span><span></span>
+      </div>
+      <div id="order-rows"></div>
+    </div>
+    <div style="text-align:right;font-size:14px;margin-bottom:4px;">Grand Total Cost: <strong style="color:var(--green);">KSh <span id="order-grand-total">0</span></strong></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBatchOrder()">Save & Update Inventory</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SUPPLIER MODAL -->
+<div class="modal-overlay" id="modal-supplier">
+  <div class="modal" style="width:440px;">
+    <div class="modal-title">Add Supplier</div>
+    <div class="form-group"><label class="form-label">Supplier Name *</label><input class="form-input" id="sp-name" placeholder="e.g. Nairobi Pharma Ltd"></div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="sp-phone" placeholder="07xx xxx xxx"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="sp-email" placeholder="orders@supplier.com"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-supplier')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Save Supplier</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+requireAuth(); applyTheme(); buildNav('orders');
+let orders = [], suppliers = [], inventory = [], orderRowCount = 0;
+let currentTab = 'orders';
+
+async function init() {
+  [orders, suppliers, inventory] = await Promise.all([
+    sbFetch('orders?order=date.desc&limit=2000'),
+    sbFetch('suppliers?limit=500'),
+    sbFetch('inventory?order=name.asc&limit=2000')
+  ]);
+  populateSupplierSelect();
+  renderOrders();
+  if (isOwner()) {
+    document.getElementById('btn-add-order').style.display = 'none';
+    document.getElementById('btn-add-supplier').style.display = 'none';
+  }
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('section-orders').style.display = tab === 'orders' ? '' : 'none';
+  document.getElementById('section-suppliers').style.display = tab === 'suppliers' ? '' : 'none';
+  document.getElementById('tab-orders').classList.toggle('active', tab === 'orders');
+  document.getElementById('tab-suppliers').classList.toggle('active', tab === 'suppliers');
+  if (tab === 'suppliers') renderSuppliers();
+}
+
+function populateSupplierSelect() {
+  const sel = document.getElementById('or-supplier');
+  sel.innerHTML = '<option value="">Select supplier...</option>' + suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function renderOrders() {
+  const df = document.getElementById('orders-date-filter').value;
+  let data = [...orders];
+  if (df) data = data.filter(o => o.date === df);
+  const body = document.getElementById('orders-body');
+  if (!data.length) { body.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">📦</div><p>No orders recorded</p></div></td></tr>'; return; }
+  body.innerHTML = data.map((o, i) => `<tr>
+    <td class="num-col">${i + 1}</td>
+    <td style="font-size:12px">${fmtDate(o.date)}</td>
+    <td>${o.supplier_name || '—'}</td>
+    <td><strong>${o.medicine}</strong></td>
+    <td>${o.qty}</td>
+    <td>${fmtKSh(o.buy)}</td>
+    <td>${fmtKSh(o.sell)}</td>
+    <td><strong>${fmtKSh(o.total)}</strong></td>
+    <td class="${(o.profit || 0) >= 0 ? 'profit-pos' : 'profit-neg'}">${fmtKSh(o.profit)}</td>
+    <td style="font-size:12px;color:var(--text3)">${o.invoice_number || '—'}</td>
+    <td>${!isOwner() ? `<button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Del</button>` : ''}</td>
+  </tr>`).join('');
+}
+
+function renderSuppliers() {
+  const body = document.getElementById('suppliers-body');
+  if (!suppliers.length) { body.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🏭</div><p>No suppliers added</p></div></td></tr>'; return; }
+  body.innerHTML = suppliers.map((s, i) => {
+    const sOrders = orders.filter(o => o.supplier_id === s.id);
+    const total = sOrders.reduce((t, o) => t + o.total, 0);
+    const last = sOrders.sort((a, b) => b.date > a.date ? 1 : -1)[0]?.date;
+    return `<tr>
+      <td class="num-col">${i + 1}</td>
+      <td><strong>${s.name}</strong></td>
+      <td>${s.phone || '—'}</td>
+      <td style="font-size:12px">${s.email || '—'}</td>
+      <td><span class="badge bg-blue">${sOrders.length}</span></td>
+      <td>${fmtKSh(total)}</td>
+      <td style="font-size:12px">${last ? fmtDate(last) : '—'}</td>
+      <td>${!isOwner() ? `<button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">Del</button>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openOrderModal() {
+  if (isOwner()) { toast('Owners cannot add orders', 'error'); return; }
+  document.getElementById('or-date').value = todayStr();
+  document.getElementById('or-invoice').value = '';
+  document.getElementById('order-rows').innerHTML = '';
+  orderRowCount = 0;
+  addOrderRow();
+  openModal('modal-order');
+}
+
+function addOrderRow() {
+  orderRowCount++;
+  const id = orderRowCount;
+  const row = document.createElement('div');
+  row.id = 'orow-' + id;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 70px 90px 90px 90px 90px 32px;padding:6px 10px;border-top:1px solid var(--border);align-items:center;gap:4px;';
+  row.innerHTML = `
+    <input class="form-input" style="font-size:12px;padding:6px 8px;" placeholder="Medicine" list="med-list-order">
+    <input class="form-input" style="font-size:12px;padding:6px 8px;" type="number" min="0" placeholder="0" oninput="recalcOrder(${id})">
+    <input class="form-input" style="font-size:12px;padding:6px 8px;" type="number" min="0" placeholder="Buy" oninput="recalcOrder(${id})">
+    <input class="form-input" style="font-size:12px;padding:6px 8px;" type="number" min="0" placeholder="Sell" oninput="recalcOrder(${id})">
+    <span id="ototal-${id}" style="font-size:12px;font-weight:600;color:var(--amber);">0</span>
+    <span id="oprofit-${id}" style="font-size:12px;font-weight:600;color:var(--green);">0</span>
+    <button type="button" onclick="document.getElementById('orow-${id}').remove();recalcGrand()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;">×</button>`;
+  document.getElementById('order-rows').appendChild(row);
+}
+
+function recalcOrder(id) {
+  const row = document.getElementById('orow-' + id);
+  const inputs = row.querySelectorAll('input[type="number"]');
+  const qty = parseFloat(inputs[0]?.value) || 0;
+  const buy = parseFloat(inputs[1]?.value) || 0;
+  const sell = parseFloat(inputs[2]?.value) || 0;
+  document.getElementById('ototal-' + id).textContent = fmtKSh(qty * buy);
+  document.getElementById('oprofit-' + id).textContent = fmtKSh(qty * (sell - buy));
+  recalcGrand();
+}
+
+function recalcGrand() {
+  let grand = 0;
+  document.querySelectorAll('#order-rows > div').forEach(row => {
+    const inputs = row.querySelectorAll('input[type="number"]');
+    grand += (parseFloat(inputs[0]?.value) || 0) * (parseFloat(inputs[1]?.value) || 0);
+  });
+  document.getElementById('order-grand-total').textContent = grand.toLocaleString();
+}
+
+async function saveBatchOrder() {
+  const session = getSession();
+  const suppId = document.getElementById('or-supplier').value;
+  const date = document.getElementById('or-date').value;
+  if (!suppId || !date) { toast('Select supplier and date', 'error'); return; }
+  const rows = document.querySelectorAll('#order-rows > div');
+  const supplier = suppliers.find(s => s.id === suppId);
+  const ref = 'ORD-' + Date.now();
+  let saved = 0;
+  for (const row of rows) {
+    const inputs = row.querySelectorAll('input');
+    const med = inputs[0]?.value.trim();
+    const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0]?.value) || 0;
+    const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
+    const sell = parseFloat(row.querySelectorAll('input[type="number"]')[2]?.value) || 0;
+    if (!med || qty <= 0 || buy <= 0) continue;
+    const orderItem = { id: uid(), date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total: qty * buy, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: document.getElementById('or-invoice').value.trim(), added_by: session.name, added_at: new Date().toISOString() };
+    await sbInsert('orders', orderItem);
+    orders.unshift(orderItem);
+    const inv = inventory.find(i => i.name.toLowerCase() === med.toLowerCase());
+    if (inv) {
+      await sbUpdate('inventory', inv.id, { stock: inv.stock + qty, unit_cost: buy, price: sell || inv.price });
+      inv.stock += qty; inv.unit_cost = buy; if (sell) inv.price = sell;
+    } else {
+      const newItem = { id: uid(), name: med, category: 'Other', price: sell || buy, stock: qty, alert_at: 10, unit_cost: buy, created_at: new Date().toISOString() };
+      await sbInsert('inventory', newItem);
+      inventory.push(newItem);
+    }
+    saved++;
+  }
+  if (!saved) { toast('Add at least one complete order line', 'error'); return; }
+  closeModal('modal-order');
+  renderOrders();
+  toast(`Batch saved — ${saved} medicines updated ✅`);
+}
+
+async function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  await sbDelete('orders', id);
+  orders = orders.filter(o => o.id !== id);
+  renderOrders();
+  toast('Deleted');
+}
+
+async function saveSupplier() {
+  if (isOwner()) { toast('Owners cannot add suppliers', 'error'); return; }
+  const name = document.getElementById('sp-name').value.trim();
+  if (!name) { toast('Name required', 'error'); return; }
+  const sup = { id: uid(), name, phone: document.getElementById('sp-phone').value.trim(), email: document.getElementById('sp-email').value.trim() };
+  await sbInsert('suppliers', sup);
+  suppliers.push(sup);
+  populateSupplierSelect();
+  ['sp-name','sp-phone','sp-email'].forEach(id => document.getElementById(id).value = '');
+  closeModal('modal-supplier');
+  renderSuppliers();
+  toast('Supplier added ✅');
+}
+
+async function deleteSupplier(id) {
+  if (!confirm('Delete supplier?')) return;
+  await sbDelete('suppliers', id);
+  suppliers = suppliers.filter(s => s.id !== id);
+  populateSupplierSelect();
+  renderSuppliers();
+  toast('Deleted');
+}
+
+// Med datalist for order rows
+document.addEventListener('DOMContentLoaded', () => {
+  const dl = document.createElement('datalist');
+  dl.id = 'med-list-order';
+  document.body.appendChild(dl);
+});
+
+init().then(() => {
+  const dl = document.getElementById('med-list-order');
+  if (dl) dl.innerHTML = inventory.map(i => `<option value="${i.name}">`).join('');
+});
+</script>
+</body>
+</html>

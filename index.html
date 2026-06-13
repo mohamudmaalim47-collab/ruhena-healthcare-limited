@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ruhena Healthcare Limited | Pharmacy Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0f1117;--surface:#181c27;--surface2:#1e2333;--surface3:#252a3a;
+  --border:#2a3048;--border2:#333c58;
+  --text:#eef0f6;--text2:#8b91a8;--text3:#565d7a;
+  --green:#22c55e;--green-dim:#16a34a;--green-bg:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-dim:#dc2626;--red-bg:rgba(239,68,68,0.1);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.1);
+  --teal:#14b8a6;--teal-bg:rgba(20,184,166,0.1);
+  --orange:#f97316;--orange-bg:rgba(249,115,22,0.1);
+  --r:10px;--r-sm:7px;
+}
+body.light-mode{
+  --bg:#f4f6fb;--surface:#ffffff;--surface2:#eef1f8;--surface3:#e4e8f4;
+  --border:#d5daea;--border2:#c2cade;
+  --text:#1a1d2e;--text2:#4a5068;--text3:#8b91a8;
+  --green:#16a34a;--green-dim:#15803d;--green-bg:rgba(22,163,74,0.08);
+  --red:#dc2626;--red-dim:#b91c1c;--red-bg:rgba(220,38,38,0.08);
+  --amber:#b45309;--amber-bg:rgba(180,83,9,0.08);
+  --blue:#1d4ed8;--blue-bg:rgba(29,78,216,0.08);
+  --purple:#7c3aed;--purple-bg:rgba(124,58,237,0.08);
+  --teal:#0f766e;--teal-bg:rgba(15,118,110,0.08);
+  --orange:#c2410c;--orange-bg:rgba(194,65,12,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);position:fixed;inset:0;z-index:999;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:420px;max-width:95vw;text-align:center;}
+.login-logo{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px;}
+.login-roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+.role-btn{padding:12px 6px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:12px;font-family:'Outfit',sans-serif;transition:all .15s;text-align:center;}
+.role-btn.sel-salesperson{border-color:var(--green);background:var(--green-bg);color:var(--green);}
+.role-btn.sel-owner1{border-color:var(--blue);background:var(--blue-bg);color:var(--blue);}
+.role-btn.sel-owner2{border-color:var(--purple);background:var(--purple-bg);color:var(--purple);}
+.role-icon{font-size:20px;display:block;margin-bottom:4px;}
+.login-label{font-size:12px;color:var(--text2);text-align:left;display:block;margin-bottom:5px;font-weight:500;}
+.login-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;margin-bottom:12px;transition:border .15s;}
+.login-input:focus{border-color:var(--green);}
+.btn-login{width:100%;padding:12px;background:var(--green);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:var(--r-sm);cursor:pointer;transition:background .15s;}
+.btn-login:hover{background:var(--green-dim);}
+#login-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
+
+/* APP SHELL */
+#app{display:none;min-height:100vh;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.brand{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
+.brand span{color:var(--green);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.role-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.rb-s{background:var(--green-bg);color:var(--green);}
+.rb-o1{background:var(--blue-bg);color:var(--blue);}
+.rb-o2{background:var(--purple-bg);color:var(--purple);}
+.topbar-date{font-size:11px;color:var(--text3);}
+.btn-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;}
+.btn-icon:hover{background:var(--surface3);color:var(--text);}
+.btn-logout{font-size:12px;padding:5px 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;}
+.btn-logout:hover{background:var(--surface2);}
+
+/* NAV */
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:10px 16px;font-size:12.5px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;font-weight:500;}
+.nav-tab:hover{color:var(--text2);}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+/* CONTENT */
+.content{padding:20px;max-width:1440px;margin:0 auto;width:100%;flex:1;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card+.card{margin-top:16px;}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px;color:var(--text);}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:16px;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;gap:12px;margin-bottom:18px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.sc-green::before{background:var(--green);}
+.sc-red::before{background:var(--red);}
+.sc-amber::before{background:var(--amber);}
+.sc-blue::before{background:var(--blue);}
+.sc-purple::before{background:var(--purple);}
+.sc-teal::before{background:var(--teal);}
+.sc-orange::before{background:var(--orange);}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:5px;}
+.stat-val{font-family:'Playfair Display',serif;font-size:24px;line-height:1;color:var(--text);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.stat-icon{position:absolute;right:14px;top:14px;font-size:22px;opacity:.3;}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:9px 12px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:9px 12px;color:var(--text);vertical-align:middle;}
+.nc{font-size:11px;color:var(--text3);font-weight:600;width:36px;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.bg-green{background:var(--green-bg);color:var(--green);}
+.bg-red{background:var(--red-bg);color:var(--red);}
+.bg-amber{background:var(--amber-bg);color:var(--amber);}
+.bg-blue{background:var(--blue-bg);color:var(--blue);}
+.bg-purple{background:var(--purple-bg);color:var(--purple);}
+.bg-teal{background:var(--teal-bg);color:var(--teal);}
+.bg-orange{background:var(--orange-bg);color:var(--orange);}
+.bg-gray{background:var(--surface3);color:var(--text2);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:500;transition:all .15s;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green-dim);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text);}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.btn-danger:hover{background:rgba(239,68,68,.2);}
+.btn-sm{padding:4px 10px;font-size:11.5px;}
+
+/* FORMS */
+.form-group{margin-bottom:12px;}
+.form-label{font-size:11.5px;font-weight:500;color:var(--text2);margin-bottom:4px;display:block;}
+.form-input{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);background:var(--surface2);outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:var(--green);}
+select.form-input{cursor:pointer;}
+.form-row{display:grid;gap:10px;}
+.fr2{grid-template-columns:1fr 1fr;}
+.fr3{grid-template-columns:1fr 1fr 1fr;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,7,15,.8);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:600px;max-width:100%;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:18px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+
+/* SEARCH */
+.search-box{position:relative;}
+.search-box svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+.search-input{padding:7px 11px 7px 30px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Outfit',sans-serif;font-size:12.5px;color:var(--text);background:var(--surface2);outline:none;width:200px;}
+.search-input:focus{border-color:var(--green);}
+
+/* PAYMENT BADGES */
+.pm-M{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3);}
+.pm-C{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);}
+.pm-D{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.pm-A{background:rgba(167,139,250,.15);color:#c4b5fd;border:1px solid rgba(167,139,250,.3);}
+
+/* DATE FILTER */
+.date-input{padding:7px 10px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-family:'Outfit',sans-serif;font-size:12.5px;outline:none;}
+.date-input:focus{border-color:var(--green);}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:4px;flex-wrap:wrap;}
+.ftab{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s;}
+.ftab.active{background:var(--green-bg);color:var(--green);border-color:rgba(34,197,94,.3);}
+
+/* REPORT SUBTABS */
+.report-tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto;}
+.rtab{padding:8px 14px;font-size:12.5px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500;}
+.rtab.active{color:var(--green);border-bottom-color:var(--green);}
+.rpanel{display:none;}
+.rpanel.active{display:block;}
+
+/* TOAST */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:slideIn .2s ease;max-width:320px;}
+.toast-success{background:#166534;color:#bbf7d0;border:1px solid #15803d;}
+.toast-error{background:#7f1d1d;color:#fecaca;border:1px solid #dc2626;}
+.toast-warn{background:#78350f;color:#fde68a;border:1px solid #d97706;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:rgba(15,17,23,.8);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-msg{color:var(--text2);font-size:13px;}
+
+/* MISC */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+.empty-icon{font-size:28px;margin-bottom:8px;opacity:.4;}
+.profit-pos{color:var(--green);font-weight:600;}
+.profit-neg{color:var(--red);font-weight:600;}
+.owner-note{background:var(--blue-bg);border:1px solid rgba(59,130,246,.2);border-radius:var(--r-sm);padding:8px 14px;font-size:12.5px;color:var(--blue);margin-bottom:14px;}
+.info-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;}
+.info-row span{color:var(--text2);}
+.info-row strong{color:var(--text);}
+
+/* DAY GROUPS */
+.day-group{margin-bottom:14px;}
+.day-hdr{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--text2);display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+.day-hdr:hover{background:var(--surface3);}
+.day-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r-sm) var(--r-sm);}
+
+/* BATCH ROWS */
+.batch-row{display:grid;gap:6px;margin-bottom:6px;align-items:center;}
+.br5{grid-template-columns:2fr .7fr .8fr .8fr .9fr 28px;}
+.br4{grid-template-columns:2fr .7fr .8fr 28px;}
+.br-hdr{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);font-weight:600;padding:6px 0;}
+
+footer{background:var(--surface);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--text3);}
+footer strong{color:var(--text2);}
+
+@media(max-width:768px){
+  .fr2,.fr3{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr!important;}
+  .content{padding:12px;}
+  .modal{padding:16px;}
+  .br5{grid-template-columns:1fr 1fr 28px;}
+  .topbar-date{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader"><div class="spin"></div><div id="loader-msg">Loading...</div></div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-size:28px;margin-bottom:8px;">💊</div>
+    <div class="login-logo">Ruhena Healthcare</div>
+    <div class="login-sub">Limited · Pharmacy Management System</div>
+    <div class="login-roles">
+      <div class="role-btn sel-salesperson" data-role="salesperson" onclick="selectRole(this)">
+        <span class="role-icon">💊</span>Ruhena<br><small style="color:inherit;font-size:10px">Salesperson</small>
+      </div>
+      <div class="role-btn" data-role="owner1" onclick="selectRole(this)">
+        <span class="role-icon">👤</span>Abuu<br><small style="color:inherit;font-size:10px">Owner A</small>
+      </div>
+      <div class="role-btn" data-role="owner2" onclick="selectRole(this)">
+        <span class="role-icon">👤</span>Bushro<br><small style="color:inherit;font-size:10px">Owner B</small>
+      </div>
+    </div>
+    <label class="login-label">PIN</label>
+    <input class="login-input" type="password" id="login-pin" placeholder="Enter your PIN" maxlength="11" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="login-err">❌ Incorrect PIN. Please try again.</div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div style="display:flex;justify-content:center;margin-top:12px;">
+      <button onclick="toggleTheme()" id="login-theme-btn" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text3);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;">🌙 Dark Mode</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:10px;">© 2026 Ruhena Healthcare Limited · All rights reserved</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="brand">Ruhena <span>Healthcare</span></div>
+      <div class="role-badge rb-s" id="role-badge"></div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbar-date"></div>
+      <button class="btn-icon" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" data-page="dashboard" onclick="showPage('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" data-page="sales" onclick="showPage('sales')">💰 Daily Sales</div>
+    <div class="nav-tab" data-page="debt" onclick="showPage('debt')">💳 Debts</div>
+    <div class="nav-tab" data-page="inventory" onclick="showPage('inventory')">📦 Inventory</div>
+    <div class="nav-tab" data-page="orders" onclick="showPage('orders')">🚚 Orders</div>
+    <div class="nav-tab" data-page="b2b" onclick="showPage('b2b')">🏢 B2B</div>
+    <div class="nav-tab" data-page="expenses" onclick="showPage('expenses')">💸 Expenses</div>
+    <div class="nav-tab" data-page="reports" onclick="showPage('reports')">📈 Reports</div>
+  </div>
+
+  <div class="content">
+
+    <!-- PAGE: DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div id="owner-note" class="owner-note" style="display:none">👁️ View-only mode. Data entry is restricted to the salesperson.</div>
+      <div class="stats-grid" style="grid-template-columns:repeat(6,1fr)" id="dash-kpis"></div>
+      <div id="dash-alerts" style="margin-bottom:16px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="card"><div class="card-title">Revenue vs Profit (Last 30 Days)</div><canvas id="chart-revenue" height="200"></canvas></div>
+        <div class="card"><div class="card-title">Sales Volume This Month</div><canvas id="chart-volume" height="200"></canvas></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card"><div class="card-title">Today's Sales</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Medicine</th><th>Qty</th><th>Total</th><th>Payment</th></tr></thead><tbody id="dash-today"></tbody></table></div></div>
+        <div class="card"><div class="card-title">Outstanding Debts</div><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Balance</th><th>Date</th></tr></thead><tbody id="dash-debts"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- PAGE: DAILY SALES -->
+    <div class="page" id="page-sales">
+      <div class="sec-hdr">
+        <div class="sec-title">Daily Sales</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="date" class="date-input" id="sales-date-filter" oninput="renderSales()">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sales-date-filter').value='';renderSales()">All</button>
+          <select class="form-input" id="sales-pm-filter" style="width:auto;font-size:12.5px;padding:7px 10px;" onchange="renderSales()">
+            <option value="">All Payments</option>
+            <option value="M">M-Pesa</option>
+            <option value="C">Cash</option>
+            <option value="D">Debt</option>
+            <option value="A">Account</option>
+          </select>
+          <button class="btn btn-primary" id="btn-add-sale" onclick="openSaleModal()">+ Add Sale</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;" id="sales-summary-bar"></div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Date</th><th>Medicine</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Payment</th><th>Added By</th><th id="sales-act-col"></th></tr></thead>
+          <tbody id="sales-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: DEBTS -->
+    <div class="page" id="page-debt">
+      <div class="sec-hdr">
+        <div class="sec-title">Debt Register</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="search-box">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+            <input class="search-input" id="debt-search" placeholder="Search name/phone..." oninput="renderDebts()">
+          </div>
+          <select class="form-input" id="debt-status-filter" style="width:auto;font-size:12.5px;padding:7px 10px;" onchange="renderDebts()">
+            <option value="">All Status</option>
+            <option value="owing">Owing</option>
+            <option value="paid">Paid</option>
+          </select>
+          <button class="btn btn-primary" id="btn-add-debt" onclick="openDebtModal()">+ Add Debt</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Residence</th><th>Medicines</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Date</th><th id="debt-act-col"></th></tr></thead>
+          <tbody id="debt-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: INVENTORY -->
+    <div class="page" id="page-inventory">
+      <div class="sec-hdr">
+        <div class="sec-title">Medicine Inventory</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="search-box">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+            <input class="search-input" id="inv-search" placeholder="Search medicine..." oninput="renderInventory()">
+          </div>
+          <select class="form-input" id="inv-cat-filter" style="width:auto;font-size:12.5px;padding:7px 10px;" onchange="renderInventory()">
+            <option value="">All Categories</option>
+            <option>Antibiotic / Antifungal</option><option>Analgesic / Anti-inflammatory</option>
+            <option>Cardiovascular</option><option>Diabetes</option><option>Respiratory</option>
+            <option>GI / Gastroenterology</option><option>Vitamins / Supplements</option>
+            <option>ENT / Cold & Flu</option><option>Dermatology</option><option>Neurology / Psychiatry</option>
+            <option>Hormones / Gynaecology</option><option>Eye / ENT</option><option>Haematology / Oncology</option><option>Other</option>
+          </select>
+          <select class="form-input" id="inv-status-filter" style="width:auto;font-size:12.5px;padding:7px 10px;" onchange="renderInventory()">
+            <option value="">All Status</option>
+            <option value="ok">In Stock</option>
+            <option value="low">Low Stock</option>
+            <option value="out">Out of Stock</option>
+          </select>
+          <button class="btn btn-primary" id="btn-add-inv" onclick="openModal('modal-inv')">+ Add Medicine</button>
+        </div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px;" id="inv-stats"></div>
+      <div id="low-stock-banner" style="display:none;background:var(--amber-bg);border:1px solid rgba(245,158,11,.3);border-radius:var(--r-sm);padding:9px 14px;margin-bottom:12px;font-size:12.5px;color:var(--amber);"></div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Unit Price</th><th>Stock</th><th>Alert At</th><th>Status</th><th id="inv-act-col"></th></tr></thead>
+          <tbody id="inv-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="ftabs" style="margin-bottom:16px;" id="order-ftabs">
+        <button class="ftab active" onclick="switchOrderTab('orders',this)">📋 Stock Orders</button>
+        <button class="ftab" onclick="switchOrderTab('suppliers',this)">🏭 Suppliers</button>
+      </div>
+      <div id="tab-orders">
+        <div class="sec-hdr">
+          <div class="sec-title">Stock Orders Received</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="date" class="date-input" id="orders-from">
+            <input type="date" class="date-input" id="orders-to">
+            <button class="btn btn-ghost btn-sm" onclick="renderOrders()">Filter</button>
+            <button class="btn btn-primary" id="btn-add-order" onclick="openOrderModal()">+ Record Batch Order</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>#</th><th>Date</th><th>Supplier</th><th>Medicine</th><th>Qty</th><th>Buy Price</th><th>Sell Price</th><th>Total Cost</th><th>Profit</th><th>Invoice</th><th id="ord-act-col"></th></tr></thead>
+            <tbody id="orders-body"></tbody>
+          </table></div>
+        </div>
+      </div>
+      <div id="tab-suppliers" style="display:none;">
+        <div class="sec-hdr">
+          <div class="sec-title">Suppliers Directory</div>
+          <button class="btn btn-primary" id="btn-add-sup" onclick="openModal('modal-sup')">+ Add Supplier</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>#</th><th>Supplier Name</th><th>Phone</th><th>Email</th><th>Total Purchases</th><th>Orders</th><th>Last Order</th><th></th></tr></thead>
+            <tbody id="suppliers-body"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: B2B -->
+    <div class="page" id="page-b2b">
+      <div class="ftabs" style="margin-bottom:16px;">
+        <button class="ftab active" onclick="switchB2bTab('customers',this)">👥 Customers</button>
+        <button class="ftab" onclick="switchB2bTab('orders',this)">📄 Orders</button>
+        <button class="ftab" onclick="switchB2bTab('history',this)">📜 History</button>
+      </div>
+      <div id="b2b-tab-customers">
+        <div class="sec-hdr">
+          <div class="sec-title">B2B Customers</div>
+          <div style="display:flex;gap:8px;">
+            <div class="search-box">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+              <input class="search-input" id="b2b-cust-search" placeholder="Search business..." oninput="renderB2bCustomers()">
+            </div>
+            <button class="btn btn-primary" id="btn-add-b2b-cust" onclick="openModal('modal-b2b-cust')">+ Add Customer</button>
+          </div>
+        </div>
+        <div class="card"><div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Business Name</th><th>Contact Person</th><th>Phone</th><th>Email</th><th>Address</th><th>Outstanding</th><th>Total Purchased</th><th></th></tr></thead>
+          <tbody id="b2b-cust-body"></tbody>
+        </table></div></div>
+      </div>
+      <div id="b2b-tab-orders" style="display:none;">
+        <div class="sec-hdr">
+          <div class="sec-title">New B2B Order</div>
+          <button class="btn btn-primary" id="btn-add-b2b-order" onclick="openB2bOrderModal()">+ Create Order</button>
+        </div>
+        <div class="card"><p style="color:var(--text3);font-size:13px;">Click "+ Create Order" to create a new wholesale order for a customer.</p></div>
+      </div>
+      <div id="b2b-tab-history" style="display:none;">
+        <div class="sec-hdr"><div class="sec-title">Order History</div></div>
+        <div class="card">
+          <div class="form-group" style="max-width:300px;">
+            <label class="form-label">Select Customer</label>
+            <select class="form-input" id="b2b-history-select" onchange="loadB2bHistory()">
+              <option value="">Select customer...</option>
+            </select>
+          </div>
+          <div id="b2b-history-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: EXPENSES -->
+    <div class="page" id="page-expenses">
+      <div class="sec-hdr">
+        <div class="sec-title">Expenses</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="date" class="date-input" id="exp-from">
+          <input type="date" class="date-input" id="exp-to">
+          <select class="form-input" id="exp-cat-filter" style="width:auto;font-size:12.5px;padding:7px 10px;" onchange="renderExpenses()">
+            <option value="">All Categories</option>
+            <option>Rent</option><option>Salaries</option><option>Utilities</option>
+            <option>Transport</option><option>Repairs & Maintenance</option>
+            <option>Licenses & Permits</option><option>Marketing</option><option>Miscellaneous</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="renderExpenses()">Filter</button>
+          <button class="btn btn-primary" id="btn-add-exp" onclick="openModal('modal-exp')">+ Add Expense</button>
+        </div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px;" id="exp-stats"></div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Payment</th><th>Added By</th><th id="exp-act-col"></th></tr></thead>
+          <tbody id="exp-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="sec-hdr">
+        <div class="sec-title">Reports & Analytics</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="date" class="date-input" id="rep-from" placeholder="From">
+          <input type="date" class="date-input" id="rep-to" placeholder="To">
+          <button class="btn btn-primary btn-sm" onclick="refreshReports()">Apply</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('rep-from').value='';document.getElementById('rep-to').value='';refreshReports()">Clear</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportReportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Print</button>
+        </div>
+      </div>
+      <div class="report-tabs">
+        <div class="rtab active" data-rtab="sales" onclick="switchReport('sales')">Sales Report</div>
+        <div class="rtab" data-rtab="inventory" onclick="switchReport('inventory')">Inventory</div>
+        <div class="rtab" data-rtab="lowstock" onclick="switchReport('lowstock')">Low Stock</div>
+        <div class="rtab" data-rtab="expense" onclick="switchReport('expense')">Expenses</div>
+        <div class="rtab" data-rtab="supplier" onclick="switchReport('supplier')">Suppliers</div>
+        <div class="rtab" data-rtab="profit" onclick="switchReport('profit')">Profit & Margin</div>
+        <div class="rtab" data-rtab="summary" onclick="switchReport('summary')">Sales Summary</div>
+      </div>
+
+      <div class="rpanel active" id="rp-sales">
+        <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px;" id="rep-sales-kpis"></div>
+        <div class="card" style="margin-bottom:14px;"><canvas id="chart-rep-sales" height="120"></canvas></div>
+        <div class="card"><div class="tbl-wrap"><table id="rep-sales-tbl">
+          <thead><tr><th>Date</th><th>Medicine</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Cost</th><th>Profit</th><th>Payment</th><th>Added By</th></tr></thead>
+          <tbody></tbody>
+        </table></div></div>
+      </div>
+
+      <div class="rpanel" id="rp-inventory">
+        <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px;" id="rep-inv-kpis"></div>
+        <div class="card"><div class="tbl-wrap"><table id="rep-inv-tbl">
+          <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Stock</th><th>Unit Cost</th><th>Sell Price</th><th>Total Cost Value</th><th>Total Sale Value</th><th>Potential Profit</th><th>Margin %</th></tr></thead>
+          <tbody></tbody>
+        </table></div></div>
+      </div>
+
+      <div class="rpanel" id="rp-lowstock">
+        <div id="rp-ls-out" style="margin-bottom:20px;">
+          <div style="background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);padding:8px 14px;font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px;">🔴 Out of Stock</div>
+          <div class="card"><div class="tbl-wrap"><table id="rep-out-tbl">
+            <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Last Buying Price</th><th>Recommended Order Qty</th><th>Supplier</th></tr></thead>
+            <tbody></tbody>
+          </table></div></div>
+        </div>
+        <div id="rp-ls-low">
+          <div style="background:var(--amber-bg);border:1px solid rgba(245,158,11,.3);border-radius:var(--r-sm);padding:8px 14px;font-size:13px;font-weight:600;color:var(--amber);margin-bottom:8px;">⚠️ Low Stock</div>
+          <div class="card"><div class="tbl-wrap"><table id="rep-low-tbl">
+            <thead><tr><th>#</th><th>Medicine</th><th>Current Stock</th><th>Alert Level</th><th>Status</th><th>Last Buying Price</th><th>Recommended Order</th></tr></thead>
+            <tbody></tbody>
+          </table></div></div>
+        </div>
+      </div>
+
+      <div class="rpanel" id="rp-expense">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px;" id="rep-exp-kpis"></div>
+        <div class="card"><div class="tbl-wrap"><table id="rep-exp-tbl">
+          <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Payment</th><th>Added By</th></tr></thead>
+          <tbody></tbody>
+        </table></div></div>
+      </div>
+
+      <div class="rpanel" id="rp-supplier">
+        <div class="card" style="margin-bottom:14px;"><div class="tbl-wrap"><table id="rep-sup-tbl">
+          <thead><tr><th>#</th><th>Supplier</th><th>Total Purchases</th><th>Orders</th><th>Last Order</th><th>Avg Order</th></tr></thead>
+          <tbody></tbody>
+        </table></div></div>
+        <div class="card">
+          <div class="form-group" style="max-width:300px;">
+            <label class="form-label">Drill-down by Supplier</label>
+            <select class="form-input" id="rep-sup-select" onchange="renderSupplierDrill()"><option value="">Select supplier</option></select>
+          </div>
+          <div id="rep-sup-drill"></div>
+        </div>
+      </div>
+
+      <div class="rpanel" id="rp-profit">
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px;" id="rep-profit-kpis"></div>
+        <div class="card" style="margin-bottom:14px;"><canvas id="chart-profit-top" height="160"></canvas></div>
+        <div class="card"><div class="tbl-wrap"><table id="rep-profit-tbl">
+          <thead><tr><th>#</th><th>Medicine</th><th>Qty Sold</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin %</th></tr></thead>
+          <tbody></tbody>
+        </table></div></div>
+      </div>
+
+      <div class="rpanel" id="rp-summary">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+          <label class="form-label" style="margin:0;">Jump to date:</label>
+          <input type="date" class="date-input" id="summary-jump" oninput="jumpToDate(this.value)">
+        </div>
+        <div id="rep-summary-body"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <footer>
+    <div>© 2026 <strong>Ruhena Healthcare Limited</strong> · All rights reserved</div>
+    <div>Pharmacy Management System v2.0 · <strong>Powered by Ruhena Tech</strong></div>
+  </footer>
+</div><!-- /app -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- SALE MODAL -->
+<div class="modal-overlay" id="modal-sale">
+  <div class="modal">
+    <div class="modal-title">Record Sale</div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="sl-date"></div>
+      <div class="form-group"><label class="form-label">Medicine *</label><input class="form-input" id="sl-med" list="sl-med-list" placeholder="Type medicine name..." oninput="onSaleMedInput()" autocomplete="off"><datalist id="sl-med-list"></datalist></div>
+    </div>
+    <div id="sl-stock-panel" style="display:none;border-radius:var(--r-sm);padding:9px 12px;margin-bottom:10px;font-size:12.5px;border:1px solid var(--border);"></div>
+    <div class="form-row fr3">
+      <div class="form-group"><label class="form-label">Quantity *</label><input class="form-input" type="number" id="sl-qty" min="1" oninput="calcSaleTotal()"></div>
+      <div class="form-group"><label class="form-label">Unit Price (KSh) *</label><input class="form-input" type="number" id="sl-price" min="0" oninput="calcSaleTotal()"></div>
+      <div class="form-group"><label class="form-label">Total (KSh)</label><input class="form-input" id="sl-total" readonly style="background:var(--surface3)"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Method *</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;"><input type="radio" name="sl-pm" value="M" checked> <span class="badge pm-M">M-Pesa</span></label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;"><input type="radio" name="sl-pm" value="C"> <span class="badge pm-C">Cash</span></label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;"><input type="radio" name="sl-pm" value="D"> <span class="badge pm-D">Debt</span></label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;"><input type="radio" name="sl-pm" value="A"> <span class="badge pm-A">Account</span></label>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="sl-notes" placeholder="Optional remarks..."></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sale')">Cancel</button>
+      <button class="btn btn-primary" id="sl-save-btn" onclick="saveSale()">Save Sale</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEBT MODAL -->
+<div class="modal-overlay" id="modal-debt">
+  <div class="modal" style="width:680px;">
+    <div class="modal-title">Record Debt</div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Patient Name *</label><input class="form-input" id="db-name" placeholder="e.g. Hassan Ali"></div>
+      <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="db-phone" placeholder="e.g. 0712345678"></div>
+    </div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Residence / Estate *</label><input class="form-input" id="db-res" placeholder="e.g. Woodland Apartments"></div>
+      <div class="form-group"><label class="form-label">House / Unit No.</label><input class="form-input" id="db-house" placeholder="e.g. C3"></div>
+    </div>
+    <div class="form-group" style="max-width:200px;"><label class="form-label">Date *</label><input class="form-input" type="date" id="db-date"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 6px;">
+      <label class="form-label" style="margin:0;font-weight:600;color:var(--text);">Medicines *</label>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addDebtRow()">+ Add Row</button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;">
+      <div class="batch-row br5 br-hdr" style="padding:0 8px;"><span>Medicine</span><span>Qty</span><span>Price/Unit</span><span>Subtotal</span><span></span><span></span></div>
+      <div id="db-rows"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);">
+      <span style="font-size:13px;color:var(--text2)">Grand Total:</span>
+      <span id="db-grand" style="font-size:18px;font-weight:700;color:var(--green);">KSh 0</span>
+    </div>
+    <datalist id="db-med-list"></datalist>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-debt')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDebt()">Save Debt</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAY DEBT MODAL -->
+<div class="modal-overlay" id="modal-pay">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title">Record Payment</div>
+    <div id="pay-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:14px;font-size:13px;line-height:1.8;"></div>
+    <div class="form-group"><label class="form-label">Amount Paid (KSh) *</label><input class="form-input" type="number" id="pay-amt" placeholder="0" min="0"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pay')">Cancel</button>
+      <button class="btn btn-primary" onclick="recordPayment()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-inv">
+  <div class="modal" style="width:500px;">
+    <div class="modal-title" id="inv-modal-title">Add Medicine</div>
+    <input type="hidden" id="inv-edit-id">
+    <div class="form-group"><label class="form-label">Medicine Name *</label><input class="form-input" id="inv-name" placeholder="e.g. Amoxicillin 500mg"></div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-input" id="inv-cat">
+          <option>Antibiotic / Antifungal</option><option>Analgesic / Anti-inflammatory</option>
+          <option>Cardiovascular</option><option>Diabetes</option><option>Respiratory</option>
+          <option>GI / Gastroenterology</option><option>Vitamins / Supplements</option>
+          <option>ENT / Cold & Flu</option><option>Dermatology</option><option>Neurology / Psychiatry</option>
+          <option>Hormones / Gynaecology</option><option>Eye / ENT</option>
+          <option>Haematology / Oncology</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Unit Price (KSh) *</label><input class="form-input" type="number" id="inv-price" placeholder="0" min="0"></div>
+    </div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Opening Stock *</label><input class="form-input" type="number" id="inv-stock" placeholder="0" min="0"></div>
+      <div class="form-group"><label class="form-label">Alert At (Low Stock)</label><input class="form-input" type="number" id="inv-alert" value="10" min="1"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-inv')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInventory()">Save Medicine</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="modal-overlay" id="modal-restock">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title">Restock Medicine</div>
+    <div id="restock-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:14px;font-size:13px;line-height:1.8;"></div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Add Quantity *</label><input class="form-input" type="number" id="restock-qty" min="1" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Reason</label>
+        <select class="form-input" id="restock-reason">
+          <option>New Delivery</option><option>Return</option><option>Correction</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-restock')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmRestock()">Add Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLIER MODAL -->
+<div class="modal-overlay" id="modal-sup">
+  <div class="modal" style="width:460px;">
+    <div class="modal-title">Add Supplier</div>
+    <div class="form-group"><label class="form-label">Supplier Name *</label><input class="form-input" id="sup-name" placeholder="e.g. Nairobi Pharma Ltd"></div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="sup-phone" placeholder="07xx xxx xxx"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="sup-email" placeholder="orders@supplier.com"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sup')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Save Supplier</button>
+    </div>
+  </div>
+</div>
+
+<!-- BATCH ORDER MODAL -->
+<div class="modal-overlay" id="modal-order">
+  <div class="modal" style="width:820px;">
+    <div class="modal-title">Record Batch Stock Order</div>
+    <div class="form-row fr3">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="ord-date"></div>
+      <div class="form-group"><label class="form-label">Supplier *</label><select class="form-input" id="ord-sup"><option value="">Select supplier...</option></select></div>
+      <div class="form-group"><label class="form-label">Invoice / Reference</label><input class="form-input" id="ord-ref" placeholder="e.g. INV-2026-001"></div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:8px;">
+      <div class="batch-row br5 br-hdr" style="padding:0 8px;"><span>Medicine</span><span>Qty</span><span>Buy Price</span><span>Sell Price</span><span>Total Cost</span><span></span></div>
+      <div id="ord-rows"></div>
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="addOrderRow()" style="margin-bottom:10px;">+ Add Medicine</button>
+    <div style="text-align:right;font-size:13px;color:var(--text2);">Grand Total Cost: <strong style="color:var(--text);">KSh <span id="ord-grand">0</span></strong></div>
+    <datalist id="ord-med-list"></datalist>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBatchOrder()">Save & Update Inventory</button>
+    </div>
+  </div>
+</div>
+
+<!-- B2B CUSTOMER MODAL -->
+<div class="modal-overlay" id="modal-b2b-cust">
+  <div class="modal" style="width:520px;">
+    <div class="modal-title">Add B2B Customer</div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Business Name *</label><input class="form-input" id="b2b-biz" placeholder="e.g. City Pharmacy"></div>
+      <div class="form-group"><label class="form-label">Contact Person</label><input class="form-input" id="b2b-contact" placeholder="e.g. Dr. Hassan"></div>
+    </div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="b2b-phone" placeholder="07xx xxx xxx"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="b2b-email" placeholder="info@business.com"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Address</label><input class="form-input" id="b2b-addr" placeholder="Business address"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-b2b-cust')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveB2bCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- B2B ORDER MODAL -->
+<div class="modal-overlay" id="modal-b2b-order">
+  <div class="modal" style="width:820px;">
+    <div class="modal-title">Create B2B Order</div>
+    <div class="form-row fr3">
+      <div class="form-group"><label class="form-label">Customer *</label><select class="form-input" id="b2b-ord-cust" onchange="onB2bCustChange()"><option value="">Select customer...</option></select></div>
+      <div class="form-group"><label class="form-label">Invoice Number *</label><input class="form-input" id="b2b-ord-inv" placeholder="e.g. INV-001"></div>
+      <div class="form-group"><label class="form-label">Invoice Date *</label><input class="form-input" type="date" id="b2b-ord-date"></div>
+    </div>
+    <div id="b2b-balance-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:9px 12px;margin-bottom:10px;font-size:13px;"></div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:8px;">
+      <div class="batch-row br4 br-hdr" style="padding:0 8px;"><span>Medicine</span><span>Qty</span><span>Price/Unit</span><span></span></div>
+      <div id="b2b-ord-rows"></div>
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="addB2bOrderRow()" style="margin-bottom:10px;">+ Add Product</button>
+    <div style="text-align:right;font-size:13px;line-height:2;">
+      <div>Order Subtotal: <strong>KSh <span id="b2b-subtotal">0</span></strong></div>
+      <div id="b2b-prev-bal-row" style="display:none;">Previous Balance: <strong style="color:var(--red)">KSh <span id="b2b-prev-bal">0</span></strong></div>
+      <div>Grand Total: <strong style="color:var(--green);font-size:16px;">KSh <span id="b2b-grand">0</span></strong></div>
+    </div>
+    <datalist id="b2b-ord-med-list"></datalist>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-b2b-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveB2bOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- B2B PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-b2b-pay">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title">Record B2B Payment</div>
+    <div id="b2b-pay-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:14px;font-size:13px;line-height:1.8;"></div>
+    <div class="form-group"><label class="form-label">Amount Paid (KSh) *</label><input class="form-input" type="number" id="b2b-pay-amt" placeholder="0" min="0"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-b2b-pay')">Cancel</button>
+      <button class="btn btn-primary" onclick="recordB2bPayment()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="modal-exp">
+  <div class="modal" style="width:500px;">
+    <div class="modal-title">Add Expense</div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="exp-date"></div>
+      <div class="form-group"><label class="form-label">Category *</label>
+        <select class="form-input" id="exp-cat">
+          <option>Rent</option><option>Salaries</option><option>Utilities</option>
+          <option>Transport</option><option>Repairs & Maintenance</option>
+          <option>Licenses & Permits</option><option>Marketing</option><option>Miscellaneous</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="exp-desc" placeholder="e.g. Shop rent for June 2026"></div>
+    <div class="form-row fr2">
+      <div class="form-group"><label class="form-label">Amount (KSh) *</label><input class="form-input" type="number" id="exp-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label class="form-label">Payment Method</label>
+        <select class="form-input" id="exp-pm">
+          <option value="C">Cash</option><option value="M">M-Pesa</option><option value="B">Bank Transfer</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-exp')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Save Expense</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

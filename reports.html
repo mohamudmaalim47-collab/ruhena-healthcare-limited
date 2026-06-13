@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — Ruhena Healthcare</title>
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><div class="brand">Ruhena <span>Healthcare</span></div><div class="role-badge" id="role-badge"></div></div>
+  <div class="topbar-right"><span class="topbar-date" id="topbar-date"></span><button class="theme-btn" onclick="toggleTheme()">🌙</button><button class="btn-logout" onclick="logout()">Sign Out</button></div>
+</div>
+<div class="nav-tabs" id="nav-tabs"></div>
+
+<div class="content">
+  <div class="page-header">
+    <div class="page-title">📈 Reports & Analytics</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="date" class="date-filter" id="r-from" placeholder="From">
+      <input type="date" class="date-filter" id="r-to" placeholder="To">
+      <button class="btn btn-primary btn-sm" onclick="applyFilter()">Apply</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearFilter()">Clear</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">Print</button>
+    </div>
+  </div>
+
+  <!-- SUB TABS -->
+  <div class="filter-tabs" style="margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:8px;">
+    <button class="filter-tab active" data-tab="sales" onclick="switchTab('sales')">Sales Report</button>
+    <button class="filter-tab" data-tab="inventory" onclick="switchTab('inventory')">Inventory</button>
+    <button class="filter-tab" data-tab="lowstock" onclick="switchTab('lowstock')">Low Stock</button>
+    <button class="filter-tab" data-tab="expense" onclick="switchTab('expense')">Expenses</button>
+    <button class="filter-tab" data-tab="supplier" onclick="switchTab('supplier')">Suppliers</button>
+    <button class="filter-tab" data-tab="profit" onclick="switchTab('profit')">Profit & Margin</button>
+    <button class="filter-tab" data-tab="summary" onclick="switchTab('summary')">Sales Summary</button>
+  </div>
+
+  <!-- SALES REPORT -->
+  <div id="tab-sales">
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="sales-stats"></div>
+    <div class="card" style="margin-bottom:20px;"><div class="card-title">Revenue vs Profit Trend</div><canvas id="salesChart" height="120"></canvas></div>
+    <div class="card"><div class="tbl-wrap"><table id="sales-table"><thead><tr><th>Date</th><th>Medicine</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Cost</th><th>Profit</th><th>Payment</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+
+  <!-- INVENTORY REPORT -->
+  <div id="tab-inventory" style="display:none;">
+    <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;" id="inv-stats"></div>
+    <div class="card"><div class="tbl-wrap"><table id="inv-table"><thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Unit Cost</th><th>Sell Price</th><th>Cost Value</th><th>Sale Value</th><th>Potential Profit</th><th>Margin %</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+
+  <!-- LOW STOCK REPORT -->
+  <div id="tab-lowstock" style="display:none;">
+    <div style="margin-bottom:20px;">
+      <div style="background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);padding:12px 16px;margin-bottom:16px;">
+        <strong style="color:var(--red);">🔴 Out of Stock</strong>
+        <div class="tbl-wrap" style="margin-top:12px;"><table id="out-table"><thead><tr><th>Medicine</th><th>Category</th><th>Last Buy Price</th><th>Recommended Order</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div style="background:var(--amber-bg);border:1px solid rgba(245,158,11,.3);border-radius:var(--r-sm);padding:12px 16px;">
+        <strong style="color:var(--amber);">⚠️ Low Stock</strong>
+        <div class="tbl-wrap" style="margin-top:12px;"><table id="low-table"><thead><tr><th>Medicine</th><th>Current Stock</th><th>Alert Level</th><th>Last Buy Price</th><th>Recommended Order</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPENSE REPORT -->
+  <div id="tab-expense" style="display:none;">
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;" id="exp-stats"></div>
+    <div class="card"><div class="tbl-wrap"><table id="exp-table"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Payment</th><th>Added By</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+
+  <!-- SUPPLIER REPORT -->
+  <div id="tab-supplier" style="display:none;">
+    <div class="card"><div class="tbl-wrap"><table id="sup-table"><thead><tr><th>Supplier</th><th>Total Purchases</th><th>Orders</th><th>Last Order</th><th>Avg Order</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+
+  <!-- PROFIT & MARGIN -->
+  <div id="tab-profit" style="display:none;">
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="profit-stats"></div>
+    <div class="card"><div class="tbl-wrap"><table id="profit-table"><thead><tr><th>Medicine</th><th>Qty Sold</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin %</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+
+  <!-- SALES SUMMARY -->
+  <div id="tab-summary" style="display:none;">
+    <div class="page-header" style="margin-bottom:12px;">
+      <div></div>
+      <input type="date" class="date-filter" id="summary-jump" onchange="jumpToDay(this.value)" placeholder="Jump to date">
+    </div>
+    <div id="summary-days"></div>
+  </div>
+</div>
+
+<footer><span>© 2026 Ruhena Healthcare Limited</span><span>v2.0</span></footer>
+
+<script src="shared.js"></script>
+<script>
+requireAuth(); applyTheme(); buildNav('reports');
+let sales = [], orders = [], inventory = [], expenses = [], suppliers = [];
+let currentTab = 'sales';
+let salesChart = null;
+
+async function init() {
+  [sales, orders, inventory, expenses, suppliers] = await Promise.all([
+    sbFetch('sales?order=date.desc&limit=2000'),
+    sbFetch('orders?order=date.desc&limit=2000'),
+    sbFetch('inventory?order=name.asc&limit=2000'),
+    sbFetch('expenses?order=date.desc&limit=2000').catch(() => []),
+    sbFetch('suppliers?limit=500')
+  ]);
+  // check URL param for direct tab
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab) switchTab(tab); else renderTab('sales');
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.filter-tab[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  ['sales','inventory','lowstock','expense','supplier','profit','summary'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? '' : 'none';
+  });
+  renderTab(tab);
+}
+
+function getFilter() {
+  return { from: document.getElementById('r-from').value, to: document.getElementById('r-to').value };
+}
+function applyFilter() { renderTab(currentTab); }
+function clearFilter() {
+  document.getElementById('r-from').value = '';
+  document.getElementById('r-to').value = '';
+  renderTab(currentTab);
+}
+
+function filterByDate(items, field = 'date') {
+  const { from, to } = getFilter();
+  return items.filter(i => {
+    const d = i[field];
+    if (!d) return true;
+    if (from && d < from) return false;
+    if (to && d > to) return false;
+    return true;
+  });
+}
+
+function getBuyCost(medName) {
+  return orders.filter(o => o.medicine?.toLowerCase() === medName?.toLowerCase())
+    .sort((a, b) => b.added_at > a.added_at ? 1 : -1)[0]?.buy || 0;
+}
+
+function renderTab(tab) {
+  if (tab === 'sales') renderSales();
+  else if (tab === 'inventory') renderInventory();
+  else if (tab === 'lowstock') renderLowStock();
+  else if (tab === 'expense') renderExpense();
+  else if (tab === 'supplier') renderSupplier();
+  else if (tab === 'profit') renderProfit();
+  else if (tab === 'summary') renderSummary();
+}
+
+function renderSales() {
+  const data = filterByDate(sales);
+  const rev = data.reduce((s, x) => s + x.total, 0);
+  let cost = 0, profit = 0;
+  data.forEach(s => { const b = getBuyCost(s.medicine); cost += s.qty * b; profit += s.qty * (s.price - b); });
+  const margin = rev > 0 ? (profit / rev * 100) : 0;
+  document.getElementById('sales-stats').innerHTML = `
+    <div class="stat-card stat-green"><div class="stat-lbl">Total Revenue</div><div class="stat-val">${fmtKSh(rev)}</div><div class="stat-sub">${data.length} sales</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Total Cost</div><div class="stat-val">${fmtKSh(cost)}</div></div>
+    <div class="stat-card stat-blue"><div class="stat-lbl">Total Profit</div><div class="stat-val">${fmtKSh(profit)}</div></div>
+    <div class="stat-card stat-purple"><div class="stat-lbl">Margin</div><div class="stat-val">${margin.toFixed(1)}%</div></div>`;
+
+  // chart
+  const dayMap = {};
+  data.forEach(s => {
+    if (!dayMap[s.date]) dayMap[s.date] = { rev: 0, profit: 0 };
+    dayMap[s.date].rev += s.total;
+    dayMap[s.date].profit += s.qty * (s.price - getBuyCost(s.medicine));
+  });
+  const days = Object.keys(dayMap).sort();
+  if (salesChart) salesChart.destroy();
+  salesChart = new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: { labels: days.map(d => fmtDate(d)), datasets: [
+      { label: 'Revenue', data: days.map(d => dayMap[d].rev), borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)', fill: true, tension: 0.4, pointRadius: 2 },
+      { label: 'Profit', data: days.map(d => dayMap[d].profit), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.4, pointRadius: 2 }
+    ]},
+    options: { responsive: true, plugins: { legend: { labels: { color: '#8b91a8' } } }, scales: { x: { ticks: { color: '#565d7a', maxTicksLimit: 10 } }, y: { ticks: { color: '#565d7a' } } } }
+  });
+
+  document.querySelector('#sales-table tbody').innerHTML = data.map(s => {
+    const b = getBuyCost(s.medicine); const p = s.qty * (s.price - b);
+    return `<tr><td style="font-size:12px">${fmtDate(s.date)}</td><td><strong>${s.medicine}</strong></td><td>${s.qty}</td><td>${fmtKSh(s.price)}</td><td>${fmtKSh(s.total)}</td><td>${fmtKSh(b * s.qty)}</td><td class="${p >= 0 ? 'profit-pos' : 'profit-neg'}">${fmtKSh(p)}</td><td><span class="badge pm-${s.pm}">${s.pm}</span></td></tr>`;
+  }).join('') || '<tr><td colspan="8"><div class="empty">No data</div></td></tr>';
+}
+
+function renderInventory() {
+  let cv = 0, sv = 0;
+  const rows = inventory.map(i => {
+    const b = getBuyCost(i.name) || i.unit_cost || 0;
+    const costV = i.stock * b, saleV = i.stock * i.price, pot = saleV - costV;
+    const m = costV > 0 ? (pot / costV * 100) : 0;
+    cv += costV; sv += saleV;
+    return `<tr><td><strong>${i.name}</strong></td><td><span class="badge bg-gray">${i.category}</span></td><td>${i.stock}</td><td>${fmtKSh(b)}</td><td>${fmtKSh(i.price)}</td><td>${fmtKSh(costV)}</td><td>${fmtKSh(saleV)}</td><td class="profit-pos">${fmtKSh(pot)}</td><td>${m.toFixed(1)}%</td></tr>`;
+  });
+  document.getElementById('inv-stats').innerHTML = `
+    <div class="stat-card stat-blue"><div class="stat-lbl">Products</div><div class="stat-val">${inventory.length}</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Cost Value</div><div class="stat-val">${fmtKSh(cv)}</div></div>
+    <div class="stat-card stat-green"><div class="stat-lbl">Sale Value</div><div class="stat-val">${fmtKSh(sv)}</div></div>
+    <div class="stat-card stat-blue"><div class="stat-lbl">Potential Profit</div><div class="stat-val">${fmtKSh(sv - cv)}</div></div>
+    <div class="stat-card stat-purple"><div class="stat-lbl">Avg Margin</div><div class="stat-val">${cv > 0 ? ((sv - cv) / cv * 100).toFixed(1) : 0}%</div></div>`;
+  document.querySelector('#inv-table tbody').innerHTML = rows.join('') || '<tr><td colspan="9"><div class="empty">No data</div></td></tr>';
+}
+
+function renderLowStock() {
+  const out = inventory.filter(i => i.stock <= 0);
+  const low = inventory.filter(i => i.stock > 0 && i.stock <= i.alert_at);
+  document.querySelector('#out-table tbody').innerHTML = out.map(i => {
+    const b = getBuyCost(i.name) || i.unit_cost || 0;
+    return `<tr><td><strong>${i.name}</strong></td><td><span class="badge bg-gray">${i.category}</span></td><td>${fmtKSh(b)}</td><td>${i.alert_at * 3}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;padding:12px;color:var(--text3)">None</td></tr>';
+  document.querySelector('#low-table tbody').innerHTML = low.map(i => {
+    const b = getBuyCost(i.name) || i.unit_cost || 0;
+    const rec = Math.max(0, i.alert_at * 3 - i.stock);
+    return `<tr><td><strong>${i.name}</strong></td><td style="color:var(--amber)">${i.stock}</td><td>${i.alert_at}</td><td>${fmtKSh(b)}</td><td>${rec}</td></tr>`;
+  }).join('') || '<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--text3)">None</td></tr>';
+}
+
+function renderExpense() {
+  const data = filterByDate(expenses);
+  const total = data.reduce((s, e) => s + e.amount, 0);
+  const avg = data.length ? total / data.length : 0;
+  document.getElementById('exp-stats').innerHTML = `
+    <div class="stat-card stat-red"><div class="stat-lbl">Total</div><div class="stat-val">${fmtKSh(total)}</div><div class="stat-sub">${data.length} entries</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Average</div><div class="stat-val">${fmtKSh(avg)}</div></div>
+    <div class="stat-card stat-blue"><div class="stat-lbl">Entries</div><div class="stat-val">${data.length}</div></div>`;
+  document.querySelector('#exp-table tbody').innerHTML = data.map(e =>
+    `<tr><td style="font-size:12px">${fmtDate(e.date)}</td><td><span class="badge bg-blue">${e.category}</span></td><td>${e.description || '—'}</td><td class="profit-neg">${fmtKSh(e.amount)}</td><td>${e.pm || '—'}</td><td style="font-size:12px">${e.added_by || ''}</td></tr>`
+  ).join('') || '<tr><td colspan="6"><div class="empty">No data</div></td></tr>';
+}
+
+function renderSupplier() {
+  const data = suppliers.map(s => {
+    const sOrders = filterByDate(orders.filter(o => o.supplier_id === s.id));
+    const total = sOrders.reduce((t, o) => t + o.total, 0);
+    const last = sOrders.sort((a, b) => b.date > a.date ? 1 : -1)[0]?.date;
+    const avg = sOrders.length ? total / sOrders.length : 0;
+    return `<tr><td><strong>${s.name}</strong></td><td>${fmtKSh(total)}</td><td><span class="badge bg-blue">${sOrders.length}</span></td><td style="font-size:12px">${last ? fmtDate(last) : '—'}</td><td>${fmtKSh(avg)}</td></tr>`;
+  });
+  document.querySelector('#sup-table tbody').innerHTML = data.join('') || '<tr><td colspan="5"><div class="empty">No data</div></td></tr>';
+}
+
+function renderProfit() {
+  const data = filterByDate(sales);
+  const medMap = {};
+  data.forEach(s => {
+    const b = getBuyCost(s.medicine);
+    if (!medMap[s.medicine]) medMap[s.medicine] = { qty: 0, rev: 0, cost: 0, profit: 0 };
+    medMap[s.medicine].qty += s.qty;
+    medMap[s.medicine].rev += s.total;
+    medMap[s.medicine].cost += s.qty * b;
+    medMap[s.medicine].profit += s.qty * (s.price - b);
+  });
+  const rows = Object.entries(medMap).sort((a, b) => b[1].profit - a[1].profit);
+  const totRev = rows.reduce((s, [, v]) => s + v.rev, 0);
+  const totProfit = rows.reduce((s, [, v]) => s + v.profit, 0);
+  document.getElementById('profit-stats').innerHTML = `
+    <div class="stat-card stat-green"><div class="stat-lbl">Revenue</div><div class="stat-val">${fmtKSh(totRev)}</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Cost</div><div class="stat-val">${fmtKSh(rows.reduce((s,[,v])=>s+v.cost,0))}</div></div>
+    <div class="stat-card stat-blue"><div class="stat-lbl">Profit</div><div class="stat-val">${fmtKSh(totProfit)}</div></div>
+    <div class="stat-card stat-purple"><div class="stat-lbl">Margin</div><div class="stat-val">${totRev > 0 ? (totProfit/totRev*100).toFixed(1) : 0}%</div></div>`;
+  document.querySelector('#profit-table tbody').innerHTML = rows.map(([name, v]) =>
+    `<tr><td><strong>${name}</strong></td><td>${v.qty}</td><td>${fmtKSh(v.rev)}</td><td>${fmtKSh(v.cost)}</td><td class="${v.profit>=0?'profit-pos':'profit-neg'}">${fmtKSh(v.profit)}</td><td>${v.rev>0?(v.profit/v.rev*100).toFixed(1):'0'}%</td></tr>`
+  ).join('') || '<tr><td colspan="6"><div class="empty">No data</div></td></tr>';
+}
+
+function renderSummary() {
+  const data = filterByDate(sales);
+  const byDay = {};
+  data.forEach(s => { if (!byDay[s.date]) byDay[s.date] = []; byDay[s.date].push(s); });
+  const days = Object.keys(byDay).sort((a, b) => b > a ? 1 : -1);
+  const container = document.getElementById('summary-days');
+  if (!days.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No sales data</p></div>'; return; }
+  container.innerHTML = days.map(day => {
+    const rows = byDay[day];
+    const total = rows.reduce((s, x) => s + x.total, 0);
+    const id = 'day-' + day;
+    return `<div style="margin-bottom:14px;" id="wrap-${id}">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px;font-weight:600;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="toggleDay('${id}')">
+        <span>📅 ${fmtDate(day)}</span>
+        <span style="display:flex;gap:12px;align-items:center;"><span style="font-size:12px;color:var(--text2)">${rows.length} sales</span><span style="color:var(--green)">${fmtKSh(total)}</span><span id="arr-${id}">▼</span></span>
+      </div>
+      <div id="${id}" style="border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r-sm) var(--r-sm);">
+        <table style="width:100%"><thead><tr><th>#</th><th>Medicine</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Payment</th></tr></thead>
+        <tbody>${rows.map((s, i) => `<tr><td class="num-col">${i+1}</td><td><strong>${s.medicine}</strong></td><td>${s.qty}</td><td>${fmtKSh(s.price)}</td><td>${fmtKSh(s.total)}</td><td><span class="badge pm-${s.pm}">${s.pm}</span></td></tr>`).join('')}
+        <tr style="background:var(--surface2)"><td colspan="4" style="padding:10px 14px;font-weight:600;">Day Total</td><td colspan="2" style="color:var(--green);font-weight:700;padding:10px 14px;">${fmtKSh(total)}</td></tr>
+        </tbody></table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(id) {
+  const el = document.getElementById(id);
+  const arr = document.getElementById('arr-' + id);
+  const hidden = el.style.display === 'none';
+  el.style.display = hidden ? '' : 'none';
+  arr.textContent = hidden ? '▼' : '▶';
+}
+
+function jumpToDay(val) {
+  if (!val) return;
+  const el = document.getElementById('wrap-day-' + val);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else toast('No sales on ' + fmtDate(val), 'warning');
+}
+
+function exportCSV() {
+  const tables = { sales: '#sales-table', inventory: '#inv-table', expense: '#exp-table', supplier: '#sup-table', profit: '#profit-table' };
+  const sel = tables[currentTab];
+  if (!sel) { toast('Export not available for this tab', 'warning'); return; }
+  const rows = document.querySelectorAll(sel + ' tr');
+  const csv = Array.from(rows).map(r => Array.from(r.querySelectorAll('th,td')).map(c => '"' + c.innerText.replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `${currentTab}_report_${todayStr()}.csv`;
+  a.click();
+}
+
+init();
+</script>
+</body>
+</html>
