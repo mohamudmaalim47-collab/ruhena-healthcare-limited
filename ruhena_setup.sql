@@ -15,14 +15,14 @@ drop table if exists users cascade;
 
 -- ── USERS (Authentication) ─────────────────────────────────
 create table users (
-  id text primary key,
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   username text not null unique,
   pin text not null,
   role text not null default 'salesperson',
   -- role: 'salesperson' | 'owner'
   active boolean not null default true,
-  created_at text default '',
+  created_at timestamp with time zone default timezone('utc'::text, now()),
   created_by text default ''
 );
 
