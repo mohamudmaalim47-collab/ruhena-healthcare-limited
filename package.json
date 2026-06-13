@@ -1,0 +1,22 @@
+{
+  "name": "ruhena-healthcare-limited",
+  "version": "1.0.0",
+  "description": "Pharmacy Management System - Sales, Inventory, Debts, B2B & Reporting",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "build": "echo Static site - no build needed"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "pharmacy",
+    "inventory",
+    "sales",
+    "supabase",
+    "healthcare"
+  ],
+  "author": "mohamudmaalim47-collab",
+  "license": "MIT"
+}
