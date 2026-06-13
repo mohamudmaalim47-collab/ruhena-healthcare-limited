@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Time Setup — Ruhena Healthcare</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0a0d14;--surface:#111520;--surface2:#161c2d;--surface3:#1d2438;--border:#232d45;--text:#f0f2fa;--text2:#8892b0;--text3:#4a5478;--green:#00d68f;--green-bg:rgba(0,214,143,0.08);--red:#ff4757;--red-bg:rgba(255,71,87,0.08);--blue:#2979ff;--blue-bg:rgba(41,121,255,0.08);--teal:#00cec9;--r:12px;--r-sm:8px;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.wrap{width:100%;max-width:700px;}
+.header{text-align:center;margin-bottom:36px;}
+.logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:14px;}
+.logo-icon{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:24px;}
+.logo-text{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}
+.logo-text span{color:var(--green);}
+h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:8px;}
+.sub{font-size:14px;color:var(--text2);line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:20px;}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.av-s{background:var(--blue-bg);border:1px solid rgba(41,121,255,0.2);}
+.av-o{background:var(--green-bg);border:1px solid rgba(0,214,143,0.2);}
+.card-meta h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+.card-meta p{font-size:12px;color:var(--text2);}
+.role-tag{display:inline-flex;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-top:3px;}
+.rt-s{background:var(--blue-bg);color:var(--blue);}
+.rt-o{background:var(--green-bg);color:var(--green);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.inp{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s;width:100%;}
+.inp:focus{border-color:var(--green);background:var(--surface3);box-shadow:0 0 0 3px rgba(0,214,143,0.08);}
+.inp::placeholder{color:var(--text3);}
+.perms{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.perms-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.perm-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.pt{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.pt-g{background:var(--green-bg);color:var(--green);}
+.pt-b{background:var(--blue-bg);color:var(--blue);}
+.pt-a{background:rgba(255,165,2,0.08);color:#ffa502;}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:24px;}
+.btn{padding:13px 32px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--teal));color:#001a0d;}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,214,143,0.3);}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.error-msg{background:var(--red-bg);border:1px solid rgba(255,71,87,0.2);border-radius:var(--r-sm);padding:12px 16px;font-size:13px;color:var(--red);margin-top:16px;display:none;text-align:center;}
+.error-msg.show{display:block;}
+.success-box{background:var(--surface);border:1px solid rgba(0,214,143,0.3);border-radius:var(--r);padding:40px;text-align:center;display:none;}
+.success-box.show{display:block;}
+.success-icon{font-size:56px;margin-bottom:16px;display:block;}
+.success-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:10px;}
+.success-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
+.accounts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}
+.ac{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center;}
+.ac .icon{font-size:24px;margin-bottom:6px;display:block;}
+.ac .name{font-weight:700;font-size:14px;margin-bottom:3px;}
+.ac .role{font-size:11px;color:var(--text3);}
+.ac .un{font-size:12px;color:var(--green);margin-top:4px;font-weight:600;}
+.go-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,var(--green),var(--teal));color:#001a0d;border-radius:var(--r-sm);font-weight:700;font-size:15px;text-decoration:none;transition:all .2s;}
+.go-btn:hover{filter:brightness(1.1);}
+.warning-box{background:rgba(255,165,2,0.06);border:1px solid rgba(255,165,2,0.2);border-radius:var(--r-sm);padding:14px;font-size:13px;color:#ffa502;margin-bottom:20px;text-align:left;}
+.status-line{display:flex;align-items:center;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);}
+.status-line:last-child{border-bottom:none;}
+.status-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 16px;margin-top:16px;display:none;}
+.status-box.show{display:block;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}.accounts-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">💊</div>
+      <div class="logo-text">Ruhena <span>Healthcare</span></div>
+    </div>
+    <h1>First Time Setup</h1>
+    <p class="sub">Create accounts for your team. This takes 2 minutes and only needs to be done once.</p>
+  </div>
+
+  <!-- SETUP FORM -->
+  <div id="setup-form">
+
+    <!-- SALESPERSON -->
+    <div class="card">
+      <div class="card-header">
+        <div class="avatar av-s">👩⚕️</div>
+        <div class="card-meta">
+          <h3>Salesperson Account</h3>
+          <p>Handles daily sales, debts, orders, expenses</p>
+          <span class="role-tag rt-s">💊 Salesperson</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u1-name" placeholder="e.g. Ruhena" value="Ruhena"></div>
+        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u1-username" placeholder="e.g. ruhena" value="ruhena"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u1-pin" placeholder="Create a secure PIN"></div>
+        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u1-pin2" placeholder="Repeat PIN"></div>
+      </div>
+      <div class="perms"><div class="perms-lbl">Permissions</div>
+        <div class="perm-tags">
+          <span class="pt pt-g">✅ Add Sales</span><span class="pt pt-g">✅ Manage Debts</span>
+          <span class="pt pt-g">✅ Stock Orders</span><span class="pt pt-g">✅ Add Expenses</span>
+          <span class="pt pt-g">✅ View Reports</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER A -->
+    <div class="card">
+      <div class="card-header">
+        <div class="avatar av-o">👨💼</div>
+        <div class="card-meta">
+          <h3>Owner A Account</h3>
+          <p>Views all data and reports — read only access</p>
+          <span class="role-tag rt-o">👑 Owner</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u2-name" placeholder="e.g. Abuu" value="Abuu"></div>
+        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u2-username" placeholder="e.g. abuu" value="abuu"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u2-pin" placeholder="Create a secure PIN"></div>
+        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u2-pin2" placeholder="Repeat PIN"></div>
+      </div>
+      <div class="perms"><div class="perms-lbl">Permissions</div>
+        <div class="perm-tags">
+          <span class="pt pt-b">👁️ View All Data</span><span class="pt pt-b">👁️ All Reports</span>
+          <span class="pt pt-b">👁️ Export CSV</span><span class="pt pt-a">🔐 Manage Users</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER B -->
+    <div class="card">
+      <div class="card-header">
+        <div class="avatar av-o">👩💼</div>
+        <div class="card-meta">
+          <h3>Owner B Account</h3>
+          <p>Views all data and reports — read only access</p>
+          <span class="role-tag rt-o">👑 Owner</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u3-name" placeholder="e.g. Bushro" value="Bushro"></div>
+        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u3-username" placeholder="e.g. bushro" value="bushro"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u3-pin" placeholder="Create a secure PIN"></div>
+        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u3-pin2" placeholder="Repeat PIN"></div>
+      </div>
+      <div class="perms"><div class="perms-lbl">Permissions</div>
+        <div class="perm-tags">
+          <span class="pt pt-b">👁️ View All Data</span><span class="pt pt-b">👁️ All Reports</span>
+          <span class="pt pt-b">👁️ Export CSV</span><span class="pt pt-a">🔐 Manage Users</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-box" id="status-box">
+      <div class="status-line" id="st1"><span class="spin"></span><span>Connecting to database...</span></div>
+      <div class="status-line" id="st2"><span>⏳</span><span id="st2-txt">Creating salesperson account...</span></div>
+      <div class="status-line" id="st3"><span>⏳</span><span id="st3-txt">Creating owner A account...</span></div>
+      <div class="status-line" id="st4"><span>⏳</span><span id="st4-txt">Creating owner B account...</span></div>
+    </div>
+
+    <div class="error-msg" id="err-msg"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="create-btn" onclick="createAll()">🚀 Create All Accounts</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-box" id="success-box">
+    <span class="success-icon">🎉</span>
+    <div class="success-title">Setup Complete!</div>
+    <div class="success-sub">All 3 accounts created in Supabase. Your pharmacy system is ready.</div>
+    <div class="accounts-grid" id="accounts-summary"></div>
+    <div class="warning-box">⚠️ <strong>Remember your PINs</strong> — they cannot be recovered. If forgotten, an Owner can reset them from the Users page.</div>
+    <a href="index.html" class="go-btn">💊 Go to Login →</a>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE — self-contained, no shared.js dependency ──────────
+const SB_URL = 'https://chgqixqriqqriwbrmogm.supabase.co';
+const SB_KEY = 'sb_publishable_2XECwfPm0YXJoQXb6ITuzQ_o6sBY10a';
+
+async function sbPost(table, body) {
+  const r = await fetch(SB_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(body)
+  });
+  const txt = await r.text();
+  if (!r.ok) throw new Error(txt);
+  return txt ? JSON.parse(txt) : [];
+}
+
+async function sbCheck() {
+  const r = await fetch(SB_URL + '/rest/v1/users?limit=1', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  if (!r.ok) throw new Error('Cannot reach database');
+  return true;
+}
+
+async function sbDeleteAll() {
+  await fetch(SB_URL + '/rest/v1/users?id=neq.PLACEHOLDER', {
+    method: 'DELETE',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  }).catch(() => {});
+}
+
+// Generate a unique ID — self-contained, no dependency
+function makeId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function setStatus(id, icon, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const spans = el.querySelectorAll('span');
+  spans[0].innerHTML = icon === 'spin' ? '<div class="spin"></div>' : icon;
+  if (text && spans[1]) spans[1].textContent = text;
+}
+
+function showError(msg) {
+  const el = document.getElementById('err-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+function validate() {
+  const users = [
+    { prefix: 'u1', roleLabel: 'Salesperson' },
+    { prefix: 'u2', roleLabel: 'Owner A' },
+    { prefix: 'u3', roleLabel: 'Owner B' }
+  ];
+  const result = [];
+  for (const u of users) {
+    const name = document.getElementById(u.prefix + '-name').value.trim();
+    const username = document.getElementById(u.prefix + '-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+    const pin = document.getElementById(u.prefix + '-pin').value;
+    const pin2 = document.getElementById(u.prefix + '-pin2').value;
+    if (!name || name.length < 2) { showError('Enter a full name for ' + u.roleLabel + '.'); return null; }
+    if (!username || username.length < 2) { showError('Enter a username for ' + u.roleLabel + '.'); return null; }
+    if (!pin || pin.length < 4) { showError('PIN for ' + name + ' must be at least 4 characters.'); return null; }
+    if (pin !== pin2) { showError('PINs for ' + name + ' do not match.'); return null; }
+    result.push({ name, username, pin });
+  }
+  const usernames = result.map(u => u.username);
+  if (new Set(usernames).size !== usernames.length) { showError('All usernames must be unique.'); return null; }
+  return result;
+}
+
+async function createAll() {
+  const users = validate();
+  if (!users) return;
+
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true; btn.textContent = 'Creating accounts...';
+  document.getElementById('status-box').classList.add('show');
+  document.getElementById('err-msg').classList.remove('show');
+
+  try {
+    // Step 1: Check DB connection
+    setStatus('st1', 'spin', 'Connecting to database...');
+    await sbCheck();
+    setStatus('st1', '✅', 'Database connected');
+
+    // Step 2: Clear existing users (fresh setup)
+    await sbDeleteAll();
+
+    // Step 3: Create each user with a generated ID
+    const roles = ['salesperson', 'owner', 'owner'];
+    const icons = ['👩⚕️', '👨💼', '👩💼'];
+    const stIds = ['st2', 'st3', 'st4'];
+    const roleTxts = ['st2-txt', 'st3-txt', 'st4-txt'];
+    const roleLabels = ['Salesperson', 'Owner A', 'Owner B'];
+
+    for (let i = 0; i < users.length; i++) {
+      setStatus(stIds[i], 'spin', 'Creating ' + users[i].name + '\'s account...');
+      const newUser = {
+        id: makeId(),              // ← generated here, never null
+        name: users[i].name,
+        username: users[i].username,
+        pin: users[i].pin,
+        role: roles[i],
+        active: true,
+        created_at: new Date().toISOString(),
+        created_by: 'setup'
+      };
+      await sbPost('users', newUser);
+      setStatus(stIds[i], '✅', users[i].name + ' (' + roleLabels[i] + ') created');
+      await new Promise(r => setTimeout(r, 400));
+    }
+
+    // Show success
+    document.getElementById('accounts-summary').innerHTML = users.map((u, i) => `
+      <div class="ac">
+        <span class="icon">${icons[i]}</span>
+        <div class="name">${u.name}</div>
+        <div class="role">${roleLabels[i]}</div>
+        <div class="un">@${u.username}</div>
+      </div>`).join('');
+
+    setTimeout(() => {
+      document.getElementById('setup-form').style.display = 'none';
+      document.getElementById('success-box').classList.add('show');
+    }, 600);
+
+  } catch(e) {
+    showError('❌ ' + (e.message.includes('users') ? 'Database table not found. Run ruhena_setup.sql in Supabase SQL Editor first, then try again.' : e.message));
+    btn.disabled = false; btn.textContent = '🚀 Create All Accounts';
+  }
+}
+</script>
+</body>
+</html>
