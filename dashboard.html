@@ -51,6 +51,9 @@
 
     <div class="content">
       <div class="hero-card">
+        <img src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1200&auto=format&fit=crop&q=80"
+          alt="Pharmacy"
+          onerror="this.style.display='none'">
         <div class="hero-card-overlay">
           <div>
             <h2 id="welcome-msg">Good morning 👋</h2>
@@ -173,7 +176,7 @@ async function loadData() {
     renderTodaySales();
     renderDebts();
   } catch(e) {
-    document.getElementById('kpi-cards').innerHTML = `<div style="grid-column:1/-1;padding:20px;color:var(--red);font-size:13px;">⚠️ Could not connect. Refresh to try again.</div>`;
+    document.getElementById('kpi-cards').innerHTML = `<div style="grid-column:1/-1;padding:20px;color:var(--red);font-size:13px;"><i class="bi bi-exclamation-circle"></i> Could not connect. Refresh to try again.</div>`;
   }
 }
 
@@ -200,36 +203,42 @@ function renderKPIs() {
   document.getElementById('kpi-cards').innerHTML = `
     <div class="stat-card anim-stagger">
       <div class="stat-icon" style="color:var(--green);"><i class="bi bi-cash-coin"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Today's Revenue</div>
       <div class="stat-val" style="color:var(--green);">${fmtKSh(todayRev)}</div>
       <div class="stat-sub">${todaySales.length} transactions today</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--blue);"><i class="bi bi-box-seam"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Total Revenue</div>
       <div class="stat-val" style="color:var(--blue);">${fmtKSh(totalRev)}</div>
       <div class="stat-sub">all time</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--teal);"><i class="bi bi-graph-up-arrow"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Total Profit</div>
       <div class="stat-val" style="color:var(--teal);">${fmtKSh(totalProfit)}</div>
       <div class="stat-sub">gross profit</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--purple);"><i class="bi bi-bar-chart-line"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Profit Margin</div>
       <div class="stat-val" style="color:var(--purple);">${margin.toFixed(1)}%</div>
       <div class="stat-sub">overall average</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--amber);"><i class="bi bi-cash-stack"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Monthly Expenses</div>
       <div class="stat-val" style="color:var(--amber);">${fmtKSh(monthExp)}</div>
       <div class="stat-sub">this month</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--red);"><i class="bi bi-exclamation-triangle"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
       <div class="stat-lbl">Inventory Alerts</div>
       <div class="stat-val" style="color:var(--red);">${outStock + lowStock}</div>
       <div class="stat-sub">${outStock} out &middot; ${lowStock} low stock</div>
@@ -312,7 +321,7 @@ function renderCharts() {
 function renderTodaySales() {
   const data = sales.filter(s => s.date === todayStr());
   const b = document.getElementById('today-sales-body');
-  if (!data.length) { b.innerHTML = '<tr><td colspan="5"><div class="empty"><span class="empty-icon">💊</span><p>No sales recorded today</p></div></td></tr>'; return; }
+  if (!data.length) { b.innerHTML = '<tr><td colspan="5"><div class="empty"><span class="empty-icon"><i class="bi bi-cash-coin"></i></span><p>No sales recorded today</p></div></td></tr>'; return; }
   b.innerHTML = data.slice(0, 10).map((s, i) => `<tr>
     <td class="num-col">${i + 1}</td>
     <td><strong>${s.medicine || s.medicines}</strong></td>
@@ -326,7 +335,7 @@ function renderTodaySales() {
 function renderDebts() {
   const active = debts.filter(d => (d.amount || 0) > (d.paid || 0)).sort((a, b) => ((b.amount || 0) - (b.paid || 0)) - ((a.amount || 0) - (a.paid || 0)));
   const b = document.getElementById('debts-body');
-  if (!active.length) { b.innerHTML = '<tr><td colspan="3"><div class="empty"><span class="empty-icon">✅</span><p>No outstanding debts</p></div></td></tr>'; return; }
+  if (!active.length) { b.innerHTML = '<tr><td colspan="3"><div class="empty"><span class="empty-icon"><i class="bi bi-check-circle" style="color:var(--green);font-size:32px;"></i></span><p>No outstanding debts</p></div></td></tr>'; return; }
   b.innerHTML = active.slice(0, 8).map(d => `<tr>
     <td><strong>${d.name}</strong><br><span style="font-size:11px;color:var(--text3);">${d.phone || ''}</span></td>
     <td class="profit-neg">${fmtKSh((d.amount || 0) - (d.paid || 0))}</td>
