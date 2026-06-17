@@ -172,22 +172,14 @@ function render() {
       <div class="ri-total">${fmtKSh(s.total)}</div>
       <div class="ri-actions">
         <button class="btn btn-ghost btn-sm" onclick="viewReceipt('${s.id}')"><i class="bi bi-eye"></i> View</button>
-        <button class="btn btn-ghost btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt58)}\`,'58mm')"><i class="bi bi-printer"></i> 58mm</button>
-        <button class="btn btn-ghost btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt80)}\`,'80mm')"><i class="bi bi-printer"></i> 80mm</button>
-        <button class="btn btn-ghost btn-sm share-btn" onclick="shareReceipt('${s.receipt_no || s.id || ''}', \`${encodeURIComponent(receipt58)}\`)"><i class="bi bi-share"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="printReceipt(decodeURIComponent('${encodeURIComponent(receipt58)}'),'58mm')"><i class="bi bi-printer"></i> 58mm</button>
+        <button class="btn btn-ghost btn-sm" onclick="printReceipt(decodeURIComponent('${encodeURIComponent(receipt80)}'),'80mm')"><i class="bi bi-printer"></i> 80mm</button>
+        <button class="btn btn-ghost btn-sm share-btn" onclick="shareReceiptText(decodeURIComponent('${encodeURIComponent(receipt58)}'))"><i class="bi bi-share"></i></button>
       </div>
     </div>`;
   }).join('');
 }
 
-function shareReceipt(id, receiptContent) {
-  const text = decodeURIComponent(receiptContent).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-  if (navigator.share) {
-    navigator.share({ title: 'Receipt #' + id, text: text }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(text).then(() => toast('Receipt copied to clipboard', 'success')).catch(() => toast('Could not share receipt', 'error'));
-  }
-}
 
 function viewReceipt(id) {
   const sale = sales.find(s => s.id === id);
@@ -201,9 +193,9 @@ function viewReceipt(id) {
   const receipt58 = generateReceipt58(sale, items, { ref: sale.mpesa_ref, phone: sale.customer_phone });
   document.getElementById('receipt-detail').innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-      <button class="btn btn-primary btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt58)}\`,'58mm')"><i class="bi bi-printer"></i> Print 58mm</button>
-      <button class="btn btn-green btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt80)}\`,'80mm')"><i class="bi bi-printer"></i> Print 80mm</button>
-      <button class="btn btn-ghost btn-sm" onclick="shareReceipt('${sale.receipt_no || sale.id || ''}', \`${encodeURIComponent(receipt58)}\`)"><i class="bi bi-share"></i> Share</button>
+      <button class="btn btn-primary btn-sm" onclick="printReceipt(decodeURIComponent('${encodeURIComponent(receipt58)}'),'58mm')"><i class="bi bi-printer"></i> Print 58mm</button>
+      <button class="btn btn-green btn-sm" onclick="printReceipt(decodeURIComponent('${encodeURIComponent(receipt80)}'),'80mm')"><i class="bi bi-printer"></i> Print 80mm</button>
+      <button class="btn btn-ghost btn-sm" onclick="shareReceiptText(decodeURIComponent('${encodeURIComponent(receipt58)}'))"><i class="bi bi-share"></i> Share</button>
     </div>
     <div class="receipt-preview-wrap">
       <div style="font-size:12px;color:var(--text3);margin-bottom:8px;"><i class="bi bi-eye"></i> Receipt Preview</div>
