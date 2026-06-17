@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User profiles ──────────────────────────────
+    // Authenticated users can read any profile.
+    // Owners can create/update; only the doc owner can delete their own.
+    match /users/{uid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.role == 'owner';
+      allow update: if request.auth != null
+                    && (request.auth.uid == uid
+                        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner');
+      allow delete: if request.auth != null
+                    && request.auth.uid == uid;
+    }
+
+    // ── Inventory ──────────────────────────────────
+    match /inventory/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Sales ──────────────────────────────────────
+    match /sales/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Debts ──────────────────────────────────────
+    match /debts/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Orders ─────────────────────────────────────
+    match /orders/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Expenses ───────────────────────────────────
+    match /expenses/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Suppliers ──────────────────────────────────
+    match /suppliers/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── B2B Customers ──────────────────────────────
+    match /b2b_customers/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── B2B Orders ─────────────────────────────────
+    match /b2b_orders/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}
