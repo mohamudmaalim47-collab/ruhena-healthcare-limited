@@ -88,9 +88,78 @@
       </div>
     </div>
 
-    <!-- System -->
-    <div class="settings-section">
-      <h3>🔧 System</h3>
+    <!-- Receipt Designer -->
+    <div class="settings-section" style="border-color:rgba(2,132,199,0.3);">
+      <h3><i class="bi bi-receipt" style="color:var(--blue);"></i> Receipt Designer</h3>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Customize how your receipts look — edit details, toggle sections, and see a live preview.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <!-- Left: Form -->
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;"><i class="bi bi-building"></i> Pharmacy Info</div>
+          <div class="form-group"><label class="form-label">Pharmacy Name</label><input class="form-input" id="rcpt-name" oninput="previewReceipt()"></div>
+          <div class="form-group"><label class="form-label">Slogan / Tagline</label><input class="form-input" id="rcpt-slogan" oninput="previewReceipt()"></div>
+          <div class="form-group"><label class="form-label">Address</label><input class="form-input" id="rcpt-address" oninput="previewReceipt()"></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="rcpt-phone" oninput="previewReceipt()"></div>
+            <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" id="rcpt-whatsapp" oninput="previewReceipt()"></div>
+          </div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="rcpt-email" oninput="previewReceipt()"></div>
+            <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="rcpt-website" oninput="previewReceipt()"></div>
+          </div>
+
+          <div style="font-size:13px;font-weight:600;margin:16px 0 12px;"><i class="bi bi-shield-check"></i> KRA / Compliance</div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">KRA PIN</label><input class="form-input" id="rcpt-kra" oninput="previewReceipt()"></div>
+            <div class="form-group"><label class="form-label">PPB License</label><input class="form-input" id="rcpt-ppb" oninput="previewReceipt()"></div>
+          </div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">eTIMS SCU ID</label><input class="form-input" id="rcpt-scu" oninput="previewReceipt()"></div>
+            <div class="form-group"><label class="form-label">Return Days</label><input class="form-input" id="rcpt-return" type="number" oninput="previewReceipt()"></div>
+          </div>
+
+          <div style="font-size:13px;font-weight:600;margin:16px 0 12px;"><i class="bi bi-palette"></i> Appearance</div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Paper Width</label>
+              <select class="form-input" id="rcpt-width" onchange="previewReceipt()">
+                <option value="58mm">58mm (Thermal)</option>
+                <option value="80mm">80mm (Thermal)</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Footer Message</label><input class="form-input" id="rcpt-footer" oninput="previewReceipt()"></div>
+          </div>
+
+          <div style="display:flex;gap:16px;margin-top:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="rcpt-batch" onchange="previewReceipt()"> Show Batch Numbers
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="rcpt-expiry" onchange="previewReceipt()"> Show Expiry Dates
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="rcpt-pharmacist" onchange="previewReceipt()"> Show Pharmacist
+            </label>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:18px;">
+            <button class="btn btn-primary" onclick="saveReceiptDesign()"><i class="bi bi-check-lg"></i> Save Receipt Design</button>
+            <button class="btn btn-ghost" onclick="resetReceiptDesign()"><i class="bi bi-arrow-counterclockwise"></i> Reset Defaults</button>
+          </div>
+        </div>
+
+        <!-- Right: Live Preview -->
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;"><i class="bi bi-eye"></i> Live Preview</div>
+          <div id="receipt-preview-area" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:16px;overflow-x:auto;min-height:400px;">
+            <div id="receipt-preview-content" style="max-width:320px;margin:0 auto;font-family:'Courier New',monospace;font-size:11px;color:#000;"></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center;">
+            <i class="bi bi-info-circle"></i> Preview updates as you type
+          </div>
+        </div>
+      </div>
+    </div>
       <div class="setting-row">
         <div><div class="sr-label">Version</div><div class="sr-desc">Current software version</div></div>
         <span class="badge bg-purple">v3.0</span>
@@ -124,6 +193,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
+<script src="receipt.js"></script>
 <script>
 const session = requireAuth();
 applyTheme();
@@ -133,6 +203,83 @@ document.getElementById('s-profile-name').textContent = session.name;
 document.getElementById('s-profile-email').textContent = session.email;
 document.getElementById('s-profile-role').textContent = session.role;
 document.getElementById('dark-toggle').checked = document.body.classList.contains('dark-mode');
+
+// ── Receipt Designer ──
+function loadReceiptDesign() {
+  const cfg = getReceiptConfig();
+  const map = {
+    'rcpt-name': cfg.pharmacy,
+    'rcpt-slogan': cfg.slogan,
+    'rcpt-address': cfg.address,
+    'rcpt-phone': cfg.phone,
+    'rcpt-whatsapp': cfg.whatsapp || '',
+    'rcpt-email': cfg.email,
+    'rcpt-website': cfg.website,
+    'rcpt-kra': cfg.kra_pin,
+    'rcpt-ppb': cfg.ppb_license,
+    'rcpt-scu': cfg.etims_scu,
+    'rcpt-return': cfg.return_days,
+    'rcpt-footer': cfg.footer_msg,
+    'rcpt-width': cfg.paper_width
+  };
+  Object.keys(map).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = map[id];
+  });
+  document.getElementById('rcpt-batch').checked = cfg.show_batch !== false;
+  document.getElementById('rcpt-expiry').checked = cfg.show_expiry !== false;
+  document.getElementById('rcpt-pharmacist').checked = cfg.show_pharmacist !== false;
+  previewReceipt();
+}
+
+function getFormConfig() {
+  return {
+    pharmacy: document.getElementById('rcpt-name').value,
+    slogan: document.getElementById('rcpt-slogan').value,
+    address: document.getElementById('rcpt-address').value,
+    phone: document.getElementById('rcpt-phone').value,
+    whatsapp: document.getElementById('rcpt-whatsapp').value,
+    email: document.getElementById('rcpt-email').value,
+    website: document.getElementById('rcpt-website').value,
+    kra_pin: document.getElementById('rcpt-kra').value,
+    ppb_license: document.getElementById('rcpt-ppb').value,
+    etims_scu: document.getElementById('rcpt-scu').value,
+    return_days: parseInt(document.getElementById('rcpt-return').value) || 7,
+    footer_msg: document.getElementById('rcpt-footer').value,
+    paper_width: document.getElementById('rcpt-width').value,
+    show_batch: document.getElementById('rcpt-batch').checked,
+    show_expiry: document.getElementById('rcpt-expiry').checked,
+    show_pharmacist: document.getElementById('rcpt-pharmacist').checked
+  };
+}
+
+function previewReceipt() {
+  const cfg = getFormConfig();
+  // Temporarily save to localStorage so generateReceipt58 uses these values
+  const prev = getReceiptConfig();
+  saveReceiptConfig(cfg);
+  const sale = { receipt_no: 'PREVIEW-001', date: todayStr(), created_by: 'You' };
+  const items = [{ name: 'Sample Medicine 500mg', qty: 2, price: 150 }, { name: 'Another Drug 250mg', qty: 1, price: 80 }];
+  const paymentInfo = { ref: 'MPESA-REF', phone: '+254712345678' };
+  const html = generateReceipt58(sale, items, paymentInfo);
+  document.getElementById('receipt-preview-content').innerHTML = html;
+  saveReceiptConfig(prev); // restore previous config
+}
+
+function saveReceiptDesign() {
+  const cfg = getFormConfig();
+  saveReceiptConfig(cfg);
+  toast('Receipt design saved!', 'success');
+  previewReceipt();
+}
+
+function resetReceiptDesign() {
+  localStorage.removeItem('rhl_receipt_config');
+  loadReceiptDesign();
+  toast('Receipt design reset to defaults', 'info');
+}
+
+loadReceiptDesign();
 </script>
 </body>
 </html>
