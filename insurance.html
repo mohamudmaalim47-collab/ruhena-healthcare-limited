@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insurance Claims — Ruhena Healthcare</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .claims-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  @media(max-width:900px){.claims-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:500px){.claims-grid{grid-template-columns:1fr;}}
+  .claim-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+  .claim-stat .cs-num{font-size:28px;font-weight:700;font-family:var(--font-display);}
+  .claim-stat .cs-lbl{font-size:12px;color:var(--text3);margin-top:4px;}
+  .provider-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+  .provider-sha{background:rgba(2,132,199,0.1);color:var(--p-600);border:1px solid rgba(2,132,199,0.2);}
+  .provider-nhif{background:rgba(5,150,105,0.1);color:var(--green);border:1px solid rgba(5,150,105,0.2);}
+  .provider-private{background:rgba(124,58,237,0.1);color:var(--purple);border:1px solid rgba(124,58,237,0.2);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand-icon">💊</div>
+    <div class="brand">Ruhena <span>Healthcare</span></div>
+    <div class="role-badge" id="role-badge"></div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-date" id="topbar-date"></span>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+<div class="nav-tabs" id="nav-tabs"></div>
+
+<div class="content">
+  <div class="page-header">
+    <div class="page-title">🏥 Insurance Claims</div>
+    <button class="btn btn-primary" onclick="openModal('claim-modal')">+ New Claim</button>
+  </div>
+
+  <div class="claims-grid" id="claims-stats">
+    <div class="claim-stat"><div class="cs-num" style="color:var(--amber);" id="stat-draft">0</div><div class="cs-lbl">Draft</div></div>
+    <div class="claim-stat"><div class="cs-num" style="color:var(--blue);" id="stat-submitted">0</div><div class="cs-lbl">Submitted</div></div>
+    <div class="claim-stat"><div class="cs-num" style="color:var(--green);" id="stat-approved">0</div><div class="cs-lbl">Approved</div></div>
+    <div class="claim-stat"><div class="cs-num" style="color:var(--red);" id="stat-rejected">0</div><div class="cs-lbl">Rejected</div></div>
+  </div>
+
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Patient</th><th>Provider</th><th>Member No.</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody id="claims-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- New Claim Modal -->
+<div class="modal-overlay" id="claim-modal">
+  <div class="modal">
+    <div class="modal-title">New Insurance Claim</div>
+    <div class="form-group"><label class="form-label">Patient Name *</label><input class="form-input" id="c-patient"></div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Provider *</label><select class="form-input" id="c-provider"><option value="SHA">SHA (Social Health Authority)</option><option value="NHIF">NHIF</option><option value="Private">Private Insurance</option></select></div>
+      <div class="form-group"><label class="form-label">Member Number *</label><input class="form-input" id="c-member"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Medicine / Items</label><textarea class="form-input" id="c-items" rows="3" placeholder="Paracetamol 500mg x 2&#10;Amoxicillin 250mg x 1"></textarea></div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Total Amount (KSh)</label><input class="form-input" type="number" id="c-amount"></div>
+      <div class="form-group"><label class="form-label">Patient Copay</label><input class="form-input" type="number" id="c-copay"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('claim-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClaim()">Submit Claim</button>
+    </div>
+  </div>
+</div>
+
+<footer><span>© 2026 Ruhena Healthcare Limited</span><span style="color:var(--text3);font-size:12px;">Firebase + Vercel · v3.0</span></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
+<script>
+const session = requireAuth();
+applyTheme();
+buildNav('insurance');
+
+let claims = [];
+
+async function loadData() {
+  claims = await sbFetch('insuranceClaims?order=created_at.desc&limit=500').catch(() => []);
+  renderStats();
+  renderTable();
+}
+
+function renderStats() {
+  const counts = { draft: 0, submitted: 0, approved: 0, rejected: 0 };
+  claims.forEach(c => { if (counts[c.status] !== undefined) counts[c.status]++; });
+  document.getElementById('stat-draft').textContent = counts.draft;
+  document.getElementById('stat-submitted').textContent = counts.submitted;
+  document.getElementById('stat-approved').textContent = counts.approved;
+  document.getElementById('stat-rejected').textContent = counts.rejected;
+}
+
+function renderTable() {
+  const body = document.getElementById('claims-body');
+  if (!claims.length) { body.innerHTML = '<tr><td colspan="7"><div class="empty"><span class="empty-icon">🏥</span><p>No claims yet</p></div></td></tr>'; return; }
+  body.innerHTML = claims.map(c => `<tr>
+    <td><strong>${c.patient}</strong></td>
+    <td><span class="provider-tag ${c.provider === 'SHA' ? 'provider-sha' : c.provider === 'NHIF' ? 'provider-nhif' : 'provider-private'}">${c.provider}</span></td>
+    <td style="font-family:monospace;font-size:12px;">${c.member_number}</td>
+    <td class="profit-pos">${fmtKSh(c.amount)}</td>
+    <td><span class="badge ${c.status === 'approved' ? 'bg-green' : c.status === 'rejected' ? 'bg-red' : c.status === 'submitted' ? 'bg-blue' : 'bg-amber'}">${c.status}</span></td>
+    <td style="font-size:12px;color:var(--text3);">${c.created_at ? fmtDate(c.created_at.slice(0,10)) : '—'}</td>
+    <td>${c.status === 'submitted' ? `<button class="btn btn-sm btn-green" onclick="updateStatus('${c.id}','approved')">✅ Approve</button><button class="btn btn-sm btn-danger" onclick="updateStatus('${c.id}','rejected')">❌ Reject</button>` : ''}</td>
+  </tr>`).join('');
+}
+
+async function saveClaim() {
+  const patient = document.getElementById('c-patient').value.trim();
+  const provider = document.getElementById('c-provider').value;
+  const member = document.getElementById('c-member').value.trim();
+  const amount = parseFloat(document.getElementById('c-amount').value) || 0;
+  if (!patient || !member || !amount) { toast('Fill required fields', 'error'); return; }
+  try {
+    await sbInsert('insuranceClaims', {
+      id: uid(), patient, provider, member_number: member,
+      items: document.getElementById('c-items').value.trim(),
+      amount, copay: parseFloat(document.getElementById('c-copay').value) || 0,
+      status: 'submitted', created_at: new Date().toISOString()
+    });
+    toast('Claim submitted', 'success');
+    closeModal('claim-modal');
+    document.querySelectorAll('#claim-modal .form-input').forEach(i => i.value = '');
+    loadData();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function updateStatus(id, status) {
+  try { await sbUpdate('insuranceClaims', id, { status }); toast('Status updated', 'success'); loadData(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+@page{margin:10mm;}
+@media print{
+  body{background:#fff;color:#000;font-family:'Inter',sans-serif;font-size:11px;line-height:1.4;}
+  .topbar,.nav-tabs,footer,.theme-btn,.btn-logout,.btn,.search-wrap,.filter-tabs{display:none !important;}
+  .content{padding:0;max-width:100%;animation:none;}
+  .card{border:1px solid #ddd;box-shadow:none;page-break-inside:avoid;}
+  .stat-card{box-shadow:none;border:1px solid #ddd;}
+  table{font-size:10px;}
+  thead th{background:#f5f5f5;color:#000;}
+  .badge{border:1px solid #999;color:#000 !important;background:transparent !important;}
+  .profit-pos,.profit-neg{color:#000 !important;}
+  .skeleton{display:none !important;}
+  .modal-overlay{display:none !important;}
+  .empty{display:none !important;}
+  canvas{max-width:100%;height:auto !important;}
+}

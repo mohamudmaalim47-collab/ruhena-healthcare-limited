@@ -215,16 +215,26 @@ function buildNav(activePage) {
   const s = getSession();
   if (!s) return;
   const pages = [
-    { id: 'dashboard', label: '📊 Dashboard', href: 'dashboard.html' },
-    { id: 'sales',     label: '💰 Sales',     href: 'sales.html' },
-    { id: 'debts',     label: '💳 Debts',     href: 'debts.html' },
-    { id: 'inventory', label: '📦 Inventory', href: 'inventory.html' },
-    { id: 'orders',    label: '🚚 Orders',    href: 'orders.html' },
-    { id: 'b2b',       label: '🏢 B2B',       href: 'b2b.html' },
-    { id: 'expenses',  label: '💸 Expenses',  href: 'expenses.html' },
-    { id: 'reports',   label: '📈 Reports',   href: 'reports.html' },
+    { id: 'dashboard',     label: '📊 Dashboard',     href: 'dashboard.html' },
+    { id: 'pos',           label: '💰 POS',           href: 'pos.html' },
+    { id: 'sales',         label: '📋 Sales',         href: 'sales.html' },
+    { id: 'inventory',     label: '📦 Inventory',     href: 'inventory.html' },
+    { id: 'prescriptions', label: '📋 Rx',            href: 'prescriptions.html' },
+    { id: 'orders',        label: '🚚 Orders',        href: 'orders.html' },
+    { id: 'suppliers',     label: '🏢 Suppliers',     href: 'suppliers.html' },
+    { id: 'debts',         label: '💳 Debts',         href: 'debts.html' },
+    { id: 'insurance',     label: '🏥 Insurance',     href: 'insurance.html' },
+    { id: 'b2b',           label: '🏢 B2B',           href: 'b2b.html' },
+    { id: 'expenses',      label: '💸 Expenses',      href: 'expenses.html' },
+    { id: 'reports',       label: '📈 Reports',       href: 'reports.html' },
+    { id: 'analytics',     label: '🤖 Analytics',     href: 'analytics.html' },
   ];
-  if (isOwner()) pages.push({ id: 'users', label: '👥 Users', href: 'users.html' });
+  if (isOwner()) {
+    pages.push({ id: 'users',     label: '👥 Users',     href: 'users.html' });
+    pages.push({ id: 'branches',  label: '🏪 Branches',  href: 'branches.html' });
+    pages.push({ id: 'shifts',    label: '⏰ Shifts',    href: 'shifts.html' });
+    pages.push({ id: 'settings',  label: '⚙️ Settings', href: 'settings.html' });
+  }
   const navEl = document.getElementById('nav-tabs');
   if (navEl) navEl.innerHTML = pages.map(p => `<a class="nav-tab${p.id === activePage ? ' active' : ''}" href="${p.href}">${p.label}</a>`).join('');
   const badge = document.getElementById('role-badge');
