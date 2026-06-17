@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Point of Sale — Ruhena Healthcare</title>
+<title>POS — Ruhena Healthcare</title>
 <link rel="stylesheet" href="shared.css">
 <style>
   .pos-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
@@ -43,91 +43,108 @@
   .pay-btn.pay-credit{border-color:var(--amber);color:var(--amber);}
   .pay-btn.pay-credit:hover{background:var(--amber-bg);}
   .pay-btn.active{transform:translateY(-2px);box-shadow:var(--shadow);}
-  .pay-btn.pay-cash.active{background:var(--green-bg);border-color:var(--green);}
-  .pay-btn.pay-mpesa.active{background:var(--orange-bg);border-color:var(--orange);}
-  .pay-btn.pay-insurance.active{background:var(--purple-bg);border-color:var(--purple);}
-  .pay-btn.pay-credit.active{background:var(--amber-bg);border-color:var(--amber);}
   .complete-btn{width:100%;padding:14px;margin-top:12px;font-size:15px;}
   .recent-txns{margin-top:24px;}
   @media(max-width:900px){.pos-layout{grid-template-columns:1fr;}.cart-card{position:static;}}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="brand-icon">💊</div>
-    <div class="brand">Ruhena <span>Healthcare</span></div>
-    <span class="badge bg-green" style="font-size:12px;">POS</span>
-    <div class="role-badge" id="role-badge"></div>
+<div class="page-wrap">
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">💊</div>
+      <div class="drawer-brand">Ruhena <span>Healthcare</span></div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-user">
+      <div class="drawer-user-avatar" id="drawer-avatar">A</div>
+      <div class="drawer-user-info">
+        <div class="drawer-user-name" id="drawer-name">Admin</div>
+        <div class="drawer-user-role" id="drawer-role">Owner</div>
+      </div>
+    </div>
+    <div class="drawer-nav" id="drawer-nav"></div>
+    <div class="drawer-footer">
+      <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
   </div>
-  <div class="topbar-right">
-    <span class="topbar-date" id="topbar-date"></span>
-    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-    <button class="btn-logout" onclick="logout()">Sign Out</button>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleDrawer()">☰</button>
+        <span class="badge bg-green" style="font-size:12px;">POS</span>
+        <div class="role-badge" id="role-badge"></div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="page-title">💰 Point of Sale</div>
+        <span style="font-size:13px;color:var(--text3);">POS #<span id="pos-number">001</span></span>
+      </div>
+
+      <div class="pos-layout">
+        <div>
+          <div class="pos-search">
+            <span class="search-icon">🔍</span>
+            <input id="search-input" placeholder="Search medicine..." oninput="filterProducts()" autofocus>
+          </div>
+          <div class="filter-tabs" style="margin-top:12px;" id="category-filters">
+            <button class="filter-tab active" data-cat="all" onclick="setCategory('all',this)">All</button>
+          </div>
+          <div class="product-grid" id="product-grid">
+            <div class="skeleton" style="height:100px;"></div>
+            <div class="skeleton" style="height:100px;"></div>
+            <div class="skeleton" style="height:100px;"></div>
+          </div>
+        </div>
+
+        <div class="cart-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h3 style="font-size:15px;font-weight:700;">🛒 Cart</h3>
+            <span id="cart-count" style="font-size:12px;color:var(--text3);">0 items</span>
+          </div>
+          <div class="cart-items" id="cart-items">
+            <div class="empty" style="padding:24px;"><span class="empty-icon">🛒</span><p>Cart is empty</p></div>
+          </div>
+          <div class="cart-summary" id="cart-summary" style="display:none;">
+            <div class="cart-row"><span>Subtotal</span><span id="cart-subtotal">KSh 0</span></div>
+            <div class="cart-row"><span>Tax (16%)</span><span id="cart-tax">KSh 0</span></div>
+            <div class="cart-row total"><span>Total</span><span id="cart-total" style="color:var(--p-600);">KSh 0</span></div>
+          </div>
+          <div class="pay-btns" id="pay-btns" style="display:none;">
+            <button class="pay-btn pay-cash" onclick="setPayment('cash',this)">💵 Cash</button>
+            <button class="pay-btn pay-mpesa" onclick="setPayment('mpesa',this)">📱 M-Pesa</button>
+            <button class="pay-btn pay-insurance" onclick="setPayment('insurance',this)">🏥 Insurance</button>
+            <button class="pay-btn pay-credit" onclick="setPayment('credit',this)">📋 Credit</button>
+          </div>
+          <button class="btn btn-primary complete-btn" id="complete-btn" style="display:none;" onclick="completeSale()">💊 Complete Sale</button>
+        </div>
+      </div>
+
+      <div class="glass-card recent-txns">
+        <div class="card-title">📋 Recent Transactions</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Medicine</th><th>Qty</th><th>Total</th><th>Payment</th><th>Time</th></tr></thead>
+            <tbody id="recent-txns-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2026 Ruhena Healthcare Limited</span>
+      <span>Firebase + Vercel · v3.0</span>
+    </footer>
   </div>
 </div>
-<div class="nav-tabs" id="nav-tabs"></div>
-
-<div class="content">
-  <div class="page-header">
-    <div class="page-title">💰 Point of Sale</div>
-    <span style="font-size:13px;color:var(--text3);">POS #<span id="pos-number">001</span></span>
-  </div>
-
-  <div class="pos-layout">
-    <!-- LEFT: Product Selection -->
-    <div>
-      <div class="pos-search">
-        <span class="search-icon">🔍</span>
-        <input id="search-input" placeholder="Search medicine by name or scan barcode..." oninput="filterProducts()" autofocus>
-      </div>
-      <div class="filter-tabs" style="margin-top:12px;" id="category-filters">
-        <button class="filter-tab active" data-cat="all" onclick="setCategory('all',this)">All</button>
-      </div>
-      <div class="product-grid" id="product-grid">
-        <div class="skeleton" style="height:100px;"></div>
-        <div class="skeleton" style="height:100px;"></div>
-        <div class="skeleton" style="height:100px;"></div>
-      </div>
-    </div>
-
-    <!-- RIGHT: Cart -->
-    <div class="cart-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-size:15px;font-weight:700;">🛒 Cart</h3>
-        <span id="cart-count" style="font-size:12px;color:var(--text3);">0 items</span>
-      </div>
-      <div class="cart-items" id="cart-items">
-        <div class="empty" style="padding:24px;"><span class="empty-icon">🛒</span><p>Cart is empty</p></div>
-      </div>
-      <div class="cart-summary" id="cart-summary" style="display:none;">
-        <div class="cart-row"><span>Subtotal</span><span id="cart-subtotal">KSh 0</span></div>
-        <div class="cart-row"><span>Tax (16%)</span><span id="cart-tax">KSh 0</span></div>
-        <div class="cart-row total"><span>Total</span><span id="cart-total" style="color:var(--p-600);">KSh 0</span></div>
-      </div>
-      <div class="pay-btns" id="pay-btns" style="display:none;">
-        <button class="pay-btn pay-cash" onclick="setPayment('cash',this)">💵 Cash</button>
-        <button class="pay-btn pay-mpesa" onclick="setPayment('mpesa',this)">📱 M-Pesa</button>
-        <button class="pay-btn pay-insurance" onclick="setPayment('insurance',this)">🏥 Insurance</button>
-        <button class="pay-btn pay-credit" onclick="setPayment('credit',this)">📋 Credit</button>
-      </div>
-      <button class="btn btn-primary complete-btn" id="complete-btn" style="display:none;" onclick="completeSale()">💊 Complete Sale</button>
-    </div>
-  </div>
-
-  <!-- Recent Transactions -->
-  <div class="card recent-txns">
-    <div class="card-title">📋 Recent Transactions</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>#</th><th>Medicine</th><th>Qty</th><th>Total</th><th>Payment</th><th>Time</th></tr></thead>
-        <tbody id="recent-txns-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<footer><span>© 2026 Ruhena Healthcare Limited</span><span style="color:var(--text3);font-size:12px;">Firebase + Vercel · v3.0</span></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -136,7 +153,7 @@
 <script>
 const session = requireAuth();
 applyTheme();
-buildNav('pos');
+buildDrawerNav('pos');
 
 let inventory = [], sales = [];
 let cart = [];
@@ -175,9 +192,7 @@ function setCategory(cat, btn) {
   renderProducts();
 }
 
-function filterProducts() {
-  renderProducts();
-}
+function filterProducts() { renderProducts(); }
 
 function renderProducts() {
   const q = document.getElementById('search-input').value.toLowerCase().trim();
@@ -185,10 +200,7 @@ function renderProducts() {
   let items = inventory.filter(i => i.stock > 0);
   if (currentCategory !== 'all') items = items.filter(i => i.category === currentCategory);
   if (q) items = items.filter(i => i.name?.toLowerCase().includes(q) || i.category?.toLowerCase().includes(q));
-  if (!items.length) {
-    el.innerHTML = '<div class="empty" style="grid-column:1/-1;"><span class="empty-icon">💊</span><p>No medicines found</p></div>';
-    return;
-  }
+  if (!items.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1;"><span class="empty-icon">💊</span><p>No medicines found</p></div>'; return; }
   el.innerHTML = items.map(i => `<div class="product-card" onclick="addToCart('${i.id}')">
     <div class="p-name">${i.name}</div>
     <div class="p-price">KSh ${Number(i.price).toLocaleString()}</div>
@@ -210,10 +222,7 @@ function addToCart(id) {
   toast(item.name + ' added', 'success');
 }
 
-function removeFromCart(id) {
-  cart = cart.filter(c => c.id !== id);
-  renderCart();
-}
+function removeFromCart(id) { cart = cart.filter(c => c.id !== id); renderCart(); }
 
 function changeQty(id, delta) {
   const c = cart.find(i => i.id === id);
@@ -267,8 +276,7 @@ function setPayment(method, btn) {
   document.getElementById('complete-btn').textContent =
     method === 'cash' ? '💵 Complete - Cash' :
     method === 'mpesa' ? '📱 Complete - M-Pesa' :
-    method === 'insurance' ? '🏥 Complete - Insurance' :
-    '📋 Complete - Credit';
+    method === 'insurance' ? '🏥 Complete - Insurance' : '📋 Complete - Credit';
 }
 
 async function completeSale() {
@@ -278,8 +286,7 @@ async function completeSale() {
   try {
     const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
     const sale = {
-      id: uid(),
-      date: todayStr(),
+      id: uid(), date: todayStr(),
       medicines: cart.map(c => c.name).join(', '),
       medicine: cart[0].name,
       qty: cart.reduce((s, c) => s + c.qty, 0),

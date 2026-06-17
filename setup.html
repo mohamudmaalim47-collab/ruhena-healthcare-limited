@@ -4,125 +4,134 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Setup — Ruhena Healthcare</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{--bg:#0a0d14;--surface:#111520;--surface2:#161c2d;--surface3:#1d2438;--border:#232d45;--text:#f0f2fa;--text2:#8892b0;--text3:#4a5478;--green:#00d68f;--green-bg:rgba(0,214,143,0.08);--red:#ff4757;--red-bg:rgba(255,71,87,0.08);--blue:#2979ff;--teal:#00cec9;--r:12px;--r-sm:8px;--r-lg:16px;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-.wrap{width:100%;max-width:540px;margin:40px auto;}
+.setup-wrap{max-width:540px;margin:0 auto;}
+.setup-header{text-align:center;margin-bottom:28px;}
+.setup-header .logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:14px;}
+.setup-header .logo-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:24px;}
+.setup-header .logo-text{font-family:var(--font-display);font-size:26px;font-weight:700;}
+.setup-header .logo-text span{background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.setup-header h1{font-family:var(--font-display);font-size:24px;font-weight:700;margin-bottom:6px;}
+.setup-header .sub{font-size:13px;color:var(--text2);line-height:1.6;}
 
-/* ── HERO IMAGE ── */
-.hero-img{width:100%;height:180px;border-radius:var(--r-lg);object-fit:cover;margin-bottom:28px;display:block;}
+.img-banner{width:100%;height:200px;object-fit:cover;border-radius:var(--r-lg);margin-bottom:24px;}
 
-/* ── HEADER ── */
-.header{text-align:center;margin-bottom:32px;}
-.logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:14px;}
-.logo-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:24px;transition:transform .3s;}
-.logo-icon:hover{transform:scale(1.05)rotate(-3deg);}
-.logo-text{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;letter-spacing:-0.3px;}
-.logo-text span{background:linear-gradient(135deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
-.sub{font-size:13px;color:var(--text2);line-height:1.6;}
-
-/* ── CARD ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px;margin-bottom:20px;transition:border-color .25s,box-shadow .25s;}
-.card:hover{border-color:var(--border2);box-shadow:0 8px 32px rgba(0,0,0,0.3);}
 .card-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(255,165,2,0.12),rgba(255,71,87,0.08));border:1px solid rgba(255,165,2,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.card-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:4px;}
-.card-sub{font-size:12px;color:var(--text2);}
-.card-head{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.card-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.card-head .card-title{font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:2px;}
+.card-head .card-sub{font-size:12px;color:var(--text2);}
 
-/* ── FORM ── */
-.form-group{margin-bottom:14px;}
-.form-group:last-child{margin-bottom:0;}
-.lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;display:block;}
-.inp{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s;}
-.inp:focus{border-color:var(--green);background:var(--surface3);box-shadow:0 0 0 3px rgba(0,214,143,0.08);}
-.inp::placeholder{color:var(--text3);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
-
-/* ── INFO BOX ── */
-.info-box{background:var(--blue-bg);border:1px solid rgba(41,121,255,0.15);border-radius:var(--r-sm);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;}
+.info-box{background:var(--blue-bg);border:1px solid rgba(41,121,255,0.15);border-radius:var(--r-sm);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px;}
 .info-box strong{color:var(--text);}
 
-/* ── STATUS ── */
+.warning-box{background:rgba(255,165,2,0.06);border:1px solid rgba(255,165,2,0.2);border-radius:var(--r-sm);padding:12px 16px;font-size:12px;color:var(--amber);line-height:1.6;display:flex;gap:10px;align-items:flex-start;margin-bottom:20px;text-align:left;}
+
 .status-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:16px;display:none;}
 .status-box.show{display:flex;align-items:center;gap:12px;}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── ERROR ── */
 .error-msg{background:var(--red-bg);border:1px solid rgba(255,71,87,0.2);border-radius:var(--r-sm);padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;text-align:center;}
 .error-msg.show{display:block;}
 
-/* ── BUTTON ── */
-.btn{width:100%;padding:14px;border:none;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-primary{background:linear-gradient(135deg,var(--green),var(--teal));color:#001a0d;}
-.btn-primary:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,214,143,0.35);}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
-.btn-secondary{background:transparent;color:var(--text2);border:1px solid var(--border);margin-top:16px;}
-.btn-secondary:hover{background:var(--surface2);color:var(--text);border-color:var(--border2);}
-
-/* ── SUCCESS ── */
-.success-box{background:var(--surface);border:1px solid rgba(0,214,143,0.3);border-radius:var(--r-lg);padding:40px 28px;text-align:center;display:none;animation:fadeIn .5s ease;}
+.success-box{background:var(--surface);border:1px solid rgba(0,214,143,0.3);border-radius:var(--r-lg);padding:40px 28px;text-align:center;display:none;}
 .success-box.show{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .success-icon{font-size:56px;margin-bottom:14px;display:block;}
-.success-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;}
+.success-title{font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:8px;}
 .success-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.warning-box{background:rgba(255,165,2,0.06);border:1px solid rgba(255,165,2,0.2);border-radius:var(--r-sm);padding:12px 16px;font-size:12px;color:var(--amber);text-align:left;margin-bottom:20px;line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <img class="hero-img" src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1080&auto=format&fit=crop&q=80" alt="Pharmacy" onerror="this.style.display='none'">
-
-  <!-- SETUP FORM -->
-  <div id="setup-form">
-    <div class="header">
-      <div class="logo">
-        <div class="logo-icon">💊</div>
-        <div class="logo-text">Ruhena <span>Healthcare</span></div>
-      </div>
-      <h1>Create Admin Account</h1>
-      <p class="sub">Set up the primary owner account. After login you can add staff and other owners.</p>
+<div class="page-wrap">
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">💊</div>
+      <div class="drawer-brand">Ruhena <span>Healthcare</span></div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
     </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div class="card-icon">👑</div>
-        <div><div class="card-title">Owner Account</div><div class="card-sub">Full access — manage users, view all data, export reports</div></div>
+    <div class="drawer-user">
+      <div class="drawer-user-avatar" id="drawer-avatar">A</div>
+      <div class="drawer-user-info">
+        <div class="drawer-user-name" id="drawer-name">Admin</div>
+        <div class="drawer-user-role" id="drawer-role">Owner</div>
       </div>
-      <div class="info-box">
-        <span>ℹ️</span>
-        <span><strong>One-time setup.</strong> After creating this account you'll be logged in automatically. Add salespeople and more owners later from the Users page.</span>
-      </div>
-      <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="name" placeholder="e.g. Ruhena Hassan"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="lbl">Email *</label><input class="inp" type="email" id="email" placeholder="e.g. admin@ruhena.com"></div>
-        <div class="form-group"><label class="lbl">Password * (min 6)</label><input class="inp" type="password" id="pass" placeholder="Secure password"></div>
-      </div>
-      <div class="form-group"><label class="lbl">Confirm Password *</label><input class="inp" type="password" id="pass2" placeholder="Repeat password"></div>
     </div>
-
-    <div class="status-box" id="status-box"><div class="spin"></div><span id="status-txt">Creating account...</span></div>
-    <div class="error-msg" id="err-msg"></div>
-
-    <button class="btn btn-primary" id="create-btn" onclick="createAdmin()">🚀 Create Admin Account</button>
+    <div class="drawer-nav" id="drawer-nav"></div>
+    <div class="drawer-footer">
+      <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
   </div>
 
-  <!-- SUCCESS -->
-  <div class="success-box" id="success-box">
-    <span class="success-icon">🎉</span>
-    <div class="success-title">Admin Account Created!</div>
-    <div class="success-sub" id="success-details">You are now being logged in automatically.</div>
-    <div class="warning-box">
-      <span>⚠️</span>
-      <span><strong>Save your credentials.</strong> Use the "Forgot password" link on the login page if you ever get locked out.</span>
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleDrawer()">☰</button>
+        <div class="role-badge" id="role-badge"></div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+      </div>
     </div>
-    <a href="dashboard.html" class="btn btn-primary" id="go-btn">💊 Go to Dashboard →</a>
+
+    <div class="content">
+      <div class="setup-wrap">
+
+        <img class="img-banner" src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1080&auto=format&fit=crop&q=80" alt="Pharmacy" onerror="this.style.display='none'">
+
+        <div id="setup-form">
+          <div class="setup-header anim-stagger">
+            <div class="logo">
+              <div class="logo-icon">💊</div>
+              <div class="logo-text">Ruhena <span>Healthcare</span></div>
+            </div>
+            <h1>Create Admin Account</h1>
+            <p class="sub">Set up the primary owner account. After login you can add staff and other owners.</p>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-head">
+              <div class="card-icon">👑</div>
+              <div><div class="card-title">Owner Account</div><div class="card-sub">Full access — manage users, view all data, export reports</div></div>
+            </div>
+            <div class="info-box">
+              <span>ℹ️</span>
+              <span><strong>One-time setup.</strong> After creating this account you'll be logged in automatically. Add salespeople and more owners later from the Users page.</span>
+            </div>
+            <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="name" placeholder="e.g. Ruhena Hassan"></div>
+            <div class="form-row form-row-2">
+              <div class="form-group"><label class="form-label">Email *</label><input class="form-input" type="email" id="email" placeholder="e.g. admin@ruhena.com"></div>
+              <div class="form-group"><label class="form-label">Password * (min 6)</label><input class="form-input" type="password" id="pass" placeholder="Secure password"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="pass2" placeholder="Repeat password"></div>
+          </div>
+
+          <div class="status-box" id="status-box"><div class="spin"></div><span id="status-txt">Creating account...</span></div>
+          <div class="error-msg" id="err-msg"></div>
+
+          <button class="btn btn-primary" id="create-btn" onclick="createAdmin()" style="width:100%;">🚀 Create Admin Account</button>
+        </div>
+
+        <div class="success-box" id="success-box">
+          <span class="success-icon">🎉</span>
+          <div class="success-title">Admin Account Created!</div>
+          <div class="success-sub" id="success-details">You are now being logged in automatically.</div>
+          <div class="warning-box">
+            <span>⚠️</span>
+            <span><strong>Save your credentials.</strong> Use the "Forgot password" link on the login page if you ever get locked out.</span>
+          </div>
+          <a href="dashboard.html" class="btn btn-primary" id="go-btn" style="width:100%;">💊 Go to Dashboard →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2026 Ruhena Healthcare Limited</span>
+      <span>Firebase + Vercel · v3.0</span>
+    </footer>
   </div>
 </div>
 
@@ -131,6 +140,10 @@ h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bo
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
+const session = requireAuth();
+applyTheme();
+buildDrawerNav('settings');
+
 function showError(msg) {
   const el = document.getElementById('err-msg');
   el.textContent = msg;
@@ -153,7 +166,6 @@ async function createAdmin() {
   const btn = document.getElementById('create-btn');
   err.classList.remove('show');
 
-  // Validation
   if (!name || name.length < 2) { showError('Enter your full name.'); return; }
   if (!email || !email.includes('@')) { showError('Enter a valid email address.'); return; }
   if (!pass || pass.length < 6) { showError('Password must be at least 6 characters.'); return; }
@@ -163,7 +175,6 @@ async function createAdmin() {
   btn.textContent = 'Creating account...';
 
   try {
-    // 1. Create auth user via REST API (no auth needed — uses API key)
     setStatus(true, 'Creating Firebase Auth account...');
     const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + firebaseConfig.apiKey, {
       method: 'POST',
@@ -175,11 +186,9 @@ async function createAdmin() {
     const uid = data.localId;
     setStatus(true, 'Auth account created. Signing in...');
 
-    // 2. Sign in with the new account so Firestore write is authenticated
     await auth.signInWithEmailAndPassword(email, pass);
     setStatus(true, 'Writing your profile...');
 
-    // 3. Write Firestore profile (now authenticated — rules will allow it)
     await db.collection('users').doc(uid).set({
       id: uid,
       email,
@@ -189,10 +198,8 @@ async function createAdmin() {
       created_at: new Date().toISOString()
     });
 
-    // 4. Save session
     setSession({ id: uid, name, email, role: 'owner' });
 
-    // 5. Show success
     setStatus(false);
     document.getElementById('setup-form').style.display = 'none';
     document.getElementById('success-details').textContent = `${name}, your admin account is ready. You'll be redirected to the dashboard.`;

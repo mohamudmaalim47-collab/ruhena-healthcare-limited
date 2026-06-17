@@ -55,28 +55,46 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 @media(max-width:900px){body{grid-template-columns:1fr;}.login-hero{display:none;}.login-panel{min-height:100vh;border-left:none;}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .shake{animation:shake .4s ease;}
+
+/* ── ANIMATIONS ── */
+.login-panel{animation:slideLeft .7s ease both;}
+.hero-anim>*{animation:slideUp .6s ease both;}
+.hero-anim>*:nth-child(1){animation-delay:.1s}
+.hero-anim>*:nth-child(2){animation-delay:.2s}
+.hero-anim>*:nth-child(3){animation-delay:.3s}
+.hero-anim>*:nth-child(4){animation-delay:.4s}
+.hero-anim>*:nth-child(5){animation-delay:.5s}
+.form-anim>*{animation:slideUp .55s ease both;}
+.form-anim>*:nth-child(1){animation-delay:0s}
+.form-anim>*:nth-child(2){animation-delay:.1s}
+.form-anim>*:nth-child(3){animation-delay:.2s}
+.form-anim>*:nth-child(4){animation-delay:.3s}
+.form-anim>*:nth-child(5){animation-delay:.4s}
+.form-anim>*:nth-child(6){animation-delay:.5s}
 </style>
 </head>
 <body>
 
 <!-- LEFT HERO -->
 <div class="login-hero">
-  <img src="https://images.unsplash.com/photo-1586015555751-63c3f1a7823e?w=1200&auto=format&fit=crop&q=80" alt="Modern Pharmacy"
-    onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?w=1200&auto=format&fit=crop&q=80'">
+  <img src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1200&auto=format&fit=crop&q=80" alt="Modern Pharmacy"
+    onerror="this.src='https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&auto=format&fit=crop&q=80'">
   <div class="hero-overlay">
-    <div class="hero-badge">🏥 Healthcare Management System</div>
-    <div class="hero-title">Smart Pharmacy<br>Management for<br><span>Ruhena Healthcare</span></div>
-    <div class="hero-desc">Complete pharmacy operations — inventory, sales, debts, B2B wholesale, and real-time analytics.</div>
-    <div class="feature-pills">
-      <div class="feature-pill">💊 Inventory Control</div>
-      <div class="feature-pill">💰 Sales Tracking</div>
-      <div class="feature-pill">📊 Analytics</div>
-      <div class="feature-pill">🏢 B2B Wholesale</div>
-    </div>
-    <div class="hero-stats">
-      <div><div class="hero-stat-val">452+</div><div class="hero-stat-lbl">Medicines</div></div>
-      <div><div class="hero-stat-val">Real-time</div><div class="hero-stat-lbl">Stock Tracking</div></div>
-      <div><div class="hero-stat-val">Multi-user</div><div class="hero-stat-lbl">Role Access</div></div>
+    <div class="hero-anim">
+      <div class="hero-badge">🏥 Healthcare Management System</div>
+      <div class="hero-title">Smart Pharmacy<br>Management for<br><span>Ruhena Healthcare</span></div>
+      <div class="hero-desc">Complete pharmacy operations — inventory, sales, debts, B2B wholesale, and real-time analytics.</div>
+      <div class="feature-pills">
+        <div class="feature-pill">💊 Inventory Control</div>
+        <div class="feature-pill">💰 Sales Tracking</div>
+        <div class="feature-pill">📊 Analytics</div>
+        <div class="feature-pill">🏢 B2B Wholesale</div>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-val">452+</div><div class="hero-stat-lbl">Medicines</div></div>
+        <div><div class="hero-stat-val">Real-time</div><div class="hero-stat-lbl">Stock Tracking</div></div>
+        <div><div class="hero-stat-val">Multi-user</div><div class="hero-stat-lbl">Role Access</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -89,39 +107,41 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
   </div>
   <div class="login-sub">Limited · Pharmacy Management System</div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:20px;text-align:center;width:100%;">Sign in to your account</div>
+  <div class="form-anim">
+    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:20px;text-align:center;width:100%;">Sign in to your account</div>
 
-  <div class="form-group">
-    <label class="form-label">Email Address</label>
-    <div class="input-wrap">
-      <span class="input-icon">📧</span>
-      <input class="form-input" type="email" id="email-input"
-        placeholder="you@example.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter') doLogin()">
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <div class="input-wrap">
+        <span class="input-icon">📧</span>
+        <input class="form-input" type="email" id="email-input"
+          placeholder="you@example.com" autocomplete="email"
+          onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label class="form-label">Password</label>
-    <div class="input-wrap">
-      <span class="input-icon">🔐</span>
-      <input class="form-input" type="password" id="password-input"
-        placeholder="Enter your password" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter') doLogin()">
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔐</span>
+        <input class="form-input" type="password" id="password-input"
+          placeholder="Enter your password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
     </div>
-  </div>
 
-  <div class="login-error" id="login-error">❌ Invalid email or password. Please try again.</div>
+    <div class="login-error" id="login-error">❌ Invalid email or password. Please try again.</div>
 
-  <button class="btn-signin" id="signin-btn" onclick="doLogin()">Sign In →</button>
+    <button class="btn-signin" id="signin-btn" onclick="doLogin()">Sign In →</button>
 
-  <div style="width:100%;text-align:right;margin-top:8px;">
-    <a class="forgot-link" onclick="resetPassword()">Forgot password?</a>
-  </div>
+    <div style="width:100%;text-align:right;margin-top:8px;">
+      <a class="forgot-link" onclick="resetPassword()">Forgot password?</a>
+    </div>
 
-  <div class="login-bottom">
-    <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-btn">🌙 Dark Mode</button>
-    <a href="setup.html" class="setup-link">⚙️ First Time Setup</a>
+    <div class="login-bottom">
+      <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-btn">🌙 Dark Mode</button>
+      <a href="setup.html" class="setup-link">⚙️ First Time Setup</a>
+    </div>
   </div>
 
   <div class="powered-by">Firebase · © 2026 Ruhena Healthcare Limited</div>

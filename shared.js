@@ -20,7 +20,6 @@ function parseVal(val) {
   if (!isNaN(n) && val !== '') return n;
   return val;
 }
-
 function parseQs(qs) {
   const p = new URLSearchParams(qs || '');
   const filters = [], order = []; let limit = 0, isCount = false;
@@ -32,7 +31,6 @@ function parseQs(qs) {
   }
   return { filters, order, limit, isCount };
 }
-
 function buildQuery(table, qs) {
   const { filters, order, limit } = parseQs(qs);
   let ref = db.collection(table);
@@ -53,23 +51,19 @@ function buildQuery(table, qs) {
   if (limit) ref = ref.limit(limit);
   return ref.get();
 }
-
 async function sbFetch(path, method = 'GET', body = null) {
   const [base, qs] = path.split('?');
   const table = base;
-
   if (method === 'POST') {
     const id = body && body.id ? body.id : uid();
     await db.collection(table).doc(String(id)).set({ ...(body || {}), id: String(id) });
     return [{ ...(body || {}), id: String(id) }];
   }
-
   if (method === 'PATCH') {
     const id = (qs || '').replace(/^id=eq\./, '');
     if (id) { await db.collection(table).doc(id).update(body); return [{ ...body, id }]; }
     return [];
   }
-
   if (method === 'DELETE') {
     const param = qs || '';
     if (param.startsWith('id=eq.')) {
@@ -80,14 +74,12 @@ async function sbFetch(path, method = 'GET', body = null) {
     }
     return [];
   }
-
   const { isCount } = parseQs(qs);
   const snap = await buildQuery(table, qs);
   if (snap.empty) return [];
   if (isCount) return [{ count: snap.size }];
   return snap.docs.map(d => d.data());
 }
-
 async function sbInsert(table, row) { return sbFetch(table, 'POST', row); }
 async function sbUpdate(table, id, data) { return sbFetch(table + '?id=eq.' + id, 'PATCH', data); }
 async function sbDelete(table, id) { return sbFetch(table + '?id=eq.' + id, 'DELETE'); }
@@ -101,7 +93,6 @@ async function loginWithEmail(email, password) {
   if (!profile.active) throw new Error('Account is disabled');
   return { id: cred.user.uid, email: cred.user.email, ...profile };
 }
-
 async function createAuthUser(email, password, profile) {
   const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + firebaseConfig.apiKey, {
     method: 'POST',
@@ -113,23 +104,17 @@ async function createAuthUser(email, password, profile) {
   await db.collection('users').doc(data.localId).set({ id: data.localId, email, ...profile, created_at: new Date().toISOString() });
   return data.localId;
 }
-
-function getCurrentUser() {
-  return auth.currentUser;
-}
-
+function getCurrentUser() { return auth.currentUser; }
 async function signOut() {
   await auth.signOut();
   sessionStorage.removeItem('rhl_session');
   window.location.href = 'index.html';
 }
-
 async function checkHasUsers() {
   const snap = await db.collection('users').limit(1).get();
   return !snap.empty;
 }
 
-// ── AUTH STATE ─────────────────────────────────────────────────
 auth.onAuthStateChanged(user => {
   if (user) {
     const existing = getSession();
@@ -200,47 +185,101 @@ function showLoader(msg = 'Loading...') {
   if (!el) {
     el = document.createElement('div'); el.id = '_rhl_loader';
     el.style.cssText = 'position:fixed;inset:0;background:rgba(10,13,20,0.75);backdrop-filter:blur(4px);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    el.innerHTML = `<div style="width:44px;height:44px;border:3px solid #232d45;border-top-color:#00d68f;border-radius:50%;animation:spin .7s linear infinite;"></div><div id="_rhl_loader_msg" style="color:#8892b0;font-family:'Inter',sans-serif;font-size:14px;">${msg}</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    el.innerHTML = `<div style="width:44px;height:44px;border:3px solid #232d45;border-top-color:#00d68f;border-radius:50%;animation:spin .7s linear infinite;"></div><div id="_rhl_loader_msg" style="color:#8892b0;font-family:'Inter',sans-serif;font-size:14px;">${msg}</div>`;
     document.body.appendChild(el);
   } else { const m = document.getElementById('_rhl_loader_msg'); if (m) m.textContent = msg; el.style.display = 'flex'; }
 }
 function hideLoader() { const el = document.getElementById('_rhl_loader'); if (el) el.style.display = 'none'; }
 
 // ── THEME ─────────────────────────────────────────────────────
-function applyTheme() { if (localStorage.getItem('rhl_theme') === 'dark') { document.body.classList.add('dark-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = '☀️'); } }
-function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = isDark ? '☀️' : '🌙'); localStorage.setItem('rhl_theme', isDark ? 'dark' : 'light'); }
+function applyTheme() {
+  if (localStorage.getItem('rhl_theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.querySelectorAll('.theme-btn').forEach(b => { if (b.tagName === 'BUTTON') b.textContent = '☀️'; });
+  }
+}
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  document.querySelectorAll('.theme-btn').forEach(b => { if (b.tagName === 'BUTTON') b.textContent = isDark ? '☀️' : '🌙'; });
+  localStorage.setItem('rhl_theme', isDark ? 'dark' : 'light');
+}
 
-// ── NAV ───────────────────────────────────────────────────────
-function buildNav(activePage) {
+// ── DRAWER NAV ────────────────────────────────────────────────
+function buildDrawerNav(activePage) {
   const s = getSession();
   if (!s) return;
+
   const pages = [
-    { id: 'dashboard',     label: '📊 Dashboard',     href: 'dashboard.html' },
-    { id: 'pos',           label: '💰 POS',           href: 'pos.html' },
-    { id: 'sales',         label: '📋 Sales',         href: 'sales.html' },
-    { id: 'inventory',     label: '📦 Inventory',     href: 'inventory.html' },
-    { id: 'prescriptions', label: '📋 Rx',            href: 'prescriptions.html' },
-    { id: 'orders',        label: '🚚 Orders',        href: 'orders.html' },
-    { id: 'suppliers',     label: '🏢 Suppliers',     href: 'suppliers.html' },
-    { id: 'debts',         label: '💳 Debts',         href: 'debts.html' },
-    { id: 'insurance',     label: '🏥 Insurance',     href: 'insurance.html' },
-    { id: 'b2b',           label: '🏢 B2B',           href: 'b2b.html' },
-    { id: 'expenses',      label: '💸 Expenses',      href: 'expenses.html' },
-    { id: 'reports',       label: '📈 Reports',       href: 'reports.html' },
-    { id: 'analytics',     label: '🤖 Analytics',     href: 'analytics.html' },
+    { id: 'dashboard',     icon: '📊', label: 'Dashboard',     href: 'dashboard.html' },
+    { id: 'pos',           icon: '💰', label: 'POS',           href: 'pos.html' },
+    { id: 'sales',         icon: '📋', label: 'Sales',         href: 'sales.html' },
+    { id: 'inventory',     icon: '📦', label: 'Inventory',     href: 'inventory.html' },
+    { id: 'prescriptions', icon: '📋', label: 'Prescriptions', href: 'prescriptions.html' },
+    { id: 'orders',        icon: '🚚', label: 'Orders',        href: 'orders.html' },
+    { id: 'suppliers',     icon: '🏢', label: 'Suppliers',     href: 'suppliers.html' },
+    { id: 'debts',         icon: '💳', label: 'Debts',         href: 'debts.html' },
+    { id: 'insurance',     icon: '🏥', label: 'Insurance',     href: 'insurance.html' },
+    { id: 'b2b',           icon: '🏢', label: 'B2B',           href: 'b2b.html' },
+    { id: 'expenses',      icon: '💸', label: 'Expenses',      href: 'expenses.html' },
+    { id: 'reports',       icon: '📈', label: 'Reports',       href: 'reports.html' },
+    { id: 'analytics',     icon: '🤖', label: 'Analytics',     href: 'analytics.html' },
   ];
+  const ownerPages = [
+    { id: 'users',     icon: '👥', label: 'Users',     href: 'users.html' },
+    { id: 'branches',  icon: '🏪', label: 'Branches',  href: 'branches.html' },
+    { id: 'shifts',    icon: '⏰', label: 'Shifts',    href: 'shifts.html' },
+    { id: 'settings',  icon: '⚙️', label: 'Settings', href: 'settings.html' },
+  ];
+
+  const navEl = document.getElementById('drawer-nav');
+  const avatarEl = document.getElementById('drawer-avatar');
+  const nameEl = document.getElementById('drawer-name');
+  const roleEl = document.getElementById('drawer-role');
+
+  if (avatarEl) avatarEl.textContent = s.name.charAt(0).toUpperCase();
+  if (nameEl) nameEl.textContent = s.name;
+  if (roleEl) roleEl.textContent = isOwner() ? 'Owner / Admin' : 'Sales Staff';
+
+  if (!navEl) return;
+
+  let html = '<div class="drawer-nav-group">';
+  pages.forEach(p => {
+    const isActive = p.id === activePage;
+    html += `<a class="drawer-nav-item${isActive ? ' active' : ''}" href="${p.href}"><span class="nav-icon">${p.icon}</span>${p.label}</a>`;
+  });
+  html += '</div>';
+
   if (isOwner()) {
-    pages.push({ id: 'users',     label: '👥 Users',     href: 'users.html' });
-    pages.push({ id: 'branches',  label: '🏪 Branches',  href: 'branches.html' });
-    pages.push({ id: 'shifts',    label: '⏰ Shifts',    href: 'shifts.html' });
-    pages.push({ id: 'settings',  label: '⚙️ Settings', href: 'settings.html' });
+    html += '<div class="drawer-nav-divider"></div><div class="drawer-nav-group">';
+    ownerPages.forEach(p => {
+      const isActive = p.id === activePage;
+      html += `<a class="drawer-nav-item${isActive ? ' active' : ''}" href="${p.href}"><span class="nav-icon">${p.icon}</span>${p.label}</a>`;
+    });
+    html += '</div>';
   }
-  const navEl = document.getElementById('nav-tabs');
-  if (navEl) navEl.innerHTML = pages.map(p => `<a class="nav-tab${p.id === activePage ? ' active' : ''}" href="${p.href}">${p.label}</a>`).join('');
+  navEl.innerHTML = html;
+
+  // Badge on topbar
   const badge = document.getElementById('role-badge');
   if (badge) { badge.textContent = s.name; badge.className = 'role-badge ' + (isOwner() ? 'admin' : 'sales'); }
+
+  // Date
   const dateEl = document.getElementById('topbar-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-KE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ── DRAWER TOGGLE ──
+function toggleDrawer() {
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  if (drawer) drawer.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('visible');
+}
+function closeDrawer() {
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  if (drawer) drawer.classList.remove('open');
+  if (overlay) overlay.classList.remove('visible');
 }
 
 // ── MODALS ────────────────────────────────────────────────────
