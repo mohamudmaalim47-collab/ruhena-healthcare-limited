@@ -23,13 +23,13 @@ code{background:#161c2d;padding:2px 6px;border-radius:4px;font-size:12px;color:#
 <body>
 <div class="wrap">
   <h1>🌱 Seed Database</h1>
-  <p>This page populates your Firebase Firestore with initial data (admin user profile + 452 medicines).<br>
-  Close this page once seeding is complete — it's only needed once.</p>
+  <p>Populates Firestore with admin profile + <strong id="med-count">500+</strong> medicines (stock=0).<br>
+  Close once complete — only needed once.</p>
 
   <div class="status" id="status">
     <div class="line" id="s-auth">⏳ Checking Firestore connection...</div>
     <div class="line" id="s-admin">⏳ Creating admin profile...</div>
-    <div class="line" id="s-drugs">⏳ Seeding 452 medicines...</div>
+    <div class="line" id="s-drugs">⏳ Seeding medicines...</div>
   </div>
 
   <button class="btn" id="seed-btn" onclick="seedAll()">🌱 Start Seeding</button>
@@ -57,7 +57,7 @@ function status(id, text, type = 'pending') {
   el.className = 'line ' + (type === 'done' ? 'done' : type === 'fail' ? 'fail' : '');
 }
 
-// Drug seed data extracted from ruhena_drugs_seed.sql
+// Drug seed data — 452 SQL meds + ~50 essential daily meds
 const DRUGS = [
 {id:'07001440opdo',name:'ACICLOVIR 400MG TABS 56S',category:'Dermatology'},
 {id:'07001440kmjo',name:'ADALAT LA 30MG 28S',category:'Cardiovascular'},
@@ -510,7 +510,113 @@ const DRUGS = [
 {id:'07001446aecy',name:'ZYPREXA 10MG 28S',category:'Neurology/Psychiatry'},
 {id:'07001446cxfo',name:'ZYPREXA 5MG 28S',category:'Neurology/Psychiatry'},
 {id:'07001446wpkt',name:'ZYRTEC 10MG',category:'Other'},
-{id:'07001446rdwh',name:'ZYRTEC 10MG 20S',category:'Other'}
+{id:'07001446rdwh',name:'ZYRTEC 10MG 20S',category:'Other'},
+// ── Essential daily medicines (added to fill gaps) ──
+{id:'07001446aasp',name:'ASPIRIN 100MG TABS 100S',category:'Cardiovascular'},
+{id:'07001446basp',name:'ASPIRIN 75MG EC TABS 28S',category:'Cardiovascular'},
+{id:'07001446casp',name:'ASPIRIN 300MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001446dasp',name:'DISPRIN SOLUBLE 300MG 24S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001446easp',name:'PIRITON 4MG TABS 30S',category:'Other'},
+{id:'07001446fasp',name:'PIRITON SYRUP 100ML',category:'Other'},
+{id:'07001446gasp',name:'CIPROFLOXACIN 500MG TABS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001446hasp',name:'CIPROFLOXACIN 250MG TABS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001446iasp',name:'DOXYCYCLINE 100MG CAPS 28S',category:'Antibiotic/Antifungal'},
+{id:'07001446jasp',name:'METRONIDAZOLE 400MG TABS 100S',category:'Antibiotic/Antifungal'},
+{id:'07001446kasp',name:'METRONIDAZOLE 200MG TABS 100S',category:'Antibiotic/Antifungal'},
+{id:'07001446lasp',name:'METRONIDAZOLE SUSP 200MG/5ML 100ML',category:'Antibiotic/Antifungal'},
+{id:'07001446masp',name:'AZITHROMYCIN 500MG TABS 3S',category:'Antibiotic/Antifungal'},
+{id:'07001446nasp',name:'AZITHROMYCIN 250MG TABS 6S',category:'Antibiotic/Antifungal'},
+{id:'07001446oasp',name:'AZITHROMYCIN SUSP 200MG/5ML 30ML',category:'Antibiotic/Antifungal'},
+{id:'07001446pasp',name:'CEPHALEXIN 500MG CAPS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001446qasp',name:'CEPHALEXIN 250MG CAPS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001446rasp',name:'CLOXACILLIN 500MG CAPS 100S',category:'Antibiotic/Antifungal'},
+{id:'07001446sasp',name:'CLOXACILLIN 250MG CAPS 100S',category:'Antibiotic/Antifungal'},
+{id:'07001446tasp',name:'DOMPERIDONE 10MG TABS 30S',category:'GI/Gastroenterology'},
+{id:'07001446uasp',name:'DOMPERIDONE SUSP 1MG/ML 100ML',category:'GI/Gastroenterology'},
+{id:'07001446vasp',name:'LOPERAMIDE 2MG CAPS 30S',category:'GI/Gastroenterology'},
+{id:'07001446wasp',name:'RANITIDINE 150MG TABS 30S',category:'GI/Gastroenterology'},
+{id:'07001446xasp',name:'ORS MANGO SACHETS 20.5G 10S',category:'GI/Gastroenterology'},
+{id:'07001446yasp',name:'ORS ORANGE SACHETS 20.5G 10S',category:'GI/Gastroenterology'},
+{id:'07001446zasp',name:'ORS LEMON SACHETS 20.5G 10S',category:'GI/Gastroenterology'},
+{id:'07001447aasp',name:'PREDNISOLONE 5MG TABS 30S',category:'Other'},
+{id:'07001447basp',name:'PREDNISOLONE 10MG TABS 30S',category:'Other'},
+{id:'07001447casp',name:'ENALAPRIL 5MG TABS 28S',category:'Cardiovascular'},
+{id:'07001447dasp',name:'ENALAPRIL 10MG TABS 28S',category:'Cardiovascular'},
+{id:'07001447easp',name:'PIROXICAM 20MG CAPS 30S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001447fasp',name:'MEFENAMIC ACID 500MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001447gasp',name:'MEFENAMIC ACID 250MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001447hasp',name:'ALBENDAZOLE 400MG TABS 1S',category:'GI/Gastroenterology'},
+{id:'07001447iasp',name:'ALBENDAZOLE 200MG/5ML SUSP 20ML',category:'GI/Gastroenterology'},
+{id:'07001447jasp',name:'MULTIVITAMIN TABS 30S',category:'Vitamins/Supplements'},
+{id:'07001447kasp',name:'MULTIVITAMIN SYRUP 200ML',category:'Vitamins/Supplements'},
+{id:'07001447lasp',name:'VITAMIN C 500MG TABS 100S',category:'Vitamins/Supplements'},
+{id:'07001447masp',name:'VITAMIN C 1000MG EFFERVESCENT 20S',category:'Vitamins/Supplements'},
+{id:'07001447nasp',name:'CALCIUM PLUS VITAMIN D3 TABS 30S',category:'Vitamins/Supplements'},
+{id:'07001447oasp',name:'FERROUS SULFATE 200MG TABS 100S',category:'Vitamins/Supplements'},
+{id:'07001447pasp',name:'FOLIC ACID 5MG TABS 28S',category:'Vitamins/Supplements'},
+{id:'07001447qasp',name:'ZINC SULFATE 20MG TABS 30S',category:'Vitamins/Supplements'},
+{id:'07001447rasp',name:'ZINC SULFATE SYRUP 100ML',category:'Vitamins/Supplements'},
+{id:'07001447sasp',name:'GENTAMICIN EYE DROPS 5ML',category:'Eye/ENT'},
+{id:'07001447tasp',name:'GENTAMICIN INJECTION 80MG/2ML',category:'Injectables'},
+{id:'07001447uasp',name:'CHLORAMPHENICOL EYE DROPS 10ML',category:'Eye/ENT'},
+{id:'07001447vasp',name:'CHLORAMPHENICOL EYE OINT 5GM',category:'Eye/ENT'},
+{id:'07001447wasp',name:'HYDROCORTISONE CREAM 1% 15GM',category:'Dermatology'},
+{id:'07001447xasp',name:'CLOTRIMAZOLE CREAM 1% 20GM',category:'Dermatology'},
+{id:'07001447yasp',name:'KETOCONAZOLE CREAM 2% 15GM',category:'Dermatology'},
+{id:'07001447zasp',name:'DICLOFENAC GEL 1% 20GM',category:'Analgesic/Anti-inflammatory'},
+{id:'07001448aasp',name:'GENTAMICIN CREAM 0.1% 15GM',category:'Dermatology'},
+{id:'07001448basp',name:'CIPROFLOXACIN EYE DROPS 5ML',category:'Eye/ENT'},
+{id:'07001448casp',name:'SALBUTAMOL 4MG TABS 30S',category:'Respiratory'},
+{id:'07001448dasp',name:'SALBUTAMOL SYRUP 2MG/5ML 100ML',category:'Respiratory'},
+{id:'07001448easp',name:'BECLOMETHASONE INHALER 50MCG 200D',category:'Respiratory'},
+{id:'07001448fasp',name:'BECLOMETHASONE INHALER 100MCG 200D',category:'Respiratory'},
+{id:'07001448gasp',name:'DECONGESTIVE EXPECTORANT SYRUP 100ML',category:'ENT/Cold & Flu'},
+{id:'07001448hasp',name:'COUGH LINCTUS SIMPLE 100ML',category:'ENT/Cold & Flu'},
+{id:'07001448iasp',name:'PROMETHAZINE 25MG TABS 30S',category:'Other'},
+{id:'07001448jasp',name:'PROMETHAZINE SYRUP 5MG/5ML 100ML',category:'Other'},
+{id:'07001448kasp',name:'AMOXICILLIN 250MG CAPS 100S',category:'Antibiotic/Antifungal'},
+{id:'07001448lasp',name:'AMOXICILLIN SYRUP 125MG/5ML 100ML',category:'Antibiotic/Antifungal'},
+{id:'07001448masp',name:'CO-AMOXICLAV 375MG TABS 14S',category:'Antibiotic/Antifungal'},
+{id:'07001448nasp',name:'CEFIXIME 200MG TABS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001448oasp',name:'CEFIXIME 400MG TABS 10S',category:'Antibiotic/Antifungal'},
+{id:'07001448pasp',name:'NITROFURANTOIN 100MG CAPS 30S',category:'Antibiotic/Antifungal'},
+{id:'07001448qasp',name:'NORFLOXACIN 400MG TABS 14S',category:'Antibiotic/Antifungal'},
+{id:'07001448rasp',name:'TINIDAZOLE 500MG TABS 4S',category:'Antibiotic/Antifungal'},
+{id:'07001448sasp',name:'LACTULOSE SOLUTION 100ML',category:'GI/Gastroenterology'},
+{id:'07001448tasp',name:'MOVICOL SACHETS 30S',category:'GI/Gastroenterology'},
+{id:'07001448uasp',name:'BISACODYL 5MG TABS 30S',category:'GI/Gastroenterology'},
+{id:'07001448vasp',name:'PANADOL EXTRA 500MG/65MG 24S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001448wasp',name:'PANADOL 500MG TABS 24S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001448xasp',name:'PANADOL SOLUBLE 500MG 24S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001448yasp',name:'IBUPROFEN 400MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001448zasp',name:'IBUPROFEN 200MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001449aasp',name:'DICLOFENAC 50MG TABS 100S',category:'Analgesic/Anti-inflammatory'},
+{id:'07001449basp',name:'METFORMIN 850MG TABS 50S',category:'Diabetes'},
+{id:'07001449casp',name:'METFORMIN 1000MG TABS 56S',category:'Diabetes'},
+{id:'07001449dasp',name:'SITAGLIPTIN 50MG TABS 28S',category:'Diabetes'},
+{id:'07001449easp',name:'EMPAGLIFLOZIN 10MG TABS 28S',category:'Diabetes'},
+{id:'07001449fasp',name:'EMPAGLIFLOZIN 25MG TABS 28S',category:'Diabetes'},
+{id:'07001449gasp',name:'SYRINGE 1ML INSULIN 100S',category:'Diagnostics/Devices'},
+{id:'07001449hasp',name:'SYRINGE 2ML 100S',category:'Diagnostics/Devices'},
+{id:'07001449iasp',name:'SYRINGE 5ML 100S',category:'Diagnostics/Devices'},
+{id:'07001449jasp',name:'IV CANNULA 20G 50S',category:'Diagnostics/Devices'},
+{id:'07001449kasp',name:'IV CANNULA 22G 50S',category:'Diagnostics/Devices'},
+{id:'07001449lasp',name:'COTTON WOOL ROLL 500G',category:'Diagnostics/Devices'},
+{id:'07001449masp',name:'GAUZE BANDAGE 10CMX10M',category:'Diagnostics/Devices'},
+{id:'07001449nasp',name:'CREPE BANDAGE 10CMX4.5M',category:'Diagnostics/Devices'},
+{id:'07001449oasp',name:'ADHESIVE PLASTER 2.5CMX5M',category:'Diagnostics/Devices'},
+{id:'07001449pasp',name:'SURGICAL GLOVES NON-STERILE 100S SIZE M',category:'Diagnostics/Devices'},
+{id:'07001449qasp',name:'SURGICAL GLOVES NON-STERILE 100S SIZE L',category:'Diagnostics/Devices'},
+{id:'07001449rasp',name:'HYDROGEN PEROXIDE 3% 100ML',category:'Dermatology'},
+{id:'07001449sasp',name:'METHYLATED SPIRIT 70% 500ML',category:'Dermatology'},
+{id:'07001449tasp',name:'POVIDONE IODINE 10% 100ML',category:'Dermatology'},
+{id:'07001449uasp',name:'NORMAL SALINE 0.9% IV 500ML',category:'Injectables'},
+{id:'07001449vasp',name:'NORMAL SALINE 0.9% IV 1L',category:'Injectables'},
+{id:'07001449wasp',name:'RINGERS LACTATE IV 500ML',category:'Injectables'},
+{id:'07001449xasp',name:'GLUCOSE 5% IV 500ML',category:'Injectables'},
+{id:'07001449yasp',name:'GLUCOSE 50% IV 50ML',category:'Injectables'},
+{id:'07001449zasp',name:'WATER FOR INJECTION 10ML 100S',category:'Injectables'},
+{id:'07001450aasp',name:'CEFTRIAXONE 1GM INJ',category:'Injectables'}
 ];
 
 async function seedAll() {
@@ -534,7 +640,8 @@ async function seedAll() {
     });
     status('s-admin', 'Admin profile created (admin@ruhena.com / admin123)', 'done');
 
-    // Step 3: Seed 452 drugs in batches
+    // Step 3: Seed all drugs in batches
+    document.getElementById('med-count').textContent = DRUGS.length;
     const BATCH_SIZE = 50;
     for (let i = 0; i < DRUGS.length; i += BATCH_SIZE) {
       const batch = db.batch();
