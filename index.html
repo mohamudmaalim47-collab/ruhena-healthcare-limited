@@ -25,7 +25,6 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 .hero-stat-val{font-size:20px;font-weight:700;color:#fff;}
 .hero-stat-lbl{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
 
-/* RIGHT PANEL */
 .login-panel{background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 40px;position:relative;border-left:1px solid var(--border);overflow-y:auto;}
 .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
 .login-logo-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:24px;}
@@ -33,28 +32,16 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 .login-logo-text span{color:var(--green);}
 .login-sub{font-size:11px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px;text-align:center;}
 
-/* User cards — loaded from DB */
-.users-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;width:100%;min-height:80px;}
-.user-card{padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .2s;text-align:center;font-weight:500;}
-.user-card:hover{border-color:var(--border2);background:var(--surface3);}
-.user-card.selected{border-color:var(--green);background:var(--green-bg);color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,0.1);}
-.user-card.selected .user-role-lbl{color:var(--green);opacity:0.7;}
-.user-icon{font-size:24px;display:block;margin-bottom:6px;}
-.user-name{font-weight:700;font-size:13px;}
-.user-role-lbl{font-size:10px;color:var(--text3);margin-top:3px;}
-.users-loading{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;grid-column:1/-1;}
-
-/* No users state */
-.no-users{grid-column:1/-1;text-align:center;padding:16px;color:var(--text3);font-size:13px;line-height:1.6;}
-.no-users a{color:var(--green);font-weight:600;}
-
-.pin-wrap{position:relative;width:100%;margin-bottom:8px;}
-.pin-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;}
-.pin-input{width:100%;padding:13px 14px 13px 44px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;letter-spacing:.2em;transition:all .2s;}
-.pin-input:focus{border-color:var(--green);background:var(--surface);box-shadow:0 0 0 3px rgba(0,214,143,0.1);}
-.pin-input::placeholder{letter-spacing:.05em;color:var(--text3);}
-.pin-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:18px;opacity:0;transition:opacity .2s;display:flex;align-items:center;gap:6px;}
-.pin-error.show{opacity:1;}
+.form-group{width:100%;margin-bottom:16px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:0.02em;}
+.input-wrap{position:relative;width:100%;}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.form-input{width:100%;padding:13px 14px 13px 44px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;outline:none;transition:all .2s;box-sizing:border-box;}
+.form-input:focus{border-color:var(--green);background:var(--surface);box-shadow:0 0 0 3px rgba(0,214,143,0.1);}
+.form-input::placeholder{color:var(--text3);}
+.form-input.input-error{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,71,87,0.1);}
+.login-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:18px;opacity:0;transition:opacity .2s;display:flex;align-items:center;gap:6px;width:100%;}
+.login-error.show{opacity:1;}
 .btn-signin{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),var(--teal));color:#001a0d;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-top:4px;}
 .btn-signin:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,214,143,0.35);}
 .btn-signin:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
@@ -62,6 +49,8 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 .theme-toggle-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:6px 14px;color:var(--text3);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
 .theme-toggle-btn:hover{border-color:var(--border2);color:var(--text2);}
 .setup-link{font-size:12px;color:var(--green);cursor:pointer;font-weight:600;}
+.forgot-link{font-size:12px;color:var(--text3);cursor:pointer;transition:color .2s;text-decoration:none;}
+.forgot-link:hover{color:var(--green);}
 .powered-by{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text3);white-space:nowrap;}
 @media(max-width:900px){body{grid-template-columns:1fr;}.login-hero{display:none;}.login-panel{min-height:100vh;border-left:none;}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
@@ -72,7 +61,7 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 
 <!-- LEFT HERO -->
 <div class="login-hero">
-  <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&auto=format&fit=crop&q=80" alt="Pharmacy"
+  <img src="https://images.unsplash.com/photo-1586015555751-63c3f1a7823e?w=1200&auto=format&fit=crop&q=80" alt="Modern Pharmacy"
     onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?w=1200&auto=format&fit=crop&q=80'">
   <div class="hero-overlay">
     <div class="hero-badge">🏥 Healthcare Management System</div>
@@ -100,37 +89,49 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
   </div>
   <div class="login-sub">Limited · Pharmacy Management System</div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:16px;text-align:center;width:100%;">Select your account</div>
+  <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:20px;text-align:center;width:100%;">Sign in to your account</div>
 
-  <!-- USER CARDS — loaded from Supabase -->
-  <div class="users-grid" id="users-grid">
-    <div class="users-loading">
-      <div style="width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;"></div>
-      Loading users...
+  <div class="form-group">
+    <label class="form-label">Email Address</label>
+    <div class="input-wrap">
+      <span class="input-icon">📧</span>
+      <input class="form-input" type="email" id="email-input"
+        placeholder="you@example.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter') doLogin()">
     </div>
   </div>
 
-  <div class="pin-wrap">
-    <span class="pin-icon">🔐</span>
-    <input class="pin-input" type="password" id="pin-input"
-      placeholder="Enter your PIN" maxlength="20"
-      onkeydown="if(event.key==='Enter') doLogin()">
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔐</span>
+      <input class="form-input" type="password" id="password-input"
+        placeholder="Enter your password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
   </div>
-  <div class="pin-error" id="pin-error">❌ Incorrect PIN. Please try again.</div>
 
-  <button class="btn-signin" id="signin-btn" onclick="doLogin()" disabled>Sign In →</button>
+  <div class="login-error" id="login-error">❌ Invalid email or password. Please try again.</div>
+
+  <button class="btn-signin" id="signin-btn" onclick="doLogin()">Sign In →</button>
+
+  <div style="width:100%;text-align:right;margin-top:8px;">
+    <a class="forgot-link" onclick="resetPassword()">Forgot password?</a>
+  </div>
 
   <div class="login-bottom">
     <button class="theme-toggle-btn" onclick="toggleLoginTheme()" id="theme-btn">🌙 Dark Mode</button>
     <a href="setup.html" class="setup-link">⚙️ First Time Setup</a>
   </div>
 
-  <div class="powered-by">Supabase + Vercel · © 2026 Ruhena Healthcare Limited</div>
+  <div class="powered-by">Firebase · © 2026 Ruhena Healthcare Limited</div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
-// Apply theme immediately
 (function(){
   const saved = localStorage.getItem('rhl_theme');
   if(saved === 'light'){
@@ -140,48 +141,7 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
   }
 })();
 
-// Redirect if already logged in
 if(getSession()) window.location.href = 'dashboard.html';
-
-let selectedUser = null;
-let allUsers = [];
-
-const roleIcons = { salesperson: '👩‍⚕️', owner: '👨‍💼' };
-const roleLabels = { salesperson: 'Salesperson', owner: 'Owner' };
-
-async function loadUsers() {
-  const grid = document.getElementById('users-grid');
-  try {
-    allUsers = await sbFetch('users?active=eq.true&order=name.asc&limit=20');
-    if (!allUsers.length) {
-      grid.innerHTML = `<div class="no-users">
-        No accounts found.<br>
-        <a href="setup.html" style="color:var(--green);font-weight:700;">→ Click here to set up your team first</a>
-      </div>`;
-      return;
-    }
-    grid.innerHTML = allUsers.map(u => `
-      <div class="user-card" data-id="${u.id}" onclick="selectUser(this, '${u.id}')">
-        <span class="user-icon">${roleIcons[u.role] || '👤'}</span>
-        <div class="user-name">${u.name}</div>
-        <div class="user-role-lbl">${roleLabels[u.role] || u.role}</div>
-      </div>`).join('');
-  } catch(e) {
-    grid.innerHTML = `<div class="no-users" style="color:var(--red);">
-      ⚠️ Could not connect to database.<br>
-      <span style="font-size:11px;color:var(--text3);">Check your internet connection and refresh.</span>
-    </div>`;
-  }
-}
-
-function selectUser(el, userId) {
-  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedUser = allUsers.find(u => u.id === userId);
-  document.getElementById('pin-input').focus();
-  document.getElementById('signin-btn').disabled = false;
-  document.getElementById('pin-error').classList.remove('show');
-}
 
 function toggleLoginTheme() {
   const isLight = document.body.classList.toggle('light-mode');
@@ -191,39 +151,52 @@ function toggleLoginTheme() {
 
 async function doLogin() {
   const btn = document.getElementById('signin-btn');
-  if (!selectedUser) { toast('Please select your account first', 'warning'); return; }
-  const pin = document.getElementById('pin-input').value;
-  if (!pin) { document.getElementById('pin-input').focus(); return; }
+  const email = document.getElementById('email-input').value.trim();
+  const password = document.getElementById('password-input').value;
+  const errEl = document.getElementById('login-error');
+
+  if (!email) { errEl.textContent = '❌ Please enter your email address.'; errEl.classList.add('show'); document.getElementById('email-input').focus(); return; }
+  if (!password) { errEl.textContent = '❌ Please enter your password.'; errEl.classList.add('show'); document.getElementById('password-input').focus(); return; }
 
   btn.disabled = true;
   btn.textContent = 'Signing in...';
+  errEl.classList.remove('show');
 
   try {
-    const user = await loginWithPin(selectedUser.username, pin);
-    if (user) {
-      setSession(user);
-      document.querySelector('.login-panel').style.opacity = '0';
-      document.querySelector('.login-panel').style.transition = 'opacity .3s';
-      setTimeout(() => window.location.href = 'dashboard.html', 300);
-    } else {
-      const err = document.getElementById('pin-error');
-      err.classList.add('show');
-      const inp = document.getElementById('pin-input');
-      inp.classList.add('shake');
-      inp.value = '';
-      setTimeout(() => inp.classList.remove('shake'), 400);
-      inp.focus();
-      btn.disabled = false;
-      btn.textContent = 'Sign In →';
-    }
+    const user = await loginWithEmail(email, password);
+    setSession(user);
+    document.querySelector('.login-panel').style.opacity = '0';
+    document.querySelector('.login-panel').style.transition = 'opacity .3s';
+    setTimeout(() => window.location.href = 'dashboard.html', 300);
   } catch(e) {
-    toast('Connection error. Please try again.', 'error');
+    const msg = e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential'
+      ? '❌ Invalid email or password.'
+      : e.code === 'auth/user-disabled'
+        ? '❌ This account has been disabled.'
+        : e.message && e.message.includes('disabled')
+          ? '❌ This account has been disabled.'
+          : '❌ ' + (e.message || 'Sign in failed. Please try again.');
+    errEl.textContent = msg;
+    errEl.classList.add('show');
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').classList.add('shake');
+    setTimeout(() => document.getElementById('password-input').classList.remove('shake'), 400);
+    document.getElementById('password-input').focus();
     btn.disabled = false;
     btn.textContent = 'Sign In →';
   }
 }
 
-loadUsers();
+async function resetPassword() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email) { toast('Enter your email address first', 'warning'); document.getElementById('email-input').focus(); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    toast('Password reset email sent to ' + email, 'success');
+  } catch(e) {
+    toast(e.message || 'Failed to send reset email', 'error');
+  }
+}
 </script>
 </body>
 </html>

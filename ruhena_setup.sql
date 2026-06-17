@@ -15,7 +15,7 @@ drop table if exists users cascade;
 
 -- ── USERS (Authentication) ─────────────────────────────────
 create table users (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   name text not null,
   username text not null unique,
   pin text not null,

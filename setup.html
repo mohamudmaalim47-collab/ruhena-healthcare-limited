@@ -95,12 +95,12 @@ h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bo
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u1-name" placeholder="e.g. Ruhena" value="Ruhena"></div>
-        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u1-username" placeholder="e.g. ruhena" value="ruhena"></div>
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u1-name" placeholder="e.g. Ruhena Hassan"></div>
+        <div class="form-group"><label class="lbl">Email *</label><input class="inp" type="email" id="u1-email" placeholder="e.g. sales@ruhena.com"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u1-pin" placeholder="Create a secure PIN"></div>
-        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u1-pin2" placeholder="Repeat PIN"></div>
+        <div class="form-group"><label class="lbl">Password * (min 6 chars)</label><input class="inp" type="password" id="u1-pass" placeholder="Create a secure password"></div>
+        <div class="form-group"><label class="lbl">Confirm Password *</label><input class="inp" type="password" id="u1-pass2" placeholder="Repeat password"></div>
       </div>
       <div class="perms"><div class="perms-lbl">Permissions</div>
         <div class="perm-tags">
@@ -122,12 +122,12 @@ h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bo
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u2-name" placeholder="e.g. Abuu" value="Abuu"></div>
-        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u2-username" placeholder="e.g. abuu" value="abuu"></div>
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u2-name" placeholder="e.g. Abuu Hassan"></div>
+        <div class="form-group"><label class="lbl">Email *</label><input class="inp" type="email" id="u2-email" placeholder="e.g. owner@ruhena.com"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u2-pin" placeholder="Create a secure PIN"></div>
-        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u2-pin2" placeholder="Repeat PIN"></div>
+        <div class="form-group"><label class="lbl">Password * (min 6 chars)</label><input class="inp" type="password" id="u2-pass" placeholder="Create a secure password"></div>
+        <div class="form-group"><label class="lbl">Confirm Password *</label><input class="inp" type="password" id="u2-pass2" placeholder="Repeat password"></div>
       </div>
       <div class="perms"><div class="perms-lbl">Permissions</div>
         <div class="perm-tags">
@@ -148,12 +148,12 @@ h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bo
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u3-name" placeholder="e.g. Bushro" value="Bushro"></div>
-        <div class="form-group"><label class="lbl">Username *</label><input class="inp" id="u3-username" placeholder="e.g. bushro" value="bushro"></div>
+        <div class="form-group"><label class="lbl">Full Name *</label><input class="inp" id="u3-name" placeholder="e.g. Bushro Hassan"></div>
+        <div class="form-group"><label class="lbl">Email *</label><input class="inp" type="email" id="u3-email" placeholder="e.g. admin@ruhena.com"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="lbl">PIN * (min 4 chars)</label><input class="inp" type="password" id="u3-pin" placeholder="Create a secure PIN"></div>
-        <div class="form-group"><label class="lbl">Confirm PIN *</label><input class="inp" type="password" id="u3-pin2" placeholder="Repeat PIN"></div>
+        <div class="form-group"><label class="lbl">Password * (min 6 chars)</label><input class="inp" type="password" id="u3-pass" placeholder="Create a secure password"></div>
+        <div class="form-group"><label class="lbl">Confirm Password *</label><input class="inp" type="password" id="u3-pass2" placeholder="Repeat password"></div>
       </div>
       <div class="perms"><div class="perms-lbl">Permissions</div>
         <div class="perm-tags">
@@ -181,54 +181,18 @@ h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bo
   <div class="success-box" id="success-box">
     <span class="success-icon">🎉</span>
     <div class="success-title">Setup Complete!</div>
-    <div class="success-sub">All 3 accounts created in Supabase. Your pharmacy system is ready.</div>
+    <div class="success-sub">All 3 accounts created in Firebase. Your pharmacy system is ready.</div>
     <div class="accounts-grid" id="accounts-summary"></div>
-    <div class="warning-box">⚠️ <strong>Remember your PINs</strong> — they cannot be recovered. If forgotten, an Owner can reset them from the Users page.</div>
+    <div class="warning-box">⚠️ <strong>Remember your passwords</strong> — they cannot be recovered. Use the "Forgot password" link on the login page if needed.</div>
     <a href="index.html" class="go-btn">💊 Go to Login →</a>
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
 <script>
-// ── SUPABASE — self-contained, no shared.js dependency ──────────
-const SB_URL = 'https://chgqixqriqqriwbrmogm.supabase.co';
-const SB_KEY = 'sb_publishable_2XECwfPm0YXJoQXb6ITuzQ_o6sBY10a';
-
-async function sbPost(table, body) {
-  const r = await fetch(SB_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + SB_KEY,
-      'Prefer': 'return=representation'
-    },
-    body: JSON.stringify(body)
-  });
-  const txt = await r.text();
-  if (!r.ok) throw new Error(txt);
-  return txt ? JSON.parse(txt) : [];
-}
-
-async function sbCheck() {
-  const r = await fetch(SB_URL + '/rest/v1/users?limit=1', {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-  });
-  if (!r.ok) throw new Error('Cannot reach database');
-  return true;
-}
-
-async function sbDeleteAll() {
-  await fetch(SB_URL + '/rest/v1/users?id=neq.PLACEHOLDER', {
-    method: 'DELETE',
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-  }).catch(() => {});
-}
-
-// Generate a unique ID — self-contained, no dependency
-function makeId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
 function setStatus(id, icon, text) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -246,24 +210,24 @@ function showError(msg) {
 
 function validate() {
   const users = [
-    { prefix: 'u1', roleLabel: 'Salesperson' },
-    { prefix: 'u2', roleLabel: 'Owner A' },
-    { prefix: 'u3', roleLabel: 'Owner B' }
+    { prefix: 'u1', roleLabel: 'Salesperson', role: 'salesperson' },
+    { prefix: 'u2', roleLabel: 'Owner A', role: 'owner' },
+    { prefix: 'u3', roleLabel: 'Owner B', role: 'owner' }
   ];
   const result = [];
   for (const u of users) {
     const name = document.getElementById(u.prefix + '-name').value.trim();
-    const username = document.getElementById(u.prefix + '-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
-    const pin = document.getElementById(u.prefix + '-pin').value;
-    const pin2 = document.getElementById(u.prefix + '-pin2').value;
+    const email = document.getElementById(u.prefix + '-email').value.trim();
+    const pass = document.getElementById(u.prefix + '-pass').value;
+    const pass2 = document.getElementById(u.prefix + '-pass2').value;
     if (!name || name.length < 2) { showError('Enter a full name for ' + u.roleLabel + '.'); return null; }
-    if (!username || username.length < 2) { showError('Enter a username for ' + u.roleLabel + '.'); return null; }
-    if (!pin || pin.length < 4) { showError('PIN for ' + name + ' must be at least 4 characters.'); return null; }
-    if (pin !== pin2) { showError('PINs for ' + name + ' do not match.'); return null; }
-    result.push({ name, username, pin });
+    if (!email || !email.includes('@')) { showError('Enter a valid email for ' + u.roleLabel + '.'); return null; }
+    if (!pass || pass.length < 6) { showError('Password for ' + name + ' must be at least 6 characters.'); return null; }
+    if (pass !== pass2) { showError('Passwords for ' + name + ' do not match.'); return null; }
+    result.push({ name, email, password: pass, role: u.role });
   }
-  const usernames = result.map(u => u.username);
-  if (new Set(usernames).size !== usernames.length) { showError('All usernames must be unique.'); return null; }
+  const emails = result.map(u => u.email);
+  if (new Set(emails).size !== emails.length) { showError('All email addresses must be unique.'); return null; }
   return result;
 }
 
@@ -277,45 +241,32 @@ async function createAll() {
   document.getElementById('err-msg').classList.remove('show');
 
   try {
-    // Step 1: Check DB connection
-    setStatus('st1', 'spin', 'Connecting to database...');
-    await sbCheck();
-    setStatus('st1', '✅', 'Database connected');
+    setStatus('st1', 'spin', 'Connecting to Firebase...');
+    // Quick connectivity check
+    await db.collection('users').limit(1).get();
+    setStatus('st1', '✅', 'Firebase connected');
 
-    // Step 2: Clear existing users (fresh setup)
-    await sbDeleteAll();
-
-    // Step 3: Create each user with a generated ID
-    const roles = ['salesperson', 'owner', 'owner'];
     const icons = ['👩⚕️', '👨💼', '👩💼'];
     const stIds = ['st2', 'st3', 'st4'];
-    const roleTxts = ['st2-txt', 'st3-txt', 'st4-txt'];
     const roleLabels = ['Salesperson', 'Owner A', 'Owner B'];
 
     for (let i = 0; i < users.length; i++) {
       setStatus(stIds[i], 'spin', 'Creating ' + users[i].name + '\'s account...');
-      const newUser = {
-        id: makeId(),              // ← generated here, never null
+      await createAuthUser(users[i].email, users[i].password, {
         name: users[i].name,
-        username: users[i].username,
-        pin: users[i].pin,
-        role: roles[i],
-        active: true,
-        created_at: new Date().toISOString(),
-        created_by: 'setup'
-      };
-      await sbPost('users', newUser);
+        role: users[i].role,
+        active: true
+      });
       setStatus(stIds[i], '✅', users[i].name + ' (' + roleLabels[i] + ') created');
       await new Promise(r => setTimeout(r, 400));
     }
 
-    // Show success
     document.getElementById('accounts-summary').innerHTML = users.map((u, i) => `
       <div class="ac">
         <span class="icon">${icons[i]}</span>
         <div class="name">${u.name}</div>
         <div class="role">${roleLabels[i]}</div>
-        <div class="un">@${u.username}</div>
+        <div class="un">${u.email}</div>
       </div>`).join('');
 
     setTimeout(() => {
@@ -324,7 +275,7 @@ async function createAll() {
     }, 600);
 
   } catch(e) {
-    showError('❌ ' + (e.message.includes('users') ? 'Database table not found. Run ruhena_setup.sql in Supabase SQL Editor first, then try again.' : e.message));
+    showError('❌ ' + (e.message || 'Setup failed. Check your Firebase configuration.'));
     btn.disabled = false; btn.textContent = '🚀 Create All Accounts';
   }
 }

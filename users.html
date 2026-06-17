@@ -77,12 +77,12 @@
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
         <div style="font-size:24px;margin-bottom:8px;">2️⃣</div>
         <div style="font-weight:600;margin-bottom:4px;">Run SQL Setup</div>
-        <div style="font-size:12px;color:var(--text2);">Run <code>ruhena_setup.sql</code> then <code>ruhena_drugs_seed.sql</code> in Supabase SQL Editor.</div>
+        <div style="font-size:12px;color:var(--text2);">Create the accounts via the <strong>"First Time Setup"</strong> page or use the "+ Add User" button below.</div>
       </div>
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
         <div style="font-size:24px;margin-bottom:8px;">3️⃣</div>
         <div style="font-weight:600;margin-bottom:4px;">Login</div>
-        <div style="font-size:12px;color:var(--text2);">Go to the login page, select your name, enter your PIN and start using the system.</div>
+        <div style="font-size:12px;color:var(--text2);">Go to the login page, enter your email and password to access the system.</div>
       </div>
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
         <div style="font-size:24px;margin-bottom:8px;">4️⃣</div>
@@ -106,8 +106,8 @@
       <input class="form-input" id="u-name" placeholder="e.g. Ruhena Hassan">
     </div>
     <div class="form-group">
-      <label class="form-label">Username * <span style="font-size:11px;color:var(--text3);">(used to select account at login)</span></label>
-      <input class="form-input" id="u-username" placeholder="e.g. ruhena" style="text-transform:lowercase;">
+      <label class="form-label">Email *</label>
+      <input class="form-input" type="email" id="u-email" placeholder="e.g. user@ruhena.com">
     </div>
     <div class="form-group">
       <label class="form-label">Role *</label>
@@ -118,15 +118,15 @@
     </div>
     <div class="form-row form-row-2">
       <div class="form-group">
-        <label class="form-label">PIN * <span style="font-size:11px;color:var(--text3);">(4–15 characters)</span></label>
-        <input class="form-input" type="password" id="u-pin" placeholder="Create a PIN" maxlength="15">
+        <label class="form-label">Password * <span style="font-size:11px;color:var(--text3);">(min 6 chars, new users only)</span></label>
+        <input class="form-input" type="password" id="u-pass" placeholder="Create a password" maxlength="50">
       </div>
       <div class="form-group">
-        <label class="form-label">Confirm PIN *</label>
-        <input class="form-input" type="password" id="u-pin2" placeholder="Repeat PIN" maxlength="15">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-input" type="password" id="u-pass2" placeholder="Repeat password" maxlength="50">
       </div>
     </div>
-    <div id="u-pin-match" style="font-size:12px;margin-top:-8px;margin-bottom:12px;min-height:16px;"></div>
+    <div id="u-pass-match" style="font-size:12px;margin-top:-8px;margin-bottom:12px;min-height:16px;"></div>
 
     <div class="form-group">
       <label class="form-label">Status</label>
@@ -145,40 +145,34 @@
   </div>
 </div>
 
-<!-- CHANGE PIN MODAL -->
-<div class="modal-overlay" id="modal-change-pin">
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="modal-reset-pass">
   <div class="modal" style="width:400px;">
-    <div class="modal-title">Change PIN</div>
-    <input type="hidden" id="cp-user-id">
-    <div id="cp-user-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:16px;font-size:13px;color:var(--text2);"></div>
-    <div class="form-group">
-      <label class="form-label">New PIN *</label>
-      <input class="form-input" type="password" id="cp-pin" placeholder="New PIN" maxlength="15">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Confirm New PIN *</label>
-      <input class="form-input" type="password" id="cp-pin2" placeholder="Repeat new PIN" maxlength="15">
-    </div>
+    <div class="modal-title">Reset Password</div>
+    <input type="hidden" id="rp-user-id">
+    <div id="rp-user-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:16px;font-size:13px;color:var(--text2);"></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">A password reset email will be sent to the user's email address. They can click the link to set a new password.</p>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-change-pin')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveNewPin()">Update PIN</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-reset-pass')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendResetPassword()">Send Reset Email</button>
     </div>
   </div>
 </div>
 
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
 applyTheme();
 
-// Works both as setup page (no session) and as logged-in management page
 const session = getSession();
 if (session) {
   buildNav('users');
   document.getElementById('logout-btn').style.display = '';
   document.getElementById('back-btn').style.display = 'none';
-  // Only owners can manage users
   if (!isOwner()) {
     document.querySelector('button[onclick="openModal(\'modal-add-user\')"]').style.display = 'none';
   }
@@ -190,11 +184,9 @@ async function loadUsers() {
   try {
     users = await sbFetch('users?order=name.asc&limit=100');
     renderUsers();
-    if (!users.length) {
-      document.getElementById('setup-banner').style.display = 'block';
-    }
+    if (!users.length) document.getElementById('setup-banner').style.display = 'block';
   } catch(e) {
-    document.getElementById('user-cards').innerHTML = `<div style="grid-column:1/-1;padding:20px;color:var(--red);font-size:13px;text-align:center;">⚠️ Cannot connect to database. Make sure you have run ruhena_setup.sql in Supabase.</div>`;
+    document.getElementById('user-cards').innerHTML = `<div style="grid-column:1/-1;padding:20px;color:var(--red);font-size:13px;text-align:center;">⚠️ Cannot connect to database.</div>`;
   }
 }
 
@@ -216,7 +208,7 @@ function renderUsers() {
         <div class="user-avatar ${isOwnerRole ? 'avatar-owner' : 'avatar-sales'}">${isOwnerRole ? '👨💼' : '👩⚕️'}</div>
         <div class="user-card-info">
           <h3>${u.name}</h3>
-          <p>@${u.username}</p>
+          <p>${u.email || '—'}</p>
         </div>
       </div>
       <div class="user-card-meta">
@@ -225,7 +217,7 @@ function renderUsers() {
       </div>
       ${canEdit ? `<div class="user-card-actions">
         <button class="btn btn-ghost btn-sm" onclick="openEdit('${u.id}')">✏️ Edit</button>
-        <button class="btn btn-ghost btn-sm" onclick="openChangePIN('${u.id}')">🔐 PIN</button>
+        <button class="btn btn-ghost btn-sm" onclick="openResetPass('${u.id}')">🔐 Reset Password</button>
         <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Del</button>
       </div>` : ''}
     </div>`;
@@ -233,12 +225,12 @@ function renderUsers() {
 }
 
 function resetForm() {
-  ['u-name','u-username','u-pin','u-pin2'].forEach(id => document.getElementById(id).value = '');
+  ['u-name','u-email','u-pass','u-pass2'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('u-role').value = 'salesperson';
   document.getElementById('u-active').value = 'true';
   document.getElementById('edit-user-id').value = '';
   document.getElementById('u-error').style.display = 'none';
-  document.getElementById('u-pin-match').textContent = '';
+  document.getElementById('u-pass-match').textContent = '';
   document.getElementById('modal-user-title').textContent = 'Add New User';
   document.getElementById('save-user-btn').textContent = 'Save User';
 }
@@ -247,80 +239,70 @@ function openEdit(id) {
   const u = users.find(x => x.id === id);
   document.getElementById('edit-user-id').value = id;
   document.getElementById('u-name').value = u.name;
-  document.getElementById('u-username').value = u.username;
+  document.getElementById('u-email').value = u.email || '';
   document.getElementById('u-role').value = u.role;
   document.getElementById('u-active').value = String(u.active);
-  document.getElementById('u-pin').value = '';
-  document.getElementById('u-pin2').value = '';
-  document.getElementById('u-pin-match').textContent = '';
+  document.getElementById('u-pass').value = '';
+  document.getElementById('u-pass2').value = '';
+  document.getElementById('u-pass-match').textContent = '';
   document.getElementById('u-error').style.display = 'none';
   document.getElementById('modal-user-title').textContent = 'Edit User';
   document.getElementById('save-user-btn').textContent = 'Save Changes';
   openModal('modal-add-user');
 }
 
-// Live PIN match check
 document.addEventListener('input', e => {
-  if (e.target.id === 'u-pin' || e.target.id === 'u-pin2') {
-    const p1 = document.getElementById('u-pin').value;
-    const p2 = document.getElementById('u-pin2').value;
-    const el = document.getElementById('u-pin-match');
+  if (e.target.id === 'u-pass' || e.target.id === 'u-pass2') {
+    const p1 = document.getElementById('u-pass').value;
+    const p2 = document.getElementById('u-pass2').value;
+    const el = document.getElementById('u-pass-match');
     if (!p2) { el.textContent = ''; return; }
-    if (p1 === p2) { el.textContent = '✅ PINs match'; el.style.color = 'var(--green)'; }
-    else { el.textContent = '❌ PINs do not match'; el.style.color = 'var(--red)'; }
-  }
-  if (e.target.id === 'u-username') {
-    e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
+    if (p1 === p2) { el.textContent = '✅ Passwords match'; el.style.color = 'var(--green)'; }
+    else { el.textContent = '❌ Passwords do not match'; el.style.color = 'var(--red)'; }
   }
 });
 
 async function saveUser() {
   const editId = document.getElementById('edit-user-id').value;
   const name = document.getElementById('u-name').value.trim();
-  const username = document.getElementById('u-username').value.trim().toLowerCase();
+  const email = document.getElementById('u-email').value.trim();
   const role = document.getElementById('u-role').value;
-  const pin = document.getElementById('u-pin').value;
-  const pin2 = document.getElementById('u-pin2').value;
+  const pass = document.getElementById('u-pass').value;
+  const pass2 = document.getElementById('u-pass2').value;
   const active = document.getElementById('u-active').value === 'true';
   const errEl = document.getElementById('u-error');
 
-  if (!name || !username) { showErr('Name and username are required.'); return; }
-  if (!editId && !pin) { showErr('PIN is required.'); return; }
-  if (pin && pin.length < 4) { showErr('PIN must be at least 4 characters.'); return; }
-  if (pin && pin !== pin2) { showErr('PINs do not match.'); return; }
+  if (!name || !email) { showErr('Name and email are required.'); return; }
+  if (!email.includes('@')) { showErr('Enter a valid email address.'); return; }
 
-  // Check username unique
-  const existing = users.find(u => u.username === username && u.id !== editId);
-  if (existing) { showErr('Username already taken. Choose another.'); return; }
+  if (editId) {
+    await sbUpdate('users', editId, { name, role, active });
+    const idx = users.findIndex(u => u.id === editId);
+    if (idx !== -1) users[idx] = { ...users[idx], name, role, active };
+  } else {
+    if (!pass || pass.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+    if (pass !== pass2) { showErr('Passwords do not match.'); return; }
+    const existing = users.find(u => u.email === email);
+    if (existing) { showErr('Email already in use.'); return; }
 
-  const btn = document.getElementById('save-user-btn');
-  btn.disabled = true; btn.textContent = 'Saving...';
-
-  try {
-    if (editId) {
-      // Update existing
-      const updateData = { name, username, role, active };
-      if (pin) updateData.pin = pin;
-      await sbUpdate('users', editId, updateData);
-      const idx = users.findIndex(u => u.id === editId);
-      if (idx !== -1) users[idx] = { ...users[idx], ...updateData };
-    } else {
-      // Create new
-      const createdBy = session ? session.name : 'setup';
-      const newUser = { id: uid(), name, username, pin, role, active, created_at: new Date().toISOString(), created_by: createdBy };
-      await sbInsert('users', newUser);
-      users.push(newUser);
+    const btn = document.getElementById('save-user-btn');
+    btn.disabled = true; btn.textContent = 'Creating...';
+    try {
+      const uid = await createAuthUser(email, pass, { name, role, active });
+      users.push({ id: uid, name, email, role, active });
+    } catch(e) {
+      showErr('Failed to create user: ' + (e.message || 'Unknown error'));
+      btn.disabled = false; btn.textContent = 'Save User';
+      return;
     }
-    closeModal('modal-add-user');
-    resetForm();
-    renderUsers();
-    document.getElementById('setup-banner').style.display = 'none';
-    toast(editId ? 'User updated ✅' : 'User created ✅');
-  } catch(e) {
-    showErr('Failed to save: ' + e.message);
+    btn.disabled = false;
   }
-  btn.disabled = false;
-  btn.textContent = editId ? 'Save Changes' : 'Save User';
+
+  closeModal('modal-add-user');
+  resetForm();
+  renderUsers();
+  document.getElementById('setup-banner').style.display = 'none';
+  toast(editId ? 'User updated ✅' : 'User created ✅');
 }
 
 function showErr(msg) {
@@ -329,26 +311,24 @@ function showErr(msg) {
   el.style.display = 'block';
 }
 
-function openChangePIN(id) {
+function openResetPass(id) {
   const u = users.find(x => x.id === id);
-  document.getElementById('cp-user-id').value = id;
-  document.getElementById('cp-user-info').innerHTML = `Changing PIN for <strong>${u.name}</strong> (@${u.username})`;
-  document.getElementById('cp-pin').value = '';
-  document.getElementById('cp-pin2').value = '';
-  openModal('modal-change-pin');
+  document.getElementById('rp-user-id').value = id;
+  document.getElementById('rp-user-info').innerHTML = `Sending password reset for <strong>${u.name}</strong> (${u.email || 'no email'})`;
+  openModal('modal-reset-pass');
 }
 
-async function saveNewPin() {
-  const id = document.getElementById('cp-user-id').value;
-  const pin = document.getElementById('cp-pin').value;
-  const pin2 = document.getElementById('cp-pin2').value;
-  if (!pin || pin.length < 4) { toast('PIN must be at least 4 characters', 'error'); return; }
-  if (pin !== pin2) { toast('PINs do not match', 'error'); return; }
-  await sbUpdate('users', id, { pin });
+async function sendResetPassword() {
+  const id = document.getElementById('rp-user-id').value;
   const u = users.find(x => x.id === id);
-  if (u) u.pin = pin;
-  closeModal('modal-change-pin');
-  toast('PIN updated ✅');
+  if (!u || !u.email) { toast('User has no email address', 'error'); return; }
+  try {
+    await auth.sendPasswordResetEmail(u.email);
+    closeModal('modal-reset-pass');
+    toast('Password reset email sent to ' + u.email + ' ✅');
+  } catch(e) {
+    toast('Failed: ' + (e.message || 'Unknown error'), 'error');
+  }
 }
 
 async function deleteUser(id) {

@@ -135,6 +135,9 @@
 
 <datalist id="med-list-b2b"></datalist>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
 requireAuth(); applyTheme(); buildNav('b2b');
@@ -323,11 +326,30 @@ async function recordB2bPayment() {
   const amt = parseFloat(document.getElementById('b2b-pay-amount').value) || 0;
   if (amt <= 0) { toast('Enter valid amount', 'error'); return; }
   const cust = customers.find(c => c.id === payCustomerId);
+  if (!cust) { toast('Customer not found', 'error'); return; }
+  let remaining = amt;
+  // Apply FIFO: oldest unpaid orders first
+  const unpaid = b2bOrders
+    .filter(o => o.customer_id === payCustomerId && o.payment_status !== 'paid' && (o.balance_due || 0) > 0)
+    .sort((a, b) => a.date > b.date ? 1 : -1);
+  for (const order of unpaid) {
+    if (remaining <= 0) break;
+    const due = order.balance_due || 0;
+    const payNow = Math.min(remaining, due);
+    remaining -= payNow;
+    const newPaid = (order.amount_paid || 0) + payNow;
+    const newDue = due - payNow;
+    const status = newDue <= 0 ? 'paid' : 'partial';
+    await sbUpdate('b2b_orders', order.id, { amount_paid: newPaid, balance_due: newDue, payment_status: status });
+    order.amount_paid = newPaid; order.balance_due = newDue; order.payment_status = status;
+  }
   const newBalance = Math.max(0, (cust.balance || 0) - amt);
   await sbUpdate('b2b_customers', payCustomerId, { balance: newBalance });
   cust.balance = newBalance;
+  populateCustomerSelects();
   closeModal('modal-b2b-pay');
   renderCustomers();
+  renderOrderHistory();
   toast('Payment recorded ✅');
 }
 

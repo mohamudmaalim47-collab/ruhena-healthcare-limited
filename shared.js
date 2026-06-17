@@ -1,49 +1,148 @@
-// ── SUPABASE CONFIG ──────────────────────────────────────────
-const SB_URL = 'https://chgqixqriqqriwbrmogm.supabase.co';
-const SB_KEY = 'sb_publishable_2XECwfPm0YXJoQXb6ITuzQ_o6sBY10a';
+// ── FIREBASE CONFIG ──────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyADdtp6PX3o7JlOTzrL7cSvBEBtI794kCM",
+  authDomain: "ruhena.firebaseapp.com",
+  projectId: "ruhena",
+  storageBucket: "ruhena.firebasestorage.app",
+  messagingSenderId: "42209543036",
+  appId: "1:42209543036:web:43d230afe12883935d1af9",
+  measurementId: "G-M2PVRPF2XV"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ── HELPERS ────────────────────────────────────────────────────
+function parseVal(val) {
+  if (val === 'true') return true;
+  if (val === 'false') return false;
+  const n = Number(val);
+  if (!isNaN(n) && val !== '') return n;
+  return val;
+}
+
+function parseQs(qs) {
+  const p = new URLSearchParams(qs || '');
+  const filters = [], order = []; let limit = 0, isCount = false;
+  for (const [k, v] of p) {
+    if (k === 'order') { const [f, d] = v.split('.'); order.push({ field: f, dir: d === 'desc' ? 'desc' : 'asc' }); }
+    else if (k === 'limit') limit = parseInt(v);
+    else if (k === 'select' && v === 'count') isCount = true;
+    else { const dot = v.indexOf('.'); if (dot > 0) filters.push({ field: k, op: v.slice(0, dot), val: parseVal(v.slice(dot + 1)) }); }
+  }
+  return { filters, order, limit, isCount };
+}
+
+function buildQuery(table, qs) {
+  const { filters, order, limit } = parseQs(qs);
+  let ref = db.collection(table);
+  filters.forEach(f => {
+    switch (f.op) {
+      case 'eq': ref = ref.where(f.field, '==', f.val); break;
+      case 'neq': ref = ref.where(f.field, '!=', f.val); break;
+      case 'gt': ref = ref.where(f.field, '>', f.val); break;
+      case 'gte': ref = ref.where(f.field, '>=', f.val); break;
+      case 'lt': ref = ref.where(f.field, '<', f.val); break;
+      case 'lte': ref = ref.where(f.field, '<=', f.val); break;
+      case 'like': 
+        const p = (f.val || '').replace(/\*/g, '');
+        ref = ref.where(f.field, '>=', p).where(f.field, '<=', p + '\uf8ff'); break;
+    }
+  });
+  order.forEach(o => ref = ref.orderBy(o.field, o.dir));
+  if (limit) ref = ref.limit(limit);
+  return ref.get();
+}
 
 async function sbFetch(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + SB_KEY,
-      'Prefer': 'return=representation'
-    }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(SB_URL + '/rest/v1/' + path, opts);
-  if (!r.ok) {
-    const e = await r.text();
-    console.error('Supabase error on ' + path + ':', e);
-    throw new Error(e);
+  const [base, qs] = path.split('?');
+  const table = base;
+
+  if (method === 'POST') {
+    const id = body && body.id ? body.id : uid();
+    await db.collection(table).doc(String(id)).set({ ...(body || {}), id: String(id) });
+    return [{ ...(body || {}), id: String(id) }];
   }
-  const txt = await r.text();
-  return txt ? JSON.parse(txt) : [];
+
+  if (method === 'PATCH') {
+    const id = (qs || '').replace(/^id=eq\./, '');
+    if (id) { await db.collection(table).doc(id).update(body); return [{ ...body, id }]; }
+    return [];
+  }
+
+  if (method === 'DELETE') {
+    const param = qs || '';
+    if (param.startsWith('id=eq.')) {
+      await db.collection(table).doc(param.replace('id=eq.', '')).delete();
+    } else if (param.startsWith('id=neq.')) {
+      const snap = await db.collection(table).get();
+      if (!snap.empty) { const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit(); }
+    }
+    return [];
+  }
+
+  const { isCount } = parseQs(qs);
+  const snap = await buildQuery(table, qs);
+  if (snap.empty) return [];
+  if (isCount) return [{ count: snap.size }];
+  return snap.docs.map(d => d.data());
 }
 
 async function sbInsert(table, row) { return sbFetch(table, 'POST', row); }
 async function sbUpdate(table, id, data) { return sbFetch(table + '?id=eq.' + id, 'PATCH', data); }
 async function sbDelete(table, id) { return sbFetch(table + '?id=eq.' + id, 'DELETE'); }
 
-// ── AUTH — reads from Supabase users table ────────────────────
-async function loginWithPin(username, pin) {
-  const rows = await sbFetch(
-    'users?username=eq.' + encodeURIComponent(username.trim()) +
-    '&active=eq.true&limit=1'
-  );
-  if (!rows.length) return null;
-  const user = rows[0];
-  // Compare PIN directly (plain text — simple pharmacy system)
-  if (user.pin !== pin.trim()) return null;
-  return user; // { id, name, username, role, active }
+// ── AUTH — Firebase Email/Password ────────────────────────────
+async function loginWithEmail(email, password) {
+  const cred = await auth.signInWithEmailAndPassword(email, password);
+  const userDoc = await db.collection('users').doc(cred.user.uid).get();
+  if (!userDoc.exists) throw new Error('User profile not found');
+  const profile = userDoc.data();
+  if (!profile.active) throw new Error('Account is disabled');
+  return { id: cred.user.uid, email: cred.user.email, ...profile };
+}
+
+async function createAuthUser(email, password, profile) {
+  const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + firebaseConfig.apiKey, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, returnSecureToken: true })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Failed to create user');
+  await db.collection('users').doc(data.localId).set({ id: data.localId, email, ...profile, created_at: new Date().toISOString() });
+  return data.localId;
+}
+
+function getCurrentUser() {
+  return auth.currentUser;
+}
+
+async function signOut() {
+  await auth.signOut();
+  sessionStorage.removeItem('rhl_session');
+  window.location.href = 'index.html';
 }
 
 async function checkHasUsers() {
-  const rows = await sbFetch('users?limit=1');
-  return rows.length > 0;
+  const snap = await db.collection('users').limit(1).get();
+  return !snap.empty;
 }
+
+// ── AUTH STATE ─────────────────────────────────────────────────
+auth.onAuthStateChanged(user => {
+  if (user) {
+    const existing = getSession();
+    if (!existing) {
+      db.collection('users').doc(user.uid).get().then(doc => {
+        if (doc.exists) {
+          const p = doc.data();
+          setSession({ id: user.uid, name: p.name, email: user.email, role: p.role });
+        }
+      });
+    }
+  }
+});
 
 // ── SESSION ───────────────────────────────────────────────────
 function getSession() {
@@ -52,10 +151,7 @@ function getSession() {
 }
 function setSession(user) {
   sessionStorage.setItem('rhl_session', JSON.stringify({
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    role: user.role
+    id: user.id, name: user.name, email: user.email, role: user.role
   }));
 }
 function requireAuth() {
@@ -63,50 +159,35 @@ function requireAuth() {
   if (!s) { window.location.href = 'index.html'; return null; }
   return s;
 }
-function isOwner() {
-  const s = getSession();
-  return s && s.role === 'owner';
-}
-function isSalesperson() {
-  const s = getSession();
-  return s && s.role === 'salesperson';
-}
+function isOwner() { const s = getSession(); return s && s.role === 'owner'; }
+function isSalesperson() { const s = getSession(); return s && s.role === 'salesperson'; }
 function logout() {
+  auth.signOut().catch(() => {});
   sessionStorage.removeItem('rhl_session');
   window.location.href = 'index.html';
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
-function uid() { return Date.now() + Math.random().toString(36).slice(2, 6); }
-function fmtKSh(n) {
-  const num = Number(n || 0);
-  if (num >= 1000000) return 'KSh ' + (num / 1000000).toFixed(1) + 'M';
-  return 'KSh ' + num.toLocaleString('en-KE', { minimumFractionDigits: 0 });
+function uid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
-function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+function fmtKSh(n) { const num = Number(n || 0); if (num >= 1000000) return 'KSh ' + (num / 1000000).toFixed(1) + 'M'; return 'KSh ' + num.toLocaleString('en-KE', { minimumFractionDigits: 0 }); }
+function fmtDate(d) { if (!d) return '—'; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }); }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function monthStr() { return new Date().toISOString().slice(0, 7); }
 
 // ── TOAST ─────────────────────────────────────────────────────
 function toast(msg, type = 'success') {
   const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-  const colors = {
-    success: 'linear-gradient(135deg,#00d68f,#00b377)',
-    error: 'linear-gradient(135deg,#ff4757,#e84057)',
-    warning: 'linear-gradient(135deg,#ffa502,#e6930a)',
-    info: 'linear-gradient(135deg,#2979ff,#1a56db)'
-  };
+  const colors = { success: 'linear-gradient(135deg,#00d68f,#00b377)', error: 'linear-gradient(135deg,#ff4757,#e84057)', warning: 'linear-gradient(135deg,#ffa502,#e6930a)', info: 'linear-gradient(135deg,#2979ff,#1a56db)' };
   document.querySelectorAll('.rhl-toast').forEach(t => t.remove());
   const t = document.createElement('div');
   t.className = 'rhl-toast';
-  t.style.cssText = `position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;
-    background:${colors[type]};color:#fff;font-family:'Inter',sans-serif;font-size:13px;
-    font-weight:600;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.4);
-    animation:slideIn .3s ease;max-width:340px;display:flex;align-items:center;gap:10px;cursor:pointer;`;
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;background:${colors[type]};color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.4);animation:slideIn .3s ease;max-width:340px;display:flex;align-items:center;gap:10px;cursor:pointer;`;
   t.innerHTML = `<span style="font-size:16px">${icons[type]}</span><span>${msg}</span>`;
   t.onclick = () => t.remove();
   document.body.appendChild(t);
@@ -117,37 +198,17 @@ function toast(msg, type = 'success') {
 function showLoader(msg = 'Loading...') {
   let el = document.getElementById('_rhl_loader');
   if (!el) {
-    el = document.createElement('div');
-    el.id = '_rhl_loader';
-    el.style.cssText = `position:fixed;inset:0;background:rgba(10,13,20,0.75);backdrop-filter:blur(4px);
-      z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;`;
-    el.innerHTML = `<div style="width:44px;height:44px;border:3px solid #232d45;border-top-color:#00d68f;border-radius:50%;animation:spin .7s linear infinite;"></div>
-      <div id="_rhl_loader_msg" style="color:#8892b0;font-family:'Inter',sans-serif;font-size:14px;">${msg}</div>
-      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    el = document.createElement('div'); el.id = '_rhl_loader';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(10,13,20,0.75);backdrop-filter:blur(4px);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    el.innerHTML = `<div style="width:44px;height:44px;border:3px solid #232d45;border-top-color:#00d68f;border-radius:50%;animation:spin .7s linear infinite;"></div><div id="_rhl_loader_msg" style="color:#8892b0;font-family:'Inter',sans-serif;font-size:14px;">${msg}</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
     document.body.appendChild(el);
-  } else {
-    const m = document.getElementById('_rhl_loader_msg');
-    if (m) m.textContent = msg;
-    el.style.display = 'flex';
-  }
+  } else { const m = document.getElementById('_rhl_loader_msg'); if (m) m.textContent = msg; el.style.display = 'flex'; }
 }
-function hideLoader() {
-  const el = document.getElementById('_rhl_loader');
-  if (el) el.style.display = 'none';
-}
+function hideLoader() { const el = document.getElementById('_rhl_loader'); if (el) el.style.display = 'none'; }
 
 // ── THEME ─────────────────────────────────────────────────────
-function applyTheme() {
-  if (localStorage.getItem('rhl_theme') === 'light') {
-    document.body.classList.add('light-mode');
-    document.querySelectorAll('.theme-btn').forEach(b => b.textContent = '☀️');
-  }
-}
-function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-mode');
-  document.querySelectorAll('.theme-btn').forEach(b => b.textContent = isLight ? '☀️' : '🌙');
-  localStorage.setItem('rhl_theme', isLight ? 'light' : 'dark');
-}
+function applyTheme() { if (localStorage.getItem('rhl_theme') === 'light') { document.body.classList.add('light-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = '☀️'); } }
+function toggleTheme() { const isLight = document.body.classList.toggle('light-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = isLight ? '☀️' : '🌙'); localStorage.setItem('rhl_theme', isLight ? 'light' : 'dark'); }
 
 // ── NAV ───────────────────────────────────────────────────────
 function buildNav(activePage) {
@@ -163,31 +224,17 @@ function buildNav(activePage) {
     { id: 'expenses',  label: '💸 Expenses',  href: 'expenses.html' },
     { id: 'reports',   label: '📈 Reports',   href: 'reports.html' },
   ];
-  if (isOwner()) {
-    pages.push({ id: 'users', label: '👥 Users', href: 'users.html' });
-  }
+  if (isOwner()) pages.push({ id: 'users', label: '👥 Users', href: 'users.html' });
   const navEl = document.getElementById('nav-tabs');
-  if (navEl) navEl.innerHTML = pages.map(p =>
-    `<a class="nav-tab${p.id === activePage ? ' active' : ''}" href="${p.href}">${p.label}</a>`
-  ).join('');
+  if (navEl) navEl.innerHTML = pages.map(p => `<a class="nav-tab${p.id === activePage ? ' active' : ''}" href="${p.href}">${p.label}</a>`).join('');
   const badge = document.getElementById('role-badge');
-  if (badge) {
-    badge.textContent = s.name;
-    badge.className = 'role-badge ' + (isOwner() ? 'role-owner' : 'role-salesperson');
-  }
+  if (badge) { badge.textContent = s.name; badge.className = 'role-badge ' + (isOwner() ? 'role-owner' : 'role-salesperson'); }
   const dateEl = document.getElementById('topbar-date');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-KE', {
-    weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'
-  });
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-KE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 // ── MODALS ────────────────────────────────────────────────────
 function openModal(id) { document.getElementById(id)?.classList.add('open'); }
 function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape')
-    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
-});
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open')); });

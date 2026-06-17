@@ -19,12 +19,13 @@
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <select class="date-filter" id="cat-filter" onchange="renderTable()" style="width:160px;">
         <option value="">All Categories</option>
-        <option>Cardiovascular</option><option>Antibiotic / Antifungal</option><option>Diabetes</option>
-        <option>Neurology / Psychiatry</option><option>GI / Gastroenterology</option>
-        <option>Dermatology</option><option>Analgesic / Anti-inflammatory</option>
-        <option>ENT / Cold & Flu</option><option>Hormones / Gynaecology</option>
-        <option>Respiratory</option><option>Haematology / Oncology</option>
-        <option>Vitamins / Supplements</option><option>Other</option>
+        <option>Cardiovascular</option><option>Antibiotic/Antifungal</option><option>Diabetes</option>
+        <option>Neurology/Psychiatry</option><option>GI/Gastroenterology</option>
+        <option>Dermatology</option><option>Analgesic/Anti-inflammatory</option>
+        <option>ENT/Cold & Flu</option><option>Hormones/Gynaecology</option>
+        <option>Respiratory</option><option>Haematology/Oncology</option>
+        <option>Vitamins/Supplements</option><option>Eye/ENT</option>
+        <option>Injectables</option><option>Diagnostics/Devices</option><option>Other</option>
       </select>
       <select class="date-filter" id="status-filter" onchange="renderTable()" style="width:130px;">
         <option value="">All Status</option>
@@ -66,12 +67,13 @@
     <div class="form-row form-row-2">
       <div class="form-group"><label class="form-label">Category</label>
         <select class="form-input" id="inv-cat">
-          <option>Cardiovascular</option><option>Antibiotic / Antifungal</option><option>Diabetes</option>
-          <option>Neurology / Psychiatry</option><option>GI / Gastroenterology</option>
-          <option>Dermatology</option><option>Analgesic / Anti-inflammatory</option>
-          <option>ENT / Cold & Flu</option><option>Hormones / Gynaecology</option>
-          <option>Respiratory</option><option>Haematology / Oncology</option>
-          <option>Vitamins / Supplements</option><option>Other</option>
+          <option>Cardiovascular</option><option>Antibiotic/Antifungal</option><option>Diabetes</option>
+          <option>Neurology/Psychiatry</option><option>GI/Gastroenterology</option>
+          <option>Dermatology</option><option>Analgesic/Anti-inflammatory</option>
+          <option>ENT/Cold & Flu</option><option>Hormones/Gynaecology</option>
+          <option>Respiratory</option><option>Haematology/Oncology</option>
+          <option>Vitamins/Supplements</option><option>Eye/ENT</option>
+          <option>Injectables</option><option>Diagnostics/Devices</option><option>Other</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Unit Price (KSh) *</label><input class="form-input" type="number" id="inv-price" placeholder="0" min="0"></div>
@@ -119,6 +121,9 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
 requireAuth(); applyTheme(); buildNav('inventory');
