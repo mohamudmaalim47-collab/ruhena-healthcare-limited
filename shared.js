@@ -159,8 +159,8 @@ function requireAuth() {
   if (!s) { window.location.href = 'index.html'; return null; }
   return s;
 }
-function isOwner() { const s = getSession(); return s && s.role === 'owner'; }
-function isSalesperson() { const s = getSession(); return s && s.role === 'salesperson'; }
+function isOwner() { const s = getSession(); return s && (s.role === 'owner' || s.role === 'admin'); }
+function isSalesperson() { const s = getSession(); return s && (s.role === 'salesperson' || s.role === 'sales'); }
 function logout() {
   auth.signOut().catch(() => {});
   sessionStorage.removeItem('rhl_session');
@@ -207,8 +207,8 @@ function showLoader(msg = 'Loading...') {
 function hideLoader() { const el = document.getElementById('_rhl_loader'); if (el) el.style.display = 'none'; }
 
 // ── THEME ─────────────────────────────────────────────────────
-function applyTheme() { if (localStorage.getItem('rhl_theme') === 'light') { document.body.classList.add('light-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = '☀️'); } }
-function toggleTheme() { const isLight = document.body.classList.toggle('light-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = isLight ? '☀️' : '🌙'); localStorage.setItem('rhl_theme', isLight ? 'light' : 'dark'); }
+function applyTheme() { if (localStorage.getItem('rhl_theme') === 'dark') { document.body.classList.add('dark-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = '☀️'); } }
+function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); document.querySelectorAll('.theme-btn').forEach(b => b.textContent = isDark ? '☀️' : '🌙'); localStorage.setItem('rhl_theme', isDark ? 'dark' : 'light'); }
 
 // ── NAV ───────────────────────────────────────────────────────
 function buildNav(activePage) {
@@ -228,7 +228,7 @@ function buildNav(activePage) {
   const navEl = document.getElementById('nav-tabs');
   if (navEl) navEl.innerHTML = pages.map(p => `<a class="nav-tab${p.id === activePage ? ' active' : ''}" href="${p.href}">${p.label}</a>`).join('');
   const badge = document.getElementById('role-badge');
-  if (badge) { badge.textContent = s.name; badge.className = 'role-badge ' + (isOwner() ? 'role-owner' : 'role-salesperson'); }
+  if (badge) { badge.textContent = s.name; badge.className = 'role-badge ' + (isOwner() ? 'admin' : 'sales'); }
   const dateEl = document.getElementById('topbar-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-KE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
 }
