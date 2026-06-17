@@ -210,25 +210,26 @@ function buildDrawerNav(activePage) {
   if (!s) return;
 
   const pages = [
-    { id: 'dashboard',     icon: '📊', label: 'Dashboard',     href: 'dashboard.html' },
-    { id: 'pos',           icon: '💰', label: 'POS',           href: 'pos.html' },
-    { id: 'sales',         icon: '📋', label: 'Sales',         href: 'sales.html' },
-    { id: 'inventory',     icon: '📦', label: 'Inventory',     href: 'inventory.html' },
-    { id: 'prescriptions', icon: '📋', label: 'Prescriptions', href: 'prescriptions.html' },
-    { id: 'orders',        icon: '🚚', label: 'Orders',        href: 'orders.html' },
-    { id: 'suppliers',     icon: '🏢', label: 'Suppliers',     href: 'suppliers.html' },
-    { id: 'debts',         icon: '💳', label: 'Debts',         href: 'debts.html' },
-    { id: 'insurance',     icon: '🏥', label: 'Insurance',     href: 'insurance.html' },
-    { id: 'b2b',           icon: '🏢', label: 'B2B',           href: 'b2b.html' },
-    { id: 'expenses',      icon: '💸', label: 'Expenses',      href: 'expenses.html' },
-    { id: 'reports',       icon: '📈', label: 'Reports',       href: 'reports.html' },
-    { id: 'analytics',     icon: '🤖', label: 'Analytics',     href: 'analytics.html' },
+    { id: 'dashboard',     icon: '<i class="bi bi-speedometer2"></i>', label: 'Dashboard',     href: 'dashboard.html' },
+    { id: 'pos',           icon: '<i class="bi bi-cash-coin"></i>',    label: 'POS',           href: 'pos.html' },
+    { id: 'sales',         icon: '<i class="bi bi-receipt"></i>',      label: 'Sales',         href: 'sales.html' },
+    { id: 'inventory',     icon: '<i class="bi bi-box-seam"></i>',     label: 'Inventory',     href: 'inventory.html' },
+    { id: 'prescriptions', icon: '<i class="bi bi-file-text"></i>',    label: 'Prescriptions', href: 'prescriptions.html' },
+    { id: 'receipts',      icon: '<i class="bi bi-receipt-cutoff"></i>', label: 'Receipts',   href: 'receipts.html' },
+    { id: 'orders',        icon: '<i class="bi bi-truck"></i>',        label: 'Orders',        href: 'orders.html' },
+    { id: 'suppliers',     icon: '<i class="bi bi-buildings"></i>',    label: 'Suppliers',     href: 'suppliers.html' },
+    { id: 'debts',         icon: '<i class="bi bi-credit-card"></i>',  label: 'Debts',         href: 'debts.html' },
+    { id: 'insurance',     icon: '<i class="bi bi-hospital"></i>',     label: 'Insurance',     href: 'insurance.html' },
+    { id: 'b2b',           icon: '<i class="bi bi-building"></i>',     label: 'B2B',           href: 'b2b.html' },
+    { id: 'expenses',      icon: '<i class="bi bi-cash-stack"></i>',   label: 'Expenses',      href: 'expenses.html' },
+    { id: 'reports',       icon: '<i class="bi bi-bar-chart-line-fill"></i>', label: 'Reports', href: 'reports.html' },
+    { id: 'analytics',     icon: '<i class="bi bi-graph-up-arrow"></i>', label: 'Analytics',  href: 'analytics.html' },
   ];
   const ownerPages = [
-    { id: 'users',     icon: '👥', label: 'Users',     href: 'users.html' },
-    { id: 'branches',  icon: '🏪', label: 'Branches',  href: 'branches.html' },
-    { id: 'shifts',    icon: '⏰', label: 'Shifts',    href: 'shifts.html' },
-    { id: 'settings',  icon: '⚙️', label: 'Settings', href: 'settings.html' },
+    { id: 'users',     icon: '<i class="bi bi-people"></i>',      label: 'Users',     href: 'users.html' },
+    { id: 'branches',  icon: '<i class="bi bi-shop"></i>',        label: 'Branches',  href: 'branches.html' },
+    { id: 'shifts',    icon: '<i class="bi bi-clock-history"></i>', label: 'Shifts',  href: 'shifts.html' },
+    { id: 'settings',  icon: '<i class="bi bi-gear"></i>',         label: 'Settings', href: 'settings.html' },
   ];
 
   const navEl = document.getElementById('drawer-nav');

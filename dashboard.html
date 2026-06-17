@@ -20,7 +20,7 @@
   <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-header">
-      <div class="drawer-logo">💊</div>
+      <div class="drawer-logo"><i class="bi bi-capsule"></i></div>
       <div class="drawer-brand">Ruhena <span>Healthcare</span></div>
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
     </div>
@@ -57,8 +57,8 @@
             <p id="welcome-sub">Here's your pharmacy overview for today</p>
             <div style="margin-top:12px;display:flex;gap:8px;">
               <a href="sales.html" class="btn btn-green btn-sm">+ New Sale</a>
-              <a href="inventory.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;">📦 Inventory</a>
-              <a href="reports.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;">📈 Reports</a>
+              <a href="inventory.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;"><i class="bi bi-box-seam"></i> Inventory</a>
+              <a href="reports.html" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;"><i class="bi bi-bar-chart-line"></i> Reports</a>
             </div>
           </div>
           <div class="hero-stats" id="hero-stats">
@@ -70,11 +70,11 @@
       </div>
 
       <div class="quick-actions anim-stagger">
-        <a href="pos.html" class="qa-btn qa-green"><span class="qa-icon">💰</span><span class="qa-lbl">Point of Sale</span></a>
-        <a href="orders.html" class="qa-btn qa-blue"><span class="qa-icon">🚚</span><span class="qa-lbl">Stock Order</span></a>
-        <a href="inventory.html" class="qa-btn qa-amber"><span class="qa-icon">🔍</span><span class="qa-lbl">Stock Check</span></a>
-        <a href="debts.html" class="qa-btn qa-orange"><span class="qa-icon">💳</span><span class="qa-lbl">Debts</span></a>
-        <a href="analytics.html" class="qa-btn qa-purple"><span class="qa-icon">🤖</span><span class="qa-lbl">Analytics</span></a>
+        <a href="pos.html" class="qa-btn qa-green"><span class="qa-icon"><i class="bi bi-cash-coin"></i></span><span class="qa-lbl">Point of Sale</span></a>
+        <a href="orders.html" class="qa-btn qa-blue"><span class="qa-icon"><i class="bi bi-truck"></i></span><span class="qa-lbl">Stock Order</span></a>
+        <a href="inventory.html" class="qa-btn qa-amber"><span class="qa-icon"><i class="bi bi-search"></i></span><span class="qa-lbl">Stock Check</span></a>
+        <a href="debts.html" class="qa-btn qa-orange"><span class="qa-icon"><i class="bi bi-credit-card"></i></span><span class="qa-lbl">Debts</span></a>
+        <a href="analytics.html" class="qa-btn qa-purple"><span class="qa-icon"><i class="bi bi-graph-up-arrow"></i></span><span class="qa-lbl">Analytics</span></a>
       </div>
 
       <div class="stats-grid stats-grid-6" id="kpi-cards">
@@ -88,7 +88,7 @@
 
       <div class="glass-card" style="margin-bottom:20px;">
         <div class="card-header">
-          <div class="card-title" style="margin:0;">⚠️ Inventory Alerts</div>
+          <div class="card-title" style="margin:0;"><i class="bi bi-exclamation-triangle"></i> Inventory Alerts</div>
           <a href="inventory.html" class="btn btn-ghost btn-sm">View All →</a>
         </div>
         <div class="alert-chips" id="alert-chips">
@@ -98,18 +98,18 @@
 
       <div class="charts-row">
         <div class="glass-card">
-          <div class="card-title">📈 Revenue vs Profit</div>
+          <div class="card-title"><i class="bi bi-graph-up-arrow"></i> Revenue vs Profit</div>
           <canvas id="revenueChart" height="180"></canvas>
         </div>
         <div class="glass-card">
-          <div class="card-title">🔢 This Month</div>
+          <div class="card-title"><i class="bi bi-list-ol"></i> This Month</div>
           <canvas id="volumeChart" height="180"></canvas>
         </div>
       </div>
 
       <div class="bottom-row">
         <div class="glass-card">
-          <div class="card-title">💰 Today's Sales</div>
+          <div class="card-title"><i class="bi bi-cash-coin"></i> Today's Sales</div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>#</th><th>Medicine</th><th>Qty</th><th>Total</th><th>Pay</th></tr></thead>
@@ -118,7 +118,7 @@
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-title">⚠️ Outstanding Debts</div>
+          <div class="card-title"><i class="bi bi-exclamation-triangle"></i> Outstanding Debts</div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Patient</th><th>Balance</th><th>Date</th></tr></thead>
@@ -199,40 +199,40 @@ function renderKPIs() {
 
   document.getElementById('kpi-cards').innerHTML = `
     <div class="stat-card anim-stagger">
-      <div class="stat-icon" style="color:var(--green);">💰</div>
+      <div class="stat-icon" style="color:var(--green);"><i class="bi bi-cash-coin"></i></div>
       <div class="stat-lbl">Today's Revenue</div>
       <div class="stat-val" style="color:var(--green);">${fmtKSh(todayRev)}</div>
       <div class="stat-sub">${todaySales.length} transactions today</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--blue);">📦</div>
+      <div class="stat-icon" style="color:var(--blue);"><i class="bi bi-box-seam"></i></div>
       <div class="stat-lbl">Total Revenue</div>
       <div class="stat-val" style="color:var(--blue);">${fmtKSh(totalRev)}</div>
       <div class="stat-sub">all time</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--teal);">📈</div>
+      <div class="stat-icon" style="color:var(--teal);"><i class="bi bi-graph-up-arrow"></i></div>
       <div class="stat-lbl">Total Profit</div>
       <div class="stat-val" style="color:var(--teal);">${fmtKSh(totalProfit)}</div>
       <div class="stat-sub">gross profit</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--purple);">📊</div>
+      <div class="stat-icon" style="color:var(--purple);"><i class="bi bi-bar-chart-line"></i></div>
       <div class="stat-lbl">Profit Margin</div>
       <div class="stat-val" style="color:var(--purple);">${margin.toFixed(1)}%</div>
       <div class="stat-sub">overall average</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--amber);">💸</div>
+      <div class="stat-icon" style="color:var(--amber);"><i class="bi bi-cash-stack"></i></div>
       <div class="stat-lbl">Monthly Expenses</div>
       <div class="stat-val" style="color:var(--amber);">${fmtKSh(monthExp)}</div>
       <div class="stat-sub">this month</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--red);">⚠️</div>
+      <div class="stat-icon" style="color:var(--red);"><i class="bi bi-exclamation-triangle"></i></div>
       <div class="stat-lbl">Inventory Alerts</div>
       <div class="stat-val" style="color:var(--red);">${outStock + lowStock}</div>
-      <div class="stat-sub">${outStock} out · ${lowStock} low stock</div>
+      <div class="stat-sub">${outStock} out &middot; ${lowStock} low stock</div>
     </div>`;
 }
 
@@ -241,12 +241,12 @@ function renderAlerts() {
   const low = inventory.filter(i => i.stock > 0 && i.stock <= i.alert_at).slice(0, 12);
   const el = document.getElementById('alert-chips');
   if (!out.length && !low.length) {
-    el.innerHTML = '<span class="badge bg-green">✅ All stock levels are healthy</span>';
+    el.innerHTML = '<span class="badge bg-green"><i class="bi bi-check-circle"></i> All stock levels are healthy</span>';
     return;
   }
   el.innerHTML =
-    out.map(i => `<span class="badge bg-red">🔴 ${i.name}</span>`).join('') +
-    low.map(i => `<span class="badge bg-amber">⚠️ ${i.name} (${i.stock} left)</span>`).join('');
+    out.map(i => `<span class="badge bg-red"><i class="bi bi-circle-fill" style="font-size:8px;color:#ef4444;"></i> ${i.name}</span>`).join('') +
+    low.map(i => `<span class="badge bg-amber"><i class="bi bi-exclamation-triangle"></i> ${i.name} (${i.stock} left)</span>`).join('');
 }
 
 function renderCharts() {

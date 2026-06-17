@@ -81,14 +81,14 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
     onerror="this.src='https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&auto=format&fit=crop&q=80'">
   <div class="hero-overlay">
     <div class="hero-anim">
-      <div class="hero-badge">🏥 Healthcare Management System</div>
+      <div class="hero-badge"><i class="bi bi-hospital"></i> Healthcare Management System</div>
       <div class="hero-title">Smart Pharmacy<br>Management for<br><span>Ruhena Healthcare</span></div>
       <div class="hero-desc">Complete pharmacy operations — inventory, sales, debts, B2B wholesale, and real-time analytics.</div>
       <div class="feature-pills">
-        <div class="feature-pill">💊 Inventory Control</div>
-        <div class="feature-pill">💰 Sales Tracking</div>
-        <div class="feature-pill">📊 Analytics</div>
-        <div class="feature-pill">🏢 B2B Wholesale</div>
+        <div class="feature-pill"><i class="bi bi-capsule"></i> Inventory Control</div>
+        <div class="feature-pill"><i class="bi bi-cash-coin"></i> Sales Tracking</div>
+        <div class="feature-pill"><i class="bi bi-bar-chart-line"></i> Analytics</div>
+        <div class="feature-pill"><i class="bi bi-building"></i> B2B Wholesale</div>
       </div>
       <div class="hero-stats">
         <div><div class="hero-stat-val">452+</div><div class="hero-stat-lbl">Medicines</div></div>
@@ -102,7 +102,7 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 <!-- RIGHT LOGIN PANEL -->
 <div class="login-panel">
   <div class="login-logo">
-    <div class="login-logo-icon">💊</div>
+    <div class="login-logo-icon"><i class="bi bi-capsule"></i></div>
     <div class="login-logo-text">Ruhena <span>Healthcare</span></div>
   </div>
   <div class="login-sub">Limited · Pharmacy Management System</div>
@@ -113,7 +113,7 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
     <div class="form-group">
       <label class="form-label">Email Address</label>
       <div class="input-wrap">
-        <span class="input-icon">📧</span>
+        <span class="input-icon"><i class="bi bi-envelope"></i></span>
         <input class="form-input" type="email" id="email-input"
           placeholder="you@example.com" autocomplete="email"
           onkeydown="if(event.key==='Enter') doLogin()">
@@ -123,14 +123,14 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
     <div class="form-group">
       <label class="form-label">Password</label>
       <div class="input-wrap">
-        <span class="input-icon">🔐</span>
+        <span class="input-icon"><i class="bi bi-lock"></i></span>
         <input class="form-input" type="password" id="password-input"
           placeholder="Enter your password" autocomplete="current-password"
           onkeydown="if(event.key==='Enter') doLogin()">
       </div>
     </div>
 
-    <div class="login-error" id="login-error">❌ Invalid email or password. Please try again.</div>
+    <div class="login-error" id="login-error"><i class="bi bi-exclamation-circle"></i> Invalid email or password. Please try again.</div>
 
     <button class="btn-signin" id="signin-btn" onclick="doLogin()">Sign In →</button>
 

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipts — Ruhena Healthcare</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="css/print.css">
+<style>
+  .receipt-list{display:flex;flex-direction:column;gap:8px;}
+  .receipt-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--r-sm);transition:all .2s;cursor:pointer;
+    flex-wrap:wrap;gap:10px;
+  }
+  .receipt-item:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);}
+  .receipt-item .ri-left{display:flex;align-items:center;gap:12px;}
+  .receipt-item .ri-no{font-weight:700;font-size:14px;}
+  .receipt-item .ri-date{font-size:12px;color:var(--text3);}
+  .receipt-item .ri-total{font-size:16px;font-weight:700;color:var(--green);}
+  .receipt-item .ri-actions{display:flex;gap:6px;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center;}
+  .stat-mini .sm-val{font-size:20px;font-weight:700;}
+  .stat-mini .sm-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+  @media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+  .share-btn{cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo"><i class="bi bi-capsule"></i></div>
+      <div class="drawer-brand">Ruhena <span>Healthcare</span></div>
+      <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+    </div>
+    <div class="drawer-user">
+      <div class="drawer-user-avatar" id="drawer-avatar">A</div>
+      <div class="drawer-user-info">
+        <div class="drawer-user-name" id="drawer-name">Admin</div>
+        <div class="drawer-user-role" id="drawer-role">Owner</div>
+      </div>
+    </div>
+    <div class="drawer-nav" id="drawer-nav"></div>
+    <div class="drawer-footer">
+      <button class="theme-btn" onclick="toggleTheme()">&#127769;</button>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleDrawer()">&#9776;</button>
+        <div class="role-badge" id="role-badge"></div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="page-title"><i class="bi bi-receipt"></i> Receipt History</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input type="date" class="form-input" id="filter-date" onchange="render()" style="width:160px;">
+          <select class="form-input" id="filter-pm" onchange="render()" style="width:130px;">
+            <option value="">All Payments</option>
+            <option value="C">Cash</option>
+            <option value="M">M-Pesa</option>
+            <option value="I">Insurance</option>
+            <option value="D">Credit/Debt</option>
+          </select>
+          <div class="search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+            <input class="search-input" id="search-input" placeholder="Search receipt#" oninput="render()">
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-mini"><div class="sm-val" id="total-receipts">0</div><div class="sm-lbl">Total Receipts</div></div>
+        <div class="stat-mini"><div class="sm-val" id="today-receipts">0</div><div class="sm-lbl">Today</div></div>
+        <div class="stat-mini"><div class="sm-val" id="total-amount">KSh 0</div><div class="sm-lbl">Total Amount</div></div>
+        <div class="stat-mini"><div class="sm-val" id="today-amount">KSh 0</div><div class="sm-lbl">Today Amount</div></div>
+      </div>
+
+      <div id="receipt-list" class="receipt-list"></div>
+    </div>
+
+    <footer>
+      <span>&copy; 2026 Ruhena Healthcare Limited</span>
+      <span>Firebase + Vercel &middot; v3.0</span>
+    </footer>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal-overlay" id="modal-receipt">
+  <div class="modal" style="width:700px;max-width:95vw;">
+    <div class="modal-title"><i class="bi bi-receipt"></i> Receipt</div>
+    <div id="receipt-detail"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-receipt')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
+<script src="receipt.js"></script>
+<script>
+const session = requireAuth();
+applyTheme();
+buildDrawerNav('receipts');
+
+let sales = [];
+
+async function loadSales() {
+  sales = await sbFetch('sales?order=added_at.desc&limit=5000');
+  render();
+}
+
+function render() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const dateFilter = document.getElementById('filter-date').value;
+  const pmFilter = document.getElementById('filter-pm').value;
+  let data = [...sales];
+  if (q) data = data.filter(s => (s.id || '').toLowerCase().includes(q) || (s.receipt_no || '').toLowerCase().includes(q));
+  if (dateFilter) data = data.filter(s => s.date === dateFilter);
+  if (pmFilter) data = data.filter(s => s.pm === pmFilter);
+
+  const today = todayStr();
+  const todaySales = sales.filter(s => s.date === today);
+  const todayTotal = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const grandTotal = sales.reduce((sum, s) => sum + (s.total || 0), 0);
+  document.getElementById('total-receipts').textContent = sales.length;
+  document.getElementById('today-receipts').textContent = todaySales.length;
+  document.getElementById('total-amount').textContent = fmtKSh(grandTotal);
+  document.getElementById('today-amount').textContent = fmtKSh(todayTotal);
+
+  const el = document.getElementById('receipt-list');
+  if (!data.length) {
+    el.innerHTML = '<div class="empty"><span class="empty-icon"><i class="bi bi-receipt"></i></span><p>No receipts found</p></div>';
+    return;
+  }
+
+  const pmLabels = { C: 'Cash', M: 'M-Pesa', I: 'Insurance', D: 'Credit' };
+  const pmColors = { C: 'bg-blue', M: 'bg-green', I: 'bg-purple', D: 'bg-amber' };
+
+  el.innerHTML = data.slice(0, 100).map(s => {
+    const pm = s.pm || '—';
+    const items = s.medicines ? s.medicines.split(', ').map((name, i) => ({
+      name, qty: s.qty || 1, price: (s.price || 0)
+    })) : [{ name: s.medicine || 'Medicine', qty: s.qty || 1, price: s.price || 0 }];
+    const receipt58 = generateReceipt58(s, items, { ref: s.mpesa_ref, phone: s.customer_phone });
+    const receipt80 = generateReceipt80(s, items, { ref: s.mpesa_ref, phone: s.customer_phone },
+      { name: s.customer_name, phone: s.customer_phone });
+    return `<div class="receipt-item">
+      <div class="ri-left">
+        <span class="badge ${pmColors[pm] || 'bg-gray'}">${pmLabels[pm] || pm}</span>
+        <div>
+          <div class="ri-no">#${s.receipt_no || s.id || '—'}</div>
+          <div class="ri-date">${s.date || ''} &middot; ${s.created_by || ''}</div>
+        </div>
+      </div>
+      <div class="ri-total">${fmtKSh(s.total)}</div>
+      <div class="ri-actions">
+        <button class="btn btn-ghost btn-sm" onclick="viewReceipt('${s.id}')"><i class="bi bi-eye"></i> View</button>
+        <button class="btn btn-ghost btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt58)}\`,'58mm')"><i class="bi bi-printer"></i> 58mm</button>
+        <button class="btn btn-ghost btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt80)}\`,'80mm')"><i class="bi bi-printer"></i> 80mm</button>
+        <button class="btn btn-ghost btn-sm share-btn" onclick="shareReceipt('${s.receipt_no || s.id || ''}', \`${encodeURIComponent(receipt58)}\`)"><i class="bi bi-share"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function shareReceipt(id, receiptContent) {
+  const text = decodeURIComponent(receiptContent).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (navigator.share) {
+    navigator.share({ title: 'Receipt #' + id, text: text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => toast('Receipt copied to clipboard', 'success')).catch(() => toast('Could not share receipt', 'error'));
+  }
+}
+
+function viewReceipt(id) {
+  const sale = sales.find(s => s.id === id);
+  if (!sale) return;
+  const items = sale.medicines ? sale.medicines.split(', ').map((name, i) => ({
+    name, qty: sale.qty || 1, price: (sale.price || 0)
+  })) : [{ name: sale.medicine || 'Medicine', qty: sale.qty || 1, price: sale.price || 0 }];
+  const receipt80 = generateReceipt80(sale, items,
+    { ref: sale.mpesa_ref, phone: sale.customer_phone },
+    { name: sale.customer_name, phone: sale.customer_phone });
+  const receipt58 = generateReceipt58(sale, items, { ref: sale.mpesa_ref, phone: sale.customer_phone });
+  document.getElementById('receipt-detail').innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt58)}\`,'58mm')"><i class="bi bi-printer"></i> Print 58mm</button>
+      <button class="btn btn-green btn-sm" onclick="printReceipt(\`${encodeURIComponent(receipt80)}\`,'80mm')"><i class="bi bi-printer"></i> Print 80mm</button>
+      <button class="btn btn-ghost btn-sm" onclick="shareReceipt('${sale.receipt_no || sale.id || ''}', \`${encodeURIComponent(receipt58)}\`)"><i class="bi bi-share"></i> Share</button>
+    </div>
+    <div class="receipt-preview-wrap">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;"><i class="bi bi-eye"></i> Receipt Preview</div>
+      ${receipt58}
+    </div>
+    <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:var(--r-sm);font-size:12px;">
+      <strong>Sale Details:</strong><br>
+      Receipt: ${sale.receipt_no || sale.id}<br>
+      Date: ${sale.date || ''}<br>
+      Cashier: ${sale.created_by || ''}<br>
+      Total: ${fmtKSh(sale.total)}<br>
+      Payment: ${sale.pm || ''}
+    </div>`;
+  openModal('modal-receipt');
+}
+
+loadSales();
+</script>
+</body>
+</html>
