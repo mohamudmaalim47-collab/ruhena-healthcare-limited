@@ -80,12 +80,16 @@ function generateReceipt58(sale, items, paymentInfo) {
   html += `<div style="font-size:10px;font-weight:700;margin-bottom:4px;">ITEMS</div>`;
 
   // Items
+  let vatSub = 0, exSub = 0;
   (items || []).forEach((item, i) => {
     const name = (item.name || item.medicine || '').substring(0, 28);
     const qty = item.qty || 1;
     const price = item.price || 0;
     const total = qty * price;
-    html += `<div style="font-size:10px;"><strong>${name}</strong></div>`;
+    const vatExempt = item.vat_exempt !== false;
+    if (vatExempt) exSub += total; else vatSub += total;
+    const tag = vatExempt ? '<span style="font-size:8px;color:#666;">[E]</span>' : '<span style="font-size:8px;color:#666;">[16%]</span>';
+    html += `<div style="font-size:10px;"><strong>${name}</strong> ${tag}</div>`;
     if (cfg.show_batch && item.batch) {
       html += `<div style="font-size:8px;color:#666;">Batch: ${item.batch}</div>`;
     }
@@ -97,11 +101,15 @@ function generateReceipt58(sale, items, paymentInfo) {
 
   // Totals
   html += `<div style="border-top:1px dashed #999;margin:6px 0;"></div>`;
-  const sub = (items || []).reduce((s, i) => s + (i.qty || 1) * (i.price || 0), 0);
-  const tax = sub * 0.16;
-  const total = sub + tax;
+  const sub = vatSub + exSub;
+  const vat = vatSub * 0.16;
+  const total = sub + vat;
   html += `<div style="font-size:10px;">${rpad('SUBTOTAL:', 'KES ' + sub.toFixed(2))}</div>`;
-  html += `<div style="font-size:10px;">${rpad('VAT 16%:', 'KES ' + tax.toFixed(2))}</div>`;
+  if (vat > 0) {
+    html += `<div style="font-size:10px;">${rpad('VAT 16%:', 'KES ' + vat.toFixed(2))}</div>`;
+  } else {
+    html += `<div style="font-size:9px;color:#666;">VAT: EXEMPT (0%)</div>`;
+  }
   html += `<div style="border-top:1px solid #999;margin:4px 0;"></div>`;
   html += `<div style="font-size:12px;font-weight:700;">${rpad('TOTAL:', 'KES ' + total.toFixed(2))}</div>`;
   html += `<div style="border-top:1px solid #999;margin:6px 0;"></div>`;
@@ -122,8 +130,13 @@ function generateReceipt58(sale, items, paymentInfo) {
   html += `<div style="font-size:9px;">
     <div>${rpad('CU:', sale.etims_cu || 'KRA-CU-001-' + (sale.date || todayStr()).replace(/-/g, '') + '-' + String(sale.id || '').slice(-6))}</div>
     <div>${rpad('SCU:', cfg.etims_scu)}</div>
-    <div>Label: NS (Normal Sale)</div>
-  </div>`;
+    <div>Label: NS (Normal Sale)</div>`;
+  if (vat > 0) {
+    html += `<div>VAT Amount: KES ${vat.toFixed(2)}</div>`;
+  } else {
+    html += `<div>VAT Status: EXEMPT (0%)</div>`;
+  }
+  html += `</div>`;
   html += `<div style="text-align:center;margin:6px 0;">
     <div style="display:inline-block;border:1px solid #999;padding:8px;font-size:8px;font-family:monospace;letter-spacing:2px;">
       [ KRA QR CODE ]
@@ -209,15 +222,19 @@ function generateReceipt80(sale, items, paymentInfo, customer) {
       </tr>
     </thead>
     <tbody>`;
+  let vatSub80 = 0, exSub80 = 0;
   (items || []).forEach((item, i) => {
     const name = (item.name || item.medicine || '');
     const qty = item.qty || 1;
     const price = item.price || 0;
     const total = qty * price;
+    const vatExempt = item.vat_exempt !== false;
+    if (vatExempt) exSub80 += total; else vatSub80 += total;
+    const tag = vatExempt ? ' [E]' : ' [16%]';
     html += `<tr>
       <td style="padding:3px;vertical-align:top;">${i + 1}</td>
       <td style="padding:3px;">
-        <strong>${name}</strong>`;
+        <strong>${name}${tag}</strong>`;
     if (cfg.show_batch && item.batch) html += `<br><span style="font-size:8px;color:#666;">Batch: ${item.batch}</span>`;
     if (cfg.show_expiry && item.expiry) html += `<br><span style="font-size:8px;color:#666;">Exp: ${item.expiry}</span>`;
     html += `</td>
@@ -229,15 +246,19 @@ function generateReceipt80(sale, items, paymentInfo, customer) {
   html += `</tbody></table>`;
 
   // Totals
-  const sub = (items || []).reduce((s, i) => s + (i.qty || 1) * (i.price || 0), 0);
-  const tax = sub * 0.16;
-  const totalAmt = sub + tax;
+  const sub80 = vatSub80 + exSub80;
+  const vat80 = vatSub80 * 0.16;
+  const totalAmt = sub80 + vat80;
   html += `<div style="border-top:1px dashed #999;margin:8px 0;"></div>`;
   html += `<div style="font-size:10px;text-align:right;">
-    <div>Subtotal: KES ${sub.toFixed(2)}</div>
-    <div>Discount: KES 0.00</div>
-    <div>VAT (16%): KES ${tax.toFixed(2)}</div>
-    <div style="border-top:1px solid #999;margin:4px 0;"></div>
+    <div>Subtotal: KES ${sub80.toFixed(2)}</div>
+    <div>Discount: KES 0.00</div>`;
+  if (vat80 > 0) {
+    html += `<div>VAT (16%): KES ${vat80.toFixed(2)}</div>`;
+  } else {
+    html += `<div>VAT: EXEMPT (0%)</div>`;
+  }
+  html += `    <div style="border-top:1px solid #999;margin:4px 0;"></div>
     <div style="font-size:14px;font-weight:700;">TOTAL: KES ${totalAmt.toFixed(2)}</div>
   </div>`;
 
@@ -257,9 +278,13 @@ function generateReceipt80(sale, items, paymentInfo, customer) {
   html += `<div style="font-size:11px;font-weight:600;text-align:center;">KRA eTIMS COMPLIANCE</div>`;
   html += `<div style="font-size:10px;margin-top:4px;">
     <div>CU: ${sale.etims_cu || 'KRA-CU-001-' + (sale.date || todayStr()).replace(/-/g, '') + '-' + String(sale.id || '').slice(-6)}</div>
-    <div>Label: NS (Normal Sale) | SCU: ${cfg.etims_scu}</div>
-    <div>Tax: B (Standard 16%)</div>
-  </div>`;
+    <div>Label: NS (Normal Sale) | SCU: ${cfg.etims_scu}</div>`;
+  if (vat80 > 0) {
+    html += `<div>Tax: B (Standard 16%) | VAT Amount: KES ${vat80.toFixed(2)}</div>`;
+  } else {
+    html += `<div>Tax: E (Exempt 0%) — VAT Status: EXEMPT</div>`;
+  }
+  html += `  </div>`;
   html += `<div style="text-align:center;margin:8px 0;">
     <div style="display:inline-block;border:1px solid #999;padding:10px 20px;font-size:10px;font-family:monospace;letter-spacing:3px;">
       [ QR CODE — Scan to Verify ]
@@ -360,7 +385,7 @@ function showReceiptModal(sale, items, paymentInfo, customer) {
 
   function buildReceiptHTML() {
     const ecfg = getReceiptConfig();
-    const itemsData = (items || []).map(i => ({ name: i.name, qty: i.qty, price: i.price }));
+    const itemsData = (items || []).map(i => ({ name: i.name, qty: i.qty, price: i.price, vat_exempt: i.vat_exempt }));
     const payInfo = paymentInfo || { ref: '', phone: '' };
     return generateReceipt58({ ...sale, receipt_no: sale.receipt_no || sale.id }, itemsData, payInfo);
   }
@@ -391,7 +416,7 @@ function showReceiptModal(sale, items, paymentInfo, customer) {
     <div style="background:#fff;border-radius:16px;padding:24px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:scaleIn .25s ease;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h3 style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#111827;"><i class="bi bi-receipt" style="color:#059669;"></i> Sale Complete!</h3>
-        <span style="font-size:14px;color:#059669;font-weight:700;">KES ${((items || []).reduce((s,i) => s + (i.qty||1)*(i.price||0), 0) * 1.16).toFixed(2)}</span>
+        <span style="font-size:14px;color:#059669;font-weight:700;">KES ${(() => { const sub = (items||[]).reduce((s,i) => s + (i.qty||1)*(i.price||0), 0); const v = (items||[]).filter(i => i.vat_exempt === false).reduce((s,i) => s + (i.qty||1)*(i.price||0), 0) * 0.16; return (sub + v).toFixed(2); })()}</span>
       </div>
 
       <div style="margin-bottom:12px;">

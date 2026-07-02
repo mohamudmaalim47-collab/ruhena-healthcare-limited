@@ -150,6 +150,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
+<script src="receipt.js"></script>
 <script>
 const session = requireAuth();
 applyTheme();
@@ -216,7 +217,7 @@ function addToCart(id) {
     if (existing.qty >= item.stock) return toast('Not enough stock', 'error');
     existing.qty++;
   } else {
-    cart.push({ id: item.id, name: item.name, price: item.price, qty: 1, stock: item.stock });
+    cart.push({ id: item.id, name: item.name, price: item.price, qty: 1, stock: item.stock, vat_exempt: item.vat_exempt !== false });
   }
   renderCart();
   toast(item.name + ' added', 'success');
@@ -260,9 +261,10 @@ function renderCart() {
     </div>
   </div>`).join('');
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
-  const tax = sub * 0.16;
+  const vatSub = cart.filter(c => c.vat_exempt === false).reduce((s, c) => s + c.price * c.qty, 0);
+  const tax = vatSub * 0.16;
   document.getElementById('cart-subtotal').textContent = 'KSh ' + sub.toLocaleString();
-  document.getElementById('cart-tax').textContent = 'KSh ' + tax.toLocaleString();
+  document.getElementById('cart-tax').textContent = tax > 0 ? 'KSh ' + tax.toLocaleString() : 'Exempt';
   document.getElementById('cart-total').textContent = 'KSh ' + (sub + tax).toLocaleString();
   document.getElementById('cart-summary').style.display = 'block';
   document.getElementById('pay-btns').style.display = 'grid';
@@ -302,6 +304,9 @@ async function completeSale() {
       if (inv) await sbUpdate('inventory', inv.id, { stock: inv.stock - c.qty });
     }
     toast('Sale completed! KSh ' + sub.toLocaleString(), 'success');
+    // Show receipt
+    const receiptItems = cart.map(c => ({ name: c.name, qty: c.qty, price: c.price, vat_exempt: c.vat_exempt }));
+    showReceiptModal(sale, receiptItems);
     cart = []; selectedPayment = '';
     renderCart();
     loadData();

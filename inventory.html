@@ -105,6 +105,9 @@
       <div class="form-group"><label class="form-label">Opening Stock *</label><input class="form-input" type="number" id="inv-stock" placeholder="0" min="0"></div>
       <div class="form-group"><label class="form-label">Alert When Stock ≤</label><input class="form-input" type="number" id="inv-alert" placeholder="10" min="1" value="10"></div>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="inv-vat" checked> <i class="bi bi-receipt"></i> <strong>VAT Exempt</strong> — <span style="color:var(--text3);">Most medicines are VAT exempt (0%). Uncheck for non-exempt items (16% VAT).</span>
+    </label>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button>
       <button class="btn btn-primary" onclick="saveMedicine()">Save Medicine</button>
@@ -133,6 +136,9 @@
     <input type="hidden" id="edit-id">
     <div class="form-group"><label class="form-label">Unit Price (KSh)</label><input class="form-input" type="number" id="edit-price" min="0"></div>
     <div class="form-group"><label class="form-label">Alert Threshold</label><input class="form-input" type="number" id="edit-alert" min="1"></div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="edit-vat"> VAT Exempt
+    </label>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancel</button>
       <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
@@ -207,7 +213,7 @@ async function saveMedicine() {
   const stock = parseInt(document.getElementById('inv-stock').value) || 0;
   const alert_at = parseInt(document.getElementById('inv-alert').value) || 10;
   if (!name || !price) { toast('Name and price are required', 'error'); return; }
-  const item = { id: uid(), name, category: document.getElementById('inv-cat').value, price, stock, alert_at, unit_cost: 0, created_at: new Date().toISOString() };
+  const item = { id: uid(), name, category: document.getElementById('inv-cat').value, price, stock, alert_at, unit_cost: 0, vat_exempt: document.getElementById('inv-vat').checked, created_at: new Date().toISOString() };
   await sbInsert('inventory', item);
   inventory.push(item);
   closeModal('modal-add');
@@ -242,6 +248,7 @@ function openEdit(id) {
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-price').value = item.price;
   document.getElementById('edit-alert').value = item.alert_at;
+  document.getElementById('edit-vat').checked = item.vat_exempt !== false;
   openModal('modal-edit');
 }
 
@@ -249,9 +256,10 @@ async function saveEdit() {
   const id = document.getElementById('edit-id').value;
   const price = parseFloat(document.getElementById('edit-price').value) || 0;
   const alert_at = parseInt(document.getElementById('edit-alert').value) || 10;
-  await sbUpdate('inventory', id, { price, alert_at });
+  const vat_exempt = document.getElementById('edit-vat').checked;
+  await sbUpdate('inventory', id, { price, alert_at, vat_exempt });
   const item = inventory.find(x => x.id === id);
-  item.price = price; item.alert_at = alert_at;
+  item.price = price; item.alert_at = alert_at; item.vat_exempt = vat_exempt;
   closeModal('modal-edit');
   renderTable();
   toast('Updated ✅');

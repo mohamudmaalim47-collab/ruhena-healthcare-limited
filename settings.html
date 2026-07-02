@@ -259,7 +259,7 @@ function previewReceipt() {
   const prev = getReceiptConfig();
   saveReceiptConfig(cfg);
   const sale = { receipt_no: 'PREVIEW-001', date: todayStr(), created_by: 'You' };
-  const items = [{ name: 'Sample Medicine 500mg', qty: 2, price: 150 }, { name: 'Another Drug 250mg', qty: 1, price: 80 }];
+  const items = [{ name: 'Sample Medicine 500mg', qty: 2, price: 150, vat_exempt: false }, { name: 'Another Drug 250mg', qty: 1, price: 80, vat_exempt: true }];
   const paymentInfo = { ref: 'MPESA-REF', phone: '+254712345678' };
   const html = generateReceipt58(sale, items, paymentInfo);
   document.getElementById('receipt-preview-content').innerHTML = html;
