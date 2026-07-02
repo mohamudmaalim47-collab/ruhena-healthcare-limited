@@ -191,14 +191,14 @@ function renderKPIs() {
   });
   const totalRev = sales.reduce((s, x) => s + x.total, 0);
   const margin = totalRev > 0 ? (totalProfit / totalRev * 100) : 0;
-  const monthExp = expenses.filter(e => e.date?.startsWith(month)).reduce((s, e) => s + e.amount, 0);
   const outStock = inventory.filter(i => i.stock <= 0).length;
   const lowStock = inventory.filter(i => i.stock > 0 && i.stock <= i.alert_at).length;
+  const activeProd = inventory.filter(i => i.stock > 0).length;
   const monthSales = sales.filter(s => s.date?.startsWith(month));
 
   document.getElementById('hero-today-rev').textContent = fmtKSh(todayRev);
   document.getElementById('hero-month-sales').textContent = monthSales.length;
-  document.getElementById('hero-alerts').textContent = outStock + lowStock;
+  document.getElementById('hero-alerts').textContent = lowStock;
 
   document.getElementById('kpi-cards').innerHTML = `
     <div class="stat-card anim-stagger">
@@ -230,11 +230,11 @@ function renderKPIs() {
       <div class="stat-sub">overall average</div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon" style="color:var(--amber);"><i class="bi bi-cash-stack"></i></div>
-      <img class="stat-card-img" src="https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
-      <div class="stat-lbl">Monthly Expenses</div>
-      <div class="stat-val" style="color:var(--amber);">${fmtKSh(monthExp)}</div>
-      <div class="stat-sub">this month</div>
+      <div class="stat-icon" style="color:var(--teal);"><i class="bi bi-box-seam"></i></div>
+      <img class="stat-card-img" src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&auto=format&fit=crop&q=60" alt="" loading="lazy">
+      <div class="stat-lbl">Active Products</div>
+      <div class="stat-val" style="color:var(--teal);">${activeProd}</div>
+      <div class="stat-sub">${outStock} out of stock</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="color:var(--red);"><i class="bi bi-exclamation-triangle"></i></div>
@@ -246,16 +246,13 @@ function renderKPIs() {
 }
 
 function renderAlerts() {
-  const out = inventory.filter(i => i.stock <= 0).slice(0, 12);
   const low = inventory.filter(i => i.stock > 0 && i.stock <= i.alert_at).slice(0, 12);
   const el = document.getElementById('alert-chips');
-  if (!out.length && !low.length) {
+  if (!low.length) {
     el.innerHTML = '<span class="badge bg-green"><i class="bi bi-check-circle"></i> All stock levels are healthy</span>';
     return;
   }
-  el.innerHTML =
-    out.map(i => `<span class="badge bg-red"><i class="bi bi-circle-fill" style="font-size:8px;color:#ef4444;"></i> ${i.name}</span>`).join('') +
-    low.map(i => `<span class="badge bg-amber"><i class="bi bi-exclamation-triangle"></i> ${i.name} (${i.stock} left)</span>`).join('');
+  el.innerHTML = low.map(i => `<span class="badge bg-amber"><i class="bi bi-exclamation-triangle"></i> ${i.name} (${i.stock} left)</span>`).join('');
 }
 
 function renderCharts() {

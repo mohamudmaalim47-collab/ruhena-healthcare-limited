@@ -72,7 +72,7 @@
       <div class="glass-card">
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Stock</th><th>Buy Price</th><th>Sell Price</th><th>Margin</th><th>Alert</th><th>Status</th><th id="action-col"></th></tr></thead>
+            <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Stock</th><th>Buy Price</th><th>Sell Price</th><th>Margin</th><th>Profit/Unit</th><th>Alert</th><th>Status</th><th id="action-col"></th></tr></thead>
             <tbody id="inv-body"></tbody>
           </table>
         </div>
@@ -168,7 +168,7 @@ function calcMargin() {
   document.getElementById('edit-margin-pct').style.color = margin >= 30 ? 'var(--green)' : margin > 0 ? 'var(--amber)' : 'var(--red)';
   document.getElementById('edit-profit-unit').textContent = 'KSh ' + profit.toFixed(2);
   document.getElementById('edit-profit-unit').style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('edit-breakeven').textContent = 'KSh ' + cost.toFixed(2);
+  document.getElementById('edit-breakeven').textContent = 'KSh ' + (cost + 0.01).toFixed(2);
 }
 </script>
 
@@ -221,7 +221,7 @@ function renderTable() {
   if (sf === 'low') data = data.filter(i => i.stock > 0 && i.stock <= i.alert_at);
   if (sf === 'out') data = data.filter(i => i.stock <= 0);
   const body = document.getElementById('inv-body');
-  if (!data.length) { body.innerHTML = '<tr><td colspan="10"><div class="empty"><span class="empty-icon">💊</span><p>No medicines found</p></div></td></tr>'; return; }
+  if (!data.length) { body.innerHTML = '<tr><td colspan="11"><div class="empty"><span class="empty-icon">💊</span><p>No medicines found</p></div></td></tr>'; return; }
   body.innerHTML = data.map((item, i) => {
     const out = item.stock <= 0, low = item.stock > 0 && item.stock <= item.alert_at;
     const badge = out ? '<span class="badge bg-red">Out</span>' : low ? '<span class="badge bg-amber">⚠️ Low</span>' : '<span class="badge bg-green">OK</span>';
@@ -231,7 +231,8 @@ function renderTable() {
     const profit = sell - cost;
     const margin = sell > 0 ? (profit / sell * 100) : 0;
     const marginColor = margin >= 30 ? 'var(--green)' : margin > 0 ? 'var(--amber)' : 'var(--red)';
-    return '<tr><td class="num-col">' + (i + 1) + '</td><td><strong>' + item.name + '</strong></td><td><span class="badge bg-gray">' + (item.category || '—') + '</span></td><td>' + stockDisplay + '</td><td>' + fmtKSh(cost) + '</td><td>' + fmtKSh(sell) + '</td><td style="color:' + marginColor + ';font-weight:600;">' + (sell > 0 ? margin.toFixed(1) + '%' : '—') + '</td><td style="color:var(--text3)">' + item.alert_at + '</td><td>' + badge + '</td><td style="display:flex;gap:6px;">' +
+    const profitColor = profit >= 0 ? 'var(--green)' : 'var(--red)';
+    return '<tr><td class="num-col">' + (i + 1) + '</td><td><strong>' + item.name + '</strong></td><td><span class="badge bg-gray">' + (item.category || '—') + '</span></td><td>' + stockDisplay + '</td><td>' + fmtKSh(cost) + '</td><td>' + fmtKSh(sell) + '</td><td style="color:' + marginColor + ';font-weight:600;">' + (sell > 0 ? margin.toFixed(1) + '%' : '—') + '</td><td style="color:' + profitColor + ';font-weight:600;">' + fmtKSh(profit) + '</td><td style="color:var(--text3)">' + item.alert_at + '</td><td>' + badge + '</td><td style="display:flex;gap:6px;">' +
       (!isOwner() ? '<button class="btn btn-ghost btn-sm" onclick="openRestock(\'' + item.id + '\')">+ Restock</button><button class="btn btn-ghost btn-sm" onclick="openEdit(\'' + item.id + '\')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteItem(\'' + item.id + '\')">Del</button>' : '') +
     '</td></tr>';
   }).join('');
