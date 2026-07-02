@@ -17,6 +17,11 @@
   .product-card .p-name{font-size:13px;font-weight:600;margin-bottom:4px;}
   .product-card .p-price{font-size:15px;font-weight:700;color:var(--green);}
   .product-card .p-stock{font-size:11px;color:var(--text3);}
+  .product-card .p-cost{margin-top:2px;font-size:10px;color:var(--text3);}
+  .cart-item .ci-price-input{width:72px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:center;background:var(--surface);color:var(--text);}
+  .cart-item .ci-cost-info{font-size:10px;color:var(--text3);margin-top:2px;}
+  .cart-item .ci-cost-info .floor-warn{color:var(--red);font-weight:600;}
+  .cart-item .ci-floor{font-size:10px;color:var(--text3);}
   .cart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;position:sticky;top:80px;}
   .cart-items{max-height:360px;overflow-y:auto;margin-bottom:16px;}
   .cart-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
@@ -205,6 +210,7 @@ function renderProducts() {
   el.innerHTML = items.map(i => `<div class="product-card" onclick="addToCart('${i.id}')">
     <div class="p-name">${i.name}</div>
     <div class="p-price">KSh ${Number(i.price).toLocaleString()}</div>
+    <div class="p-cost">Cost: KSh ${Number(i.unit_cost || 0).toLocaleString()} &middot; ${i.price > 0 ? ((i.price - (i.unit_cost||0)) / i.price * 100).toFixed(1) + '% margin' : '—'}</div>
     <div class="p-stock">${i.stock} in stock</div>
   </div>`).join('');
 }
@@ -217,13 +223,24 @@ function addToCart(id) {
     if (existing.qty >= item.stock) return toast('Not enough stock', 'error');
     existing.qty++;
   } else {
-    cart.push({ id: item.id, name: item.name, price: item.price, qty: 1, stock: item.stock, vat_exempt: item.vat_exempt !== false });
+    cart.push({ id: item.id, name: item.name, price: item.price, qty: 1, stock: item.stock, unit_cost: item.unit_cost || 0, vat_exempt: item.vat_exempt !== false });
   }
   renderCart();
   toast(item.name + ' added', 'success');
 }
 
 function removeFromCart(id) { cart = cart.filter(c => c.id !== id); renderCart(); }
+
+function updateCartPrice(id, val) {
+  const c = cart.find(i => i.id === id);
+  if (!c) return;
+  const newPrice = parseFloat(val) || 0;
+  c.price = newPrice;
+  if (newPrice > 0 && newPrice <= c.unit_cost) {
+    toast('Price at or below cost! Floor: KSh ' + (c.unit_cost + 0.01).toFixed(2), 'error');
+  }
+  renderCart();
+}
 
 function changeQty(id, delta) {
   const c = cart.find(i => i.id === id);
@@ -246,26 +263,36 @@ function renderCart() {
     selectedPayment = '';
     return;
   }
-  el.innerHTML = cart.map(c => `<div class="cart-item">
+  el.innerHTML = cart.map(c => {
+    const floor = c.unit_cost + 0.01;
+    const atOrBelowCost = c.price > 0 && c.price <= c.unit_cost;
+    const priceColor = atOrBelowCost ? 'var(--red)' : 'var(--green)';
+    return `<div class="cart-item">
     <div class="ci-info">
       <div class="ci-name">${c.name}</div>
-      <div class="ci-qty">
-        <button onclick="changeQty('${c.id}',-1)">−</button>
-        <span style="font-weight:600;min-width:24px;text-align:center;">${c.qty}</span>
-        <button onclick="changeQty('${c.id}',1)">+</button>
+      <div class="ci-cost-info">Cost: KSh ${Number(c.unit_cost).toFixed(2)} &middot; Floor: KSh ${floor.toFixed(2)}${atOrBelowCost ? ' <span class="floor-warn">⚠ Below cost!</span>' : ''}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+        <input class="ci-price-input" type="number" value="${c.price}" min="0" step="0.01" onchange="updateCartPrice('${c.id}',this.value)">
+        <span style="font-size:11px;color:var(--text3);">×</span>
+        <div class="ci-qty" style="display:flex;align-items:center;gap:6px;">
+          <button onclick="changeQty('${c.id}',-1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:700;color:var(--text);">−</button>
+          <span style="font-weight:600;min-width:20px;text-align:center;">${c.qty}</span>
+          <button onclick="changeQty('${c.id}',1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:700;color:var(--text);">+</button>
+        </div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <span class="ci-total">KSh ${(c.price * c.qty).toLocaleString()}</span>
+      <span class="ci-total" style="color:${priceColor}">KSh ${(c.price * c.qty).toFixed(2)}</span>
       <span class="ci-remove" onclick="removeFromCart('${c.id}')">✕</span>
     </div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const vatSub = cart.filter(c => c.vat_exempt === false).reduce((s, c) => s + c.price * c.qty, 0);
   const tax = vatSub * 0.16;
-  document.getElementById('cart-subtotal').textContent = 'KSh ' + sub.toLocaleString();
-  document.getElementById('cart-tax').textContent = tax > 0 ? 'KSh ' + tax.toLocaleString() : 'Exempt';
-  document.getElementById('cart-total').textContent = 'KSh ' + (sub + tax).toLocaleString();
+  document.getElementById('cart-subtotal').textContent = 'KSh ' + sub.toFixed(2);
+  document.getElementById('cart-tax').textContent = tax > 0 ? 'KSh ' + tax.toFixed(2) : 'Exempt';
+  document.getElementById('cart-total').textContent = 'KSh ' + (sub + tax).toFixed(2);
   document.getElementById('cart-summary').style.display = 'block';
   document.getElementById('pay-btns').style.display = 'grid';
 }
@@ -305,7 +332,7 @@ async function completeSale() {
     }
     toast('Sale completed! KSh ' + sub.toLocaleString(), 'success');
     // Show receipt
-    const receiptItems = cart.map(c => ({ name: c.name, qty: c.qty, price: c.price, vat_exempt: c.vat_exempt }));
+    const receiptItems = cart.map(c => ({ name: c.name, qty: c.qty, price: c.price, vat_exempt: c.vat_exempt, unit_cost: c.unit_cost }));
     showReceiptModal(sale, receiptItems);
     cart = []; selectedPayment = '';
     renderCart();

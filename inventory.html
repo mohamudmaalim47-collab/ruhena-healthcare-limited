@@ -72,7 +72,7 @@
       <div class="glass-card">
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Stock</th><th>Unit Price</th><th>Alert At</th><th>Status</th><th id="action-col"></th></tr></thead>
+            <thead><tr><th>#</th><th>Medicine</th><th>Category</th><th>Stock</th><th>Buy Price</th><th>Sell Price</th><th>Margin</th><th>Alert</th><th>Status</th><th id="action-col"></th></tr></thead>
             <tbody id="inv-body"></tbody>
           </table>
         </div>
@@ -99,12 +99,13 @@
           <option>Injectables</option><option>Diagnostics/Devices</option><option>Other</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Unit Price (KSh) *</label><input class="form-input" type="number" id="inv-price" placeholder="0" min="0"></div>
+      <div class="form-group"><label class="form-label">Buying Price (KSh)</label><input class="form-input" type="number" id="inv-cost" placeholder="0" min="0" step="0.01"></div>
     </div>
     <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Selling Price (KSh) *</label><input class="form-input" type="number" id="inv-price" placeholder="0" min="0" step="0.01"></div>
       <div class="form-group"><label class="form-label">Opening Stock *</label><input class="form-input" type="number" id="inv-stock" placeholder="0" min="0"></div>
-      <div class="form-group"><label class="form-label">Alert When Stock ≤</label><input class="form-input" type="number" id="inv-alert" placeholder="10" min="1" value="10"></div>
     </div>
+    <div class="form-group"><label class="form-label">Alert When Stock ≤</label><input class="form-input" type="number" id="inv-alert" placeholder="10" min="1" value="10"></div>
     <label style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);font-size:13px;cursor:pointer;">
       <input type="checkbox" id="inv-vat" checked> <i class="bi bi-receipt"></i> <strong>VAT Exempt</strong> — <span style="color:var(--text3);">Most medicines are VAT exempt (0%). Uncheck for non-exempt items (16% VAT).</span>
     </label>
@@ -131,20 +132,45 @@
 </div>
 
 <div class="modal-overlay" id="modal-edit">
-  <div class="modal" style="width:400px;">
+  <div class="modal" style="width:480px;">
     <div class="modal-title">Edit Medicine</div>
     <input type="hidden" id="edit-id">
-    <div class="form-group"><label class="form-label">Unit Price (KSh)</label><input class="form-input" type="number" id="edit-price" min="0"></div>
-    <div class="form-group"><label class="form-label">Alert Threshold</label><input class="form-input" type="number" id="edit-alert" min="1"></div>
+    <div id="edit-name-display" style="font-size:15px;font-weight:600;margin-bottom:16px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);"></div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Stock Quantity</label><input class="form-input" type="number" id="edit-stock" min="0"></div>
+      <div class="form-group"><label class="form-label">Alert When Stock ≤</label><input class="form-input" type="number" id="edit-alert" min="1"></div>
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">Buying Price / Unit Cost (KSh)</label><input class="form-input" type="number" id="edit-cost" min="0" step="0.01" oninput="calcMargin()"></div>
+      <div class="form-group"><label class="form-label">Selling Price (KSh)</label><input class="form-input" type="number" id="edit-price" min="0" step="0.01" oninput="calcMargin()"></div>
+    </div>
     <label style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);font-size:13px;cursor:pointer;">
       <input type="checkbox" id="edit-vat"> VAT Exempt
     </label>
+    <div id="edit-margin-box" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--r-sm);font-size:13px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div><span style="color:var(--text3);">Margin %</span><br><span id="edit-margin-pct" style="font-weight:700;font-size:16px;">—</span></div>
+      <div><span style="color:var(--text3);">Profit/Unit</span><br><span id="edit-profit-unit" style="font-weight:700;font-size:16px;">—</span></div>
+      <div><span style="color:var(--text3);">Break-even</span><br><span id="edit-breakeven" style="font-weight:700;font-size:16px;">—</span></div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancel</button>
       <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
     </div>
   </div>
 </div>
+<script>
+function calcMargin() {
+  const cost = parseFloat(document.getElementById('edit-cost').value) || 0;
+  const price = parseFloat(document.getElementById('edit-price').value) || 0;
+  const profit = price - cost;
+  const margin = price > 0 ? (profit / price * 100) : 0;
+  document.getElementById('edit-margin-pct').textContent = margin.toFixed(1) + '%';
+  document.getElementById('edit-margin-pct').style.color = margin >= 30 ? 'var(--green)' : margin > 0 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('edit-profit-unit').textContent = 'KSh ' + profit.toFixed(2);
+  document.getElementById('edit-profit-unit').style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('edit-breakeven').textContent = 'KSh ' + cost.toFixed(2);
+}
+</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -195,12 +221,17 @@ function renderTable() {
   if (sf === 'low') data = data.filter(i => i.stock > 0 && i.stock <= i.alert_at);
   if (sf === 'out') data = data.filter(i => i.stock <= 0);
   const body = document.getElementById('inv-body');
-  if (!data.length) { body.innerHTML = '<tr><td colspan="8"><div class="empty"><span class="empty-icon">💊</span><p>No medicines found</p></div></td></tr>'; return; }
+  if (!data.length) { body.innerHTML = '<tr><td colspan="10"><div class="empty"><span class="empty-icon">💊</span><p>No medicines found</p></div></td></tr>'; return; }
   body.innerHTML = data.map((item, i) => {
     const out = item.stock <= 0, low = item.stock > 0 && item.stock <= item.alert_at;
     const badge = out ? '<span class="badge bg-red">Out</span>' : low ? '<span class="badge bg-amber">⚠️ Low</span>' : '<span class="badge bg-green">OK</span>';
     const stockDisplay = out ? '<span class="profit-neg">0</span>' : low ? '<span style="color:var(--amber)">' + item.stock + '</span>' : '<span class="profit-pos">' + item.stock + '</span>';
-    return '<tr><td class="num-col">' + (i + 1) + '</td><td><strong>' + item.name + '</strong></td><td><span class="badge bg-gray">' + (item.category || '—') + '</span></td><td>' + stockDisplay + '</td><td>' + fmtKSh(item.price) + '</td><td style="color:var(--text3)">' + item.alert_at + '</td><td>' + badge + '</td><td style="display:flex;gap:6px;">' +
+    const cost = item.unit_cost || 0;
+    const sell = item.price || 0;
+    const profit = sell - cost;
+    const margin = sell > 0 ? (profit / sell * 100) : 0;
+    const marginColor = margin >= 30 ? 'var(--green)' : margin > 0 ? 'var(--amber)' : 'var(--red)';
+    return '<tr><td class="num-col">' + (i + 1) + '</td><td><strong>' + item.name + '</strong></td><td><span class="badge bg-gray">' + (item.category || '—') + '</span></td><td>' + stockDisplay + '</td><td>' + fmtKSh(cost) + '</td><td>' + fmtKSh(sell) + '</td><td style="color:' + marginColor + ';font-weight:600;">' + (sell > 0 ? margin.toFixed(1) + '%' : '—') + '</td><td style="color:var(--text3)">' + item.alert_at + '</td><td>' + badge + '</td><td style="display:flex;gap:6px;">' +
       (!isOwner() ? '<button class="btn btn-ghost btn-sm" onclick="openRestock(\'' + item.id + '\')">+ Restock</button><button class="btn btn-ghost btn-sm" onclick="openEdit(\'' + item.id + '\')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteItem(\'' + item.id + '\')">Del</button>' : '') +
     '</td></tr>';
   }).join('');
@@ -209,15 +240,16 @@ function renderTable() {
 async function saveMedicine() {
   if (isOwner()) { toast('Owners cannot add medicines', 'error'); return; }
   const name = document.getElementById('inv-name').value.trim();
+  const cost = parseFloat(document.getElementById('inv-cost').value) || 0;
   const price = parseFloat(document.getElementById('inv-price').value) || 0;
   const stock = parseInt(document.getElementById('inv-stock').value) || 0;
   const alert_at = parseInt(document.getElementById('inv-alert').value) || 10;
-  if (!name || !price) { toast('Name and price are required', 'error'); return; }
-  const item = { id: uid(), name, category: document.getElementById('inv-cat').value, price, stock, alert_at, unit_cost: 0, vat_exempt: document.getElementById('inv-vat').checked, created_at: new Date().toISOString() };
+  if (!name || !price) { toast('Name and selling price are required', 'error'); return; }
+  const item = { id: uid(), name, category: document.getElementById('inv-cat').value, unit_cost: cost, price, stock, alert_at, vat_exempt: document.getElementById('inv-vat').checked, created_at: new Date().toISOString() };
   await sbInsert('inventory', item);
   inventory.push(item);
   closeModal('modal-add');
-  ['inv-name','inv-price','inv-stock'].forEach(id => document.getElementById(id).value = '');
+  ['inv-name','inv-cost','inv-price','inv-stock'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('inv-alert').value = '10';
   renderStats(); renderTable(); renderLowBanner();
   toast('Medicine added ✅');
@@ -246,22 +278,28 @@ async function confirmRestock() {
 function openEdit(id) {
   const item = inventory.find(x => x.id === id);
   document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name-display').innerHTML = '<i class="bi bi-capsule" style="margin-right:6px;"></i> ' + item.name;
+  document.getElementById('edit-stock').value = item.stock;
+  document.getElementById('edit-cost').value = item.unit_cost || 0;
   document.getElementById('edit-price').value = item.price;
   document.getElementById('edit-alert').value = item.alert_at;
   document.getElementById('edit-vat').checked = item.vat_exempt !== false;
+  calcMargin();
   openModal('modal-edit');
 }
 
 async function saveEdit() {
   const id = document.getElementById('edit-id').value;
+  const stock = parseInt(document.getElementById('edit-stock').value) || 0;
+  const unit_cost = parseFloat(document.getElementById('edit-cost').value) || 0;
   const price = parseFloat(document.getElementById('edit-price').value) || 0;
   const alert_at = parseInt(document.getElementById('edit-alert').value) || 10;
   const vat_exempt = document.getElementById('edit-vat').checked;
-  await sbUpdate('inventory', id, { price, alert_at, vat_exempt });
+  await sbUpdate('inventory', id, { stock, unit_cost, price, alert_at, vat_exempt });
   const item = inventory.find(x => x.id === id);
-  item.price = price; item.alert_at = alert_at; item.vat_exempt = vat_exempt;
+  item.stock = stock; item.unit_cost = unit_cost; item.price = price; item.alert_at = alert_at; item.vat_exempt = vat_exempt;
   closeModal('modal-edit');
-  renderTable();
+  renderStats(); renderTable(); renderLowBanner();
   toast('Updated ✅');
 }
 
