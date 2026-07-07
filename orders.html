@@ -274,7 +274,8 @@ async function saveBatchOrder() {
     const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
     const sell = parseFloat(row.querySelectorAll('input[type="number"]')[2]?.value) || 0;
     if (!med || qty <= 0 || buy <= 0) continue;
-    const orderItem = { id: uid(), date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total: qty * buy, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: document.getElementById('or-invoice').value.trim(), added_by: session.name, added_at: new Date().toISOString() };
+    const total = qty * buy;
+    const orderItem = { id: uid(), date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: document.getElementById('or-invoice').value.trim(), added_by: session.name, added_at: new Date().toISOString(), paid: 0, balance: total, paymentHistory: [], status: 'unpaid' };
     await sbInsert('orders', orderItem);
     orders.unshift(orderItem);
     const inv = inventory.find(i => i.name.toLowerCase() === med.toLowerCase());
