@@ -84,7 +84,7 @@
         <div id="setup-form">
           <div class="setup-header anim-stagger">
             <div class="logo">
-              <div class="logo-icon">💊</div>
+              <div class="logo-icon"><i class="bi bi-capsule"></i></div>
               <div class="logo-text">Ruhena <span>Healthcare</span></div>
             </div>
             <h1>Create Admin Account</h1>
@@ -93,14 +93,14 @@
 
           <div class="glass-card">
             <div class="card-head">
-              <div class="card-icon">👑</div>
+              <div class="card-icon"><i class="bi bi-shield-check"></i></div>
               <div><div class="card-title">Owner Account</div><div class="card-sub">Full access — manage users, view all data, export reports</div></div>
             </div>
             <div class="info-box">
               <span>ℹ️</span>
               <span><strong>One-time setup.</strong> After creating this account you'll be logged in automatically. Add salespeople and more owners later from the Users page.</span>
             </div>
-            <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="name" placeholder="e.g. Ruhena Hassan"></div>
+            <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="name" placeholder="e.g. John Doe"></div>
             <div class="form-row form-row-2">
               <div class="form-group"><label class="form-label">Email *</label><input class="form-input" type="email" id="email" placeholder="e.g. admin@ruhena.com"></div>
               <div class="form-group"><label class="form-label">Password * (min 6)</label><input class="form-input" type="password" id="pass" placeholder="Secure password"></div>
@@ -140,14 +140,21 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <script>
-const session = requireAuth();
+const session = getSession();
+if (session) { window.location.href = 'dashboard.html'; }
+
+(async function checkExisting() {
+  try {
+    const doc = await db.collection('_config').doc('setup').get();
+    if (doc.exists && doc.data().done) { window.location.href = 'index.html'; return; }
+  } catch(e) {}
+  try {
+    if (await checkHasUsers()) { window.location.href = 'index.html'; }
+  } catch(e) {}
+})();
+
 applyTheme();
 buildDrawerNav('settings');
-
-// One-time setup guard: redirect if an owner/admin already exists
-db.collection('users').where('role', 'in', ['owner', 'admin']).limit(1).get().then(snap => {
-  if (!snap.empty) window.location.href = 'index.html';
-});
 
 function showError(msg) {
   const el = document.getElementById('err-msg');
@@ -180,6 +187,19 @@ async function createAdmin() {
   btn.textContent = 'Creating account...';
 
   try {
+    // Double-check: ensure no admin already exists
+    const existsCheck = await db.collection('_config').doc('setup').get();
+    if (existsCheck.exists && existsCheck.data().done) {
+      throw new Error('An admin account already exists. Setup is locked.');
+    }
+    try {
+      if (await checkHasUsers()) {
+        throw new Error('An admin account already exists. Setup is locked.');
+      }
+    } catch(e) {
+      if (e.message === 'An admin account already exists. Setup is locked.') throw e;
+    }
+
     setStatus(true, 'Creating Firebase Auth account...');
     const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + firebaseConfig.apiKey, {
       method: 'POST',
@@ -202,6 +222,8 @@ async function createAdmin() {
       active: true,
       created_at: new Date().toISOString()
     });
+
+    await db.collection('_config').doc('setup').set({ done: true });
 
     setSession({ id: uid, name, email, role: 'owner' });
 

@@ -118,7 +118,7 @@ function renderTable() {
     <td style="font-family:monospace;font-size:12px;">${s.kra_pin || '—'}</td>
     <td>${s.lead_time || '—'} days</td>
     <td><span class="badge ${s.active !== false ? 'bg-green' : 'bg-red'}">${s.active !== false ? 'Active' : 'Inactive'}</span></td>
-    <td><button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">🗑️</button></td>
+    <td><button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">Del</button></td>
   </tr>`).join('');
 }
 

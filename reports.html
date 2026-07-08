@@ -100,7 +100,8 @@
 
   <!-- SUPPLIER REPORT -->
   <div id="tab-supplier" style="display:none;">
-    <div class="glass-card"><div class="tbl-wrap"><table id="sup-table"><thead><tr><th>Supplier</th><th>Total Purchases</th><th>Orders</th><th>Last Order</th><th>Avg Order</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;" id="sup-stats"></div>
+    <div class="glass-card"><div class="tbl-wrap"><table id="sup-table"><thead><tr><th>Supplier</th><th>Orders</th><th>Total Purchases</th><th>Total Paid</th><th>Balance</th><th>Last Order</th><th>Avg Order</th></tr></thead><tbody></tbody></table></div></div>
   </div>
 
   <!-- PROFIT & MARGIN -->
@@ -274,14 +275,41 @@ function renderExpense() {
 }
 
 function renderSupplier() {
-  const data = suppliers.map(s => {
-    const sOrders = filterByDate(orders.filter(o => o.supplier_id === s.id));
-    const total = sOrders.reduce((t, o) => t + o.total, 0);
-    const last = sOrders.sort((a, b) => b.date > a.date ? 1 : -1)[0]?.date;
-    const avg = sOrders.length ? total / sOrders.length : 0;
-    return `<tr><td><strong>${s.name}</strong></td><td>${fmtKSh(total)}</td><td><span class="badge bg-blue">${sOrders.length}</span></td><td style="font-size:12px">${last ? fmtDate(last) : '—'}</td><td>${fmtKSh(avg)}</td></tr>`;
+  const data = filterByDate(orders);
+  const supMap = {};
+  data.forEach(o => {
+    const sid = o.supplier_id || 'unknown';
+    if (!supMap[sid]) supMap[sid] = { name: o.supplier_name || 'Unknown', orders: 0, total: 0, paid: 0, last: '' };
+    supMap[sid].orders++;
+    supMap[sid].total += o.total;
+    supMap[sid].paid += o.paid || 0;
+    if (o.date > supMap[sid].last) supMap[sid].last = o.date;
   });
-  document.querySelector('#sup-table tbody').innerHTML = data.join('') || '<tr><td colspan="5"><div class="empty">No data</div></td></tr>';
+  // Use supplier-level paid field if available
+  suppliers.forEach(s => {
+    if (supMap[s.id] && s.paid) supMap[s.id].paid = s.paid;
+  });
+  const entries = Object.values(supMap);
+  const grandTotal = entries.reduce((s, e) => s + e.total, 0);
+  const grandPaid = entries.reduce((s, e) => s + e.paid, 0);
+  document.getElementById('sup-stats').innerHTML = `
+    <div class="stat-card stat-blue"><div class="stat-lbl">Suppliers</div><div class="stat-val">${entries.length}</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Total Purchases</div><div class="stat-val">${fmtKSh(grandTotal)}</div></div>
+    <div class="stat-card stat-green"><div class="stat-lbl">Total Paid</div><div class="stat-val">${fmtKSh(grandPaid)}</div></div>
+    <div class="stat-card ${(grandTotal - grandPaid) > 0 ? 'stat-red' : 'stat-green'}"><div class="stat-lbl">Total Balance</div><div class="stat-val">${fmtKSh(grandTotal - grandPaid)}</div></div>`;
+  document.querySelector('#sup-table tbody').innerHTML = entries.sort((a, b) => b.total - a.total).map(e => {
+    const balance = e.total - e.paid;
+    const avg = e.orders ? e.total / e.orders : 0;
+    return `<tr>
+      <td><strong>${e.name}</strong></td>
+      <td><span class="badge bg-blue">${e.orders}</span></td>
+      <td>${fmtKSh(e.total)}</td>
+      <td style="color:var(--green);font-weight:600;">${fmtKSh(e.paid)}</td>
+      <td style="font-weight:600;${balance > 0 ? 'color:var(--red)' : 'color:var(--green)'};">${fmtKSh(balance)}</td>
+      <td style="font-size:12px">${e.last ? fmtDate(e.last) : '—'}</td>
+      <td>${fmtKSh(avg)}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7"><div class="empty">No data</div></td></tr>';
 }
 
 function renderProfit() {

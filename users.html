@@ -27,8 +27,6 @@
 </style>
 </head>
 <body>
-
-<!-- Topbar — works both logged in and as setup page -->
 <div class="page-wrap">
   <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
   <div class="drawer" id="drawer">
@@ -64,7 +62,6 @@
 
     <div class="content">
 
-  <!-- SETUP BANNER (shown when no users exist) -->
   <div class="setup-banner" id="setup-banner" style="display:none;">
     <h2>👋 Welcome to Ruhena Healthcare System</h2>
     <p>This is your first time setup. Create your pharmacy staff accounts below. You need at least one <strong>Owner</strong> account and one <strong>Salesperson</strong> account to get started.</p>
@@ -75,7 +72,6 @@
     <button class="btn btn-primary" onclick="openModal('modal-add-user')">+ Add User</button>
   </div>
 
-  <!-- USER CARDS -->
   <div class="user-cards" id="user-cards">
     <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--text3);">
       <div style="width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;"></div>
@@ -83,18 +79,17 @@
     </div>
   </div>
 
-  <!-- QUICK START GUIDE -->
   <div class="glass-card" id="guide-card">
     <div class="card-title"><i class="bi bi-file-text"></i> Quick Start Guide</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
         <div style="font-size:24px;margin-bottom:8px;">1️⃣</div>
         <div style="font-weight:600;margin-bottom:4px;">Create Users</div>
-        <div style="font-size:12px;color:var(--text2);">Add Owner and Salesperson accounts with names and PINs.</div>
+        <div style="font-size:12px;color:var(--text2);">Add Owner and Salesperson accounts with names and emails.</div>
       </div>
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
         <div style="font-size:24px;margin-bottom:8px;">2️⃣</div>
-        <div style="font-weight:600;margin-bottom:4px;">Run SQL Setup</div>
+        <div style="font-weight:600;margin-bottom:4px;">Run Setup</div>
         <div style="font-size:12px;color:var(--text2);">Create the accounts via the <strong>"First Time Setup"</strong> page or use the "+ Add User" button below.</div>
       </div>
       <div style="padding:16px;background:var(--surface2);border-radius:var(--r-sm);">
@@ -123,7 +118,7 @@
 
     <div class="form-group">
       <label class="form-label">Full Name *</label>
-      <input class="form-input" id="u-name" placeholder="e.g. Ruhena Hassan">
+      <input class="form-input" id="u-name" placeholder="e.g. John Doe">
     </div>
     <div class="form-group">
       <label class="form-label">Email *</label>
@@ -191,8 +186,6 @@ applyTheme();
 const session = getSession();
 if (session) {
   buildDrawerNav('users');
-  document.getElementById('logout-btn').style.display = '';
-  document.getElementById('back-btn').style.display = 'none';
   if (!isOwner()) {
     document.querySelector('button[onclick="openModal(\'modal-add-user\')"]').style.display = 'none';
   }
@@ -354,12 +347,13 @@ async function sendResetPassword() {
 async function deleteUser(id) {
   const u = users.find(x => x.id === id);
   if (!u) return;
-  if (!isOwner()) { toast('Only owners can delete users', 'error'); return; }
+  if (!session || !isOwner()) { toast('Only owners can delete users', 'error'); return; }
   if (session && session.id === id) { toast('You cannot delete your own account', 'error'); return; }
-  const adminCount = users.filter(x => x.role === 'owner' || x.role === 'admin').length;
-  if ((u.role === 'owner' || u.role === 'admin') && adminCount <= 1) { toast('Cannot delete the last admin account', 'error'); return; }
+  if (u.role === 'owner') {
+    const owners = users.filter(x => x.role === 'owner');
+    if (owners.length <= 1) { toast('Cannot delete the last owner account', 'error'); return; }
+  }
   if (!confirm(`Delete user "${u.name}"? This cannot be undone.`)) return;
-  if (users.length <= 1) { toast('Cannot delete the only user', 'error'); return; }
   await sbDelete('users', id);
   users = users.filter(x => x.id !== id);
   renderUsers();

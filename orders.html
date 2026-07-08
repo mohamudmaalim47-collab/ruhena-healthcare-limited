@@ -59,7 +59,7 @@
     <div class="card">
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>#</th><th>Date</th><th>Supplier</th><th>Medicine</th><th>Qty</th><th>Total Cost</th><th>Paid</th><th>Balance</th><th>Status</th><th>Invoice</th><th id="order-action-col"></th></tr></thead>
+          <thead><tr><th>#</th><th>Date</th><th>Supplier</th><th>Medicine</th><th>Qty</th><th>Buy Price</th><th>Sell Price</th><th>Total Cost</th><th>Profit</th><th>Invoice</th><th id="order-action-col"></th></tr></thead>
           <tbody id="orders-body"></tbody>
         </table>
       </div>
@@ -75,7 +75,7 @@
     <div class="card">
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>#</th><th>Supplier Name</th><th>Phone</th><th>Email</th><th>Orders</th><th>Total Cost</th><th>Paid</th><th>Balance</th><th>Status</th><th>Last Order</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>Supplier Name</th><th>Phone</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Paid</th><th>Balance</th><th>Last Order</th><th></th></tr></thead>
           <tbody id="suppliers-body"></tbody>
         </table>
       </div>
@@ -112,7 +112,7 @@
     <div style="text-align:right;font-size:14px;margin-bottom:4px;">Grand Total Cost: <strong style="color:var(--green);">KSh <span id="order-grand-total">0</span></strong></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-order')">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-order" onclick="saveBatchOrder()">Save & Update Inventory</button>
+      <button class="btn btn-primary" onclick="saveBatchOrder()">Save & Update Inventory</button>
     </div>
   </div>
 </div>
@@ -133,58 +133,52 @@
   </div>
 </div>
 
-<!-- PAYMENT MODAL -->
-<div class="modal-overlay" id="modal-payment">
-  <div class="modal" style="width:500px;">
-    <div class="modal-title">Record Payment</div>
-    <input type="hidden" id="pay-order-id">
-    <div id="pay-order-summary" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;"></div>
-    <div class="form-row form-row-2">
-      <div class="form-group"><label class="form-label">Amount (KSh) *</label><input class="form-input" type="number" id="pay-amount" min="0.01" step="0.01" placeholder="0.00"></div>
-      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="pay-date"></div>
+<!-- SUPPLIER DETAIL MODAL -->
+<div class="modal-overlay" id="modal-supplier-detail">
+  <div class="modal" style="width:90%;max-width:960px;">
+    <div class="modal-title">
+      <span id="sd-name"></span>
+      <span style="font-size:12px;color:var(--text3);font-weight:normal;margin-left:12px;" id="sd-contact"></span>
     </div>
-    <div class="form-row form-row-2">
-      <div class="form-group"><label class="form-label">Payment Method *</label>
-        <select class="form-input" id="pay-method">
-          <option value="Cash">Cash</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="M-Pesa">M-Pesa</option>
-          <option value="Cheque">Cheque</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Reference (optional)</label><input class="form-input" id="pay-ref" placeholder="e.g. TRF-001"></div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;" id="sd-stats"></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <input type="date" class="date-filter" id="sd-date-from" placeholder="From" onchange="renderSupplierDetail()">
+      <input type="date" class="date-filter" id="sd-date-to" placeholder="To" onchange="renderSupplierDetail()">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sd-date-from').value='';document.getElementById('sd-date-to').value='';renderSupplierDetail()">Clear</button>
     </div>
-    <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="pay-notes" placeholder="Additional notes..."></div>
-    <div id="pay-history" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:none;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text2);">Payment History</div>
-      <div id="pay-history-list" style="max-height:180px;overflow-y:auto;"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-payment')">Cancel</button>
-      <button class="btn btn-primary" id="btn-record-payment" onclick="recordPayment()">Record Payment</button>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Medicine</th><th>Qty</th><th>Buy Price</th><th>Sell Price</th><th>Total Cost</th><th>Paid</th><th>Balance</th><th>Invoice</th><th></th></tr></thead>
+        <tbody id="sd-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- SUPPLIER REPORT MODAL -->
-<div class="modal-overlay" id="modal-supplier-report">
-  <div class="modal" style="width:900px;max-width:96vw;">
-    <div class="modal-title" id="sr-title">Supplier Report</div>
-    <input type="hidden" id="sr-supplier-id">
-    <div id="sr-summary" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.8;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
-      <input type="date" class="date-filter" id="sr-date-filter" oninput="renderSupplierReport()">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sr-date-filter').value='';renderSupplierReport()">All</button>
-      <span id="sr-count" style="font-size:12px;color:var(--text3);margin-left:auto;"></span>
-    </div>
-    <div class="tbl-wrap" style="max-height:400px;overflow-y:auto;">
-      <table>
-        <thead><tr><th>#</th><th>Date</th><th>Medicine</th><th>Qty</th><th>Total Cost</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
-        <tbody id="sr-body"></tbody>
-      </table>
-    </div>
+<!-- PER-ORDER PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-pay">
+  <div class="modal" style="width:380px;">
+    <div class="modal-title">Record Payment</div>
+    <input type="hidden" id="pay-order-id">
+    <div id="pay-order-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.8;"></div>
+    <div class="form-group"><label class="form-label">Amount to Pay (KSh)</label><input class="form-input" type="number" id="pay-amount" min="0" step="0.01"></div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-supplier-report')">Close</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-pay')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLIER PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-pay-supplier">
+  <div class="modal" style="width:380px;">
+    <div class="modal-title">Pay Supplier</div>
+    <input type="hidden" id="pay-supplier-id">
+    <div id="pay-supplier-info" style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.8;"></div>
+    <div class="form-group"><label class="form-label">Amount to Pay (KSh)</label><input class="form-input" type="number" id="pay-supplier-amount" min="0" step="0.01"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pay-supplier')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSupplierPayment()">Record Payment</button>
     </div>
   </div>
 </div>
@@ -232,53 +226,44 @@ function renderOrders() {
   if (df) data = data.filter(o => o.date === df);
   const body = document.getElementById('orders-body');
   if (!data.length) { body.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">📦</div><p>No orders recorded</p></div></td></tr>'; return; }
-  body.innerHTML = data.map((o, i) => {
-    const paid = o.paid || 0;
-    const balance = o.balance !== undefined ? o.balance : (o.total || 0);
-    const status = o.status || (balance <= 0 ? 'paid' : paid > 0 ? 'partial' : 'unpaid');
-    const statusBadge = status === 'paid' ? 'bg-green' : status === 'partial' ? 'bg-amber' : 'bg-red';
-    const statusLabel = status === 'paid' ? 'Paid' : status === 'partial' ? 'Partial' : 'Unpaid';
-    return `<tr>
+  body.innerHTML = data.map((o, i) => `<tr>
     <td class="num-col">${i + 1}</td>
     <td style="font-size:12px">${fmtDate(o.date)}</td>
     <td>${o.supplier_name || '—'}</td>
     <td><strong>${o.medicine}</strong></td>
     <td>${o.qty}</td>
+    <td>${fmtKSh(o.buy)}</td>
+    <td>${fmtKSh(o.sell)}</td>
     <td><strong>${fmtKSh(o.total)}</strong></td>
-    <td style="color:var(--green);font-weight:600;">${fmtKSh(paid)}</td>
-    <td style="font-weight:600;color:${balance > 0 ? 'var(--red)' : 'var(--text3)'};">${fmtKSh(balance)}</td>
-    <td><span class="badge ${statusBadge}" style="text-transform:uppercase;font-size:10px;">${statusLabel}</span></td>
+    <td class="${(o.profit || 0) >= 0 ? 'profit-pos' : 'profit-neg'}">${fmtKSh(o.profit)}</td>
     <td style="font-size:12px;color:var(--text3)">${o.invoice_number || '—'}</td>
-    <td style="display:flex;gap:4px;">
-      ${!isOwner() ? `<button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')" style="font-size:11px;padding:3px 8px;">Del</button>` : ''}
-    </td>
-  </tr>`;
-  }).join('');
+    <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Del</button></td>
+  </tr>`).join('');
 }
 
 function renderSuppliers() {
   const body = document.getElementById('suppliers-body');
-  if (!suppliers.length) { body.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">🏭</div><p>No suppliers added</p></div></td></tr>'; return; }
+  if (!suppliers.length) { body.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-icon">🏭</div><p>No suppliers added</p></div></td></tr>'; return; }
   body.innerHTML = suppliers.map((s, i) => {
     const sOrders = orders.filter(o => o.supplier_id === s.id);
     const total = sOrders.reduce((t, o) => t + (o.total || 0), 0);
-    const paid = sOrders.reduce((t, o) => t + (o.paid || 0), 0);
-    const balance = total - paid;
+    const totalPaid = s.paid || 0;
+    const balance = total - totalPaid;
     const last = sOrders.sort((a, b) => b.date > a.date ? 1 : -1)[0]?.date;
-    const badge = balance <= 0 ? 'bg-green' : paid > 0 ? 'bg-amber' : 'bg-red';
     return `<tr>
       <td class="num-col">${i + 1}</td>
-      <td><strong>${s.name}</strong></td>
+      <td><a href="#" onclick="openSupplierDetail('${s.id}');return false;" style="font-weight:600;color:var(--green);text-decoration:none;">${s.name}</a></td>
       <td>${s.phone || '—'}</td>
       <td style="font-size:12px">${s.email || '—'}</td>
       <td><span class="badge bg-blue">${sOrders.length}</span></td>
       <td>${fmtKSh(total)}</td>
-      <td style="color:var(--green);font-weight:600;">${fmtKSh(paid)}</td>
-      <td style="color:${balance > 0 ? 'var(--red)' : 'var(--text3)'};font-weight:600;">${fmtKSh(balance)}</td>
-      <td><span class="badge ${badge}" style="text-transform:uppercase;font-size:10px;">${balance <= 0 ? 'Paid' : paid > 0 ? 'Partial' : 'Unpaid'}</span></td>
+      <td>${fmtKSh(totalPaid)}</td>
+      <td style="font-weight:600;${balance > 0 ? 'color:var(--red)' : 'color:var(--green)'};">${fmtKSh(balance)}</td>
       <td style="font-size:12px">${last ? fmtDate(last) : '—'}</td>
       <td style="display:flex;gap:4px;">
-        ${!isOwner() ? `<button class="btn btn-ghost btn-sm" onclick="openSupplierReport('${s.id}')" style="font-size:11px;padding:3px 8px;"><i class="bi bi-file-text"></i> Report</button><button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')" style="font-size:11px;padding:3px 8px;">Del</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="openSupplierDetail('${s.id}')">Report</button>
+        ${balance > 0 ? `<button class="btn btn-primary btn-sm" onclick="openPaySupplier('${s.id}')">Pay</button>` : '<span style="color:var(--green);font-size:11px;">✅</span>'}
+        <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">Del</button>
       </td>
     </tr>`;
   }).join('');
@@ -291,8 +276,6 @@ function openOrderModal() {
   document.getElementById('order-rows').innerHTML = '';
   orderRowCount = 0;
   addOrderRow();
-  // Generate unique batch ID for duplicate detection
-  window._orderBatchId = 'ord-batch-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
   openModal('modal-order');
 }
 
@@ -333,81 +316,52 @@ function recalcGrand() {
   document.getElementById('order-grand-total').textContent = grand.toLocaleString();
 }
 
+let savingOrder = false;
 async function saveBatchOrder() {
-  const btn = document.getElementById('btn-save-order');
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-
+  if (savingOrder) return;
+  const btn = document.querySelector('#modal-order .btn-primary');
   const session = getSession();
   const suppId = document.getElementById('or-supplier').value;
   const date = document.getElementById('or-date').value;
-  if (!suppId || !date) { toast('Select supplier and date', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
+  if (!suppId || !date) { toast('Select supplier and date', 'error'); return; }
   const rows = document.querySelectorAll('#order-rows > div');
-  const invoiceNumber = document.getElementById('or-invoice').value.trim();
-
-  // Validate rows
-  let validRows = 0;
-  for (const row of rows) {
-    const inputs = row.querySelectorAll('input');
-    const med = inputs[0]?.value.trim();
-    const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0]?.value) || 0;
-    const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
-    if (med && qty > 0 && buy > 0) validRows++;
-  }
-  if (!validRows) { toast('Add at least one complete order line', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
-
-  // Duplicate check: query Firestore for this batch ID
-  const batchId = window._orderBatchId;
-  if (batchId) {
-    try {
-      const existing = await db.collection('orders').where('batch_id', '==', batchId).limit(1).get();
-      if (!existing.empty) { toast('This order has already been saved', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
-    } catch(e) {}
-  }
-
+  if (!rows.length) { toast('Add at least one order line', 'error'); return; }
   const supplier = suppliers.find(s => s.id === suppId);
   const ref = 'ORD-' + Date.now();
-  const batch = db.batch();
-  const now = new Date().toISOString();
-  const savedOrders = [];
-  let count = 0;
-
-  for (const row of rows) {
-    const inputs = row.querySelectorAll('input');
-    const med = inputs[0]?.value.trim();
-    const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0]?.value) || 0;
-    const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
-    const sell = parseFloat(row.querySelectorAll('input[type="number"]')[2]?.value) || 0;
-    if (!med || qty <= 0 || buy <= 0) continue;
-    const total = qty * buy;
-    const orderId = uid();
-    const orderData = { id: orderId, date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: invoiceNumber, added_by: session.name, added_at: now, paid: 0, balance: total, paymentHistory: [], status: 'unpaid', batch_id: batchId };
-    batch.set(db.collection('orders').doc(orderId), { ...orderData, id: orderId });
-    savedOrders.push(orderData);
-    const inv = inventory.find(i => i.name.toLowerCase() === med.toLowerCase());
-    if (inv) {
-      batch.update(db.collection('inventory').doc(inv.id), { stock: inv.stock + qty, unit_cost: buy, price: sell || inv.price });
-      inv.stock += qty; inv.unit_cost = buy; if (sell) inv.price = sell;
-    } else {
-      const newId = uid();
-      const newItem = { id: newId, name: med, category: 'Other', price: sell || buy, stock: qty, alert_at: 10, unit_cost: buy, created_at: now };
-      batch.set(db.collection('inventory').doc(newId), { ...newItem, id: newId });
-      inventory.push(newItem);
-    }
-    count++;
-  }
-
+  savingOrder = true;
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  let saved = 0;
   try {
-    await batch.commit();
-    // Update local orders array with the saved order data
-    savedOrders.forEach(o => orders.unshift(o));
+    for (const row of rows) {
+      const inputs = row.querySelectorAll('input');
+      const med = inputs[0]?.value.trim();
+      const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0]?.value) || 0;
+      const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
+      const sell = parseFloat(row.querySelectorAll('input[type="number"]')[2]?.value) || 0;
+      if (!med || qty <= 0 || buy <= 0) continue;
+      const orderItem = { id: uid(), date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total: qty * buy, profit: qty * (sell - buy), paid: 0, notes: '', order_ref: ref, invoice_number: document.getElementById('or-invoice').value.trim(), added_by: session.name, added_at: new Date().toISOString() };
+      await sbInsert('orders', orderItem);
+      orders.unshift(orderItem);
+      const inv = inventory.find(i => i.name.toLowerCase() === med.toLowerCase());
+      if (inv) {
+        await sbUpdate('inventory', inv.id, { stock: inv.stock + qty, unit_cost: buy, price: sell || inv.price });
+        inv.stock += qty; inv.unit_cost = buy; if (sell) inv.price = sell;
+      } else {
+        const newItem = { id: uid(), name: med, category: 'Other', price: sell || buy, stock: qty, alert_at: 10, unit_cost: buy, created_at: new Date().toISOString() };
+        await sbInsert('inventory', newItem);
+        inventory.push(newItem);
+      }
+      saved++;
+    }
+    if (!saved) { toast('Add at least one complete order line', 'error'); return; }
     closeModal('modal-order');
     renderOrders();
-    toast('Order saved successfully', 'success');
-    // Keep button disabled for 2 seconds then reset
-    setTimeout(() => { btn.disabled = false; btn.textContent = 'Save & Update Inventory'; }, 2000);
+    toast(`Batch saved - ${saved} medicines updated`, 'success');
   } catch(e) {
-    toast('Order save failed: ' + (e.message || 'Unknown error'), 'error');
+    toast('Error: ' + (e.message || 'Save failed'), 'error');
+  } finally {
+    savingOrder = false;
     btn.disabled = false;
     btn.textContent = 'Save & Update Inventory';
   }
@@ -421,147 +375,18 @@ async function deleteOrder(id) {
   toast('Deleted');
 }
 
-// ── SUPPLIER REPORT ──
-
-function openSupplierReport(id) {
-  const s = suppliers.find(x => x.id === id);
-  if (!s) return;
-  document.getElementById('sr-supplier-id').value = id;
-  document.getElementById('sr-title').textContent = 'Report: ' + s.name;
-  document.getElementById('sr-date-filter').value = '';
-  renderSupplierReport();
-  openModal('modal-supplier-report');
-}
-
-function renderSupplierReport() {
-  const id = document.getElementById('sr-supplier-id').value;
-  const df = document.getElementById('sr-date-filter').value;
-  const sOrders = orders.filter(o => o.supplier_id === id);
-  let data = [...sOrders];
-  if (df) data = data.filter(o => o.date === df);
-  data.sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1);
-  const total = sOrders.reduce((t, o) => t + (o.total || 0), 0);
-  const paid = sOrders.reduce((t, o) => t + (o.paid || 0), 0);
-  const bal = total - paid;
-  document.getElementById('sr-summary').innerHTML =
-    `<div><span style="color:var(--text3);font-size:11px;">Total Orders</span><br><span style="font-weight:700;font-size:16px;">${sOrders.length}</span></div>
-    <div><span style="color:var(--text3);font-size:11px;">Total Cost</span><br><span style="font-weight:700;font-size:16px;">${fmtKSh(total)}</span></div>
-    <div><span style="color:var(--text3);font-size:11px;">Total Paid</span><br><span style="font-weight:700;font-size:16px;color:var(--green);">${fmtKSh(paid)}</span></div>
-    <div><span style="color:var(--text3);font-size:11px;">Balance</span><br><span style="font-weight:700;font-size:16px;color:${bal > 0 ? 'var(--red)' : 'var(--text3)'};">${fmtKSh(bal)}</span></div>`;
-  document.getElementById('sr-count').textContent = data.length + ' of ' + sOrders.length + ' orders';
-  const body = document.getElementById('sr-body');
-  if (!data.length) { body.innerHTML = '<tr><td colspan="9"><div class="empty"><span class="empty-icon">📦</span><p>No orders found</p></div></td></tr>'; return; }
-  body.innerHTML = data.map((o, i) => {
-    const opaid = o.paid || 0;
-    const obal = o.balance !== undefined ? o.balance : (o.total || 0);
-    const ost = o.status || (obal <= 0 ? 'paid' : opaid > 0 ? 'partial' : 'unpaid');
-    const sBadge = ost === 'paid' ? 'bg-green' : ost === 'partial' ? 'bg-amber' : 'bg-red';
-    const sLbl = ost === 'paid' ? 'Paid' : ost === 'partial' ? 'Partial' : 'Unpaid';
-    return `<tr>
-      <td class="num-col">${i + 1}</td>
-      <td style="font-size:12px">${fmtDate(o.date)}</td>
-      <td><strong>${o.medicine}</strong></td>
-      <td>${o.qty}</td>
-      <td><strong>${fmtKSh(o.total)}</strong></td>
-      <td style="color:var(--green);font-weight:600;">${fmtKSh(opaid)}</td>
-      <td style="font-weight:600;color:${obal > 0 ? 'var(--red)' : 'var(--text3)'};">${fmtKSh(obal)}</td>
-      <td><span class="badge ${sBadge}" style="text-transform:uppercase;font-size:10px;">${sLbl}</span></td>
-      <td>${!isOwner() ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPaymentModal('${o.id}',true)" style="font-size:11px;padding:3px 8px;"><i class="bi bi-cash"></i> Pay</button>` : ''}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── PAYMENT TRACKING ──
-
-function openPaymentModal(id, fromReport) {
-  const o = orders.find(x => x.id === id);
-  if (!o) return;
-  document.getElementById('pay-order-id').value = id;
-  window._payFromReport = fromReport ? true : false;
-  const paid = o.paid || 0;
-  const balance = (o.balance !== undefined ? o.balance : (o.total || 0));
-  document.getElementById('pay-order-summary').innerHTML =
-    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;">
-      <span><strong>Supplier:</strong> ${o.supplier_name || '—'}</span>
-      <span><strong>Medicine:</strong> ${o.medicine}</span>
-      <span><strong>Total Cost:</strong> KSh ${Number(o.total || 0).toFixed(2)}</span>
-      <span><strong>Already Paid:</strong> KSh ${Number(paid).toFixed(2)}</span>
-      <span><strong>Balance Due:</strong> <span style="color:${balance > 0 ? 'var(--red)' : 'var(--green)'};font-weight:700;">KSh ${Number(balance).toFixed(2)}</span></span>
-      <span><strong>Status:</strong> <span class="badge ${balance <= 0 ? 'bg-green' : paid > 0 ? 'bg-amber' : 'bg-red'}">${balance <= 0 ? 'Paid' : paid > 0 ? 'Partial' : 'Unpaid'}</span></span>
-    </div>`;
-  document.getElementById('pay-date').value = todayStr();
-  document.getElementById('pay-amount').value = balance > 0 ? balance.toFixed(2) : '';
-  document.getElementById('pay-method').value = 'Cash';
-  document.getElementById('pay-ref').value = '';
-  document.getElementById('pay-notes').value = '';
-  // Show payment history
-  const history = o.paymentHistory || [];
-  const histContainer = document.getElementById('pay-history');
-  const histList = document.getElementById('pay-history-list');
-  if (history.length) {
-    histContainer.style.display = 'block';
-    histList.innerHTML = history.map((p, i) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
-      <div><span style="font-weight:600;">#${i + 1}</span> ${fmtDate(p.date)} &middot; ${p.method}${p.notes ? ' &middot; ' + p.notes : ''}</div>
-      <div style="font-weight:700;color:var(--green);">KSh ${Number(p.amount).toFixed(2)}</div>
-    </div>`).join('');
-  } else {
-    histContainer.style.display = 'none';
-  }
-  openModal('modal-payment');
-}
-
-async function recordPayment() {
-  const btn = document.getElementById('btn-record-payment');
-  btn.disabled = true;
-  btn.textContent = 'Recording...';
-  const id = document.getElementById('pay-order-id').value;
-  const o = orders.find(x => x.id === id);
-  if (!o) { toast('Order not found', 'error'); btn.disabled = false; btn.textContent = 'Record Payment'; return; }
-  const amount = parseFloat(document.getElementById('pay-amount').value);
-  const date = document.getElementById('pay-date').value;
-  const method = document.getElementById('pay-method').value;
-  const ref = document.getElementById('pay-ref').value.trim();
-  const notes = document.getElementById('pay-notes').value.trim();
-  if (!amount || amount <= 0) { toast('Enter a valid payment amount', 'error'); btn.disabled = false; btn.textContent = 'Record Payment'; return; }
-  if (!date) { toast('Select payment date', 'error'); btn.disabled = false; btn.textContent = 'Record Payment'; return; }
-  const total = o.total || 0;
-  const prevPaid = o.paid || 0;
-  const newPaid = prevPaid + amount;
-  const newBalance = total - newPaid;
-  if (newBalance < -0.01) { toast('Payment exceeds balance due', 'error'); btn.disabled = false; btn.textContent = 'Record Payment'; return; }
-  const payment = { amount: Math.round(amount * 100) / 100, date, method, notes: (ref ? 'Ref: ' + ref + (notes ? ' | ' + notes : '') : notes) };
-  const history = [...(o.paymentHistory || []), payment];
-  const status = newBalance <= 0 ? 'paid' : 'partial';
-  try {
-    await db.collection('orders').doc(id).update({ paid: Math.round(newPaid * 100) / 100, balance: Math.max(0, Math.round(newBalance * 100) / 100), paymentHistory: history, status });
-    o.paid = Math.round(newPaid * 100) / 100;
-    o.balance = Math.max(0, Math.round(newBalance * 100) / 100);
-    o.paymentHistory = history;
-    o.status = status;
-    closeModal('modal-payment');
-    if (window._payFromReport) { renderSupplierReport(); renderOrders(); renderSuppliers(); }
-    else { renderOrders(); }
-    window._payFromReport = false;
-    toast('Payment recorded: KSh ' + amount.toFixed(2), 'success');
-  } catch(e) {
-    toast('Failed to record payment: ' + (e.message || 'Error'), 'error');
-  }
-  btn.disabled = false;
-  btn.textContent = 'Record Payment';
-}
-
 async function saveSupplier() {
   if (isOwner()) { toast('Owners cannot add suppliers', 'error'); return; }
   const name = document.getElementById('sp-name').value.trim();
   if (!name) { toast('Name required', 'error'); return; }
-  const sup = { id: uid(), name, phone: document.getElementById('sp-phone').value.trim(), email: document.getElementById('sp-email').value.trim() };
+  const sup = { id: uid(), name, phone: document.getElementById('sp-phone').value.trim(), email: document.getElementById('sp-email').value.trim(), paid: 0 };
   await sbInsert('suppliers', sup);
   suppliers.push(sup);
   populateSupplierSelect();
   ['sp-name','sp-phone','sp-email'].forEach(id => document.getElementById(id).value = '');
   closeModal('modal-supplier');
   renderSuppliers();
-  toast('Supplier added ✅');
+  toast('Supplier added', 'success');
 }
 
 async function deleteSupplier(id) {
@@ -571,6 +396,151 @@ async function deleteSupplier(id) {
   populateSupplierSelect();
   renderSuppliers();
   toast('Deleted');
+}
+
+let detailSupplierId = null;
+function openSupplierDetail(id) {
+  detailSupplierId = id;
+  const s = suppliers.find(x => x.id === id);
+  document.getElementById('sd-name').textContent = s.name;
+  document.getElementById('sd-contact').textContent = (s.phone || '') + (s.phone && s.email ? ' · ' : '') + (s.email || '');
+  document.getElementById('sd-date-from').value = '';
+  document.getElementById('sd-date-to').value = '';
+  renderSupplierDetail();
+  openModal('modal-supplier-detail');
+}
+
+function renderSupplierDetail() {
+  if (!detailSupplierId) return;
+  const s = suppliers.find(x => x.id === detailSupplierId);
+  const allOrders = orders.filter(o => o.supplier_id === detailSupplierId);
+  // Distribute s.paid across ALL orders (oldest first)
+  let rem = Math.min(s.paid || 0, allOrders.reduce((t, o) => t + (o.total || 0), 0));
+  const paidMap = {};
+  [...allOrders].sort((a, b) => (a.date || '') > (b.date || '') ? 1 : -1).forEach(o => {
+    const pay = Math.min(rem, o.total || 0);
+    paidMap[o.id] = pay;
+    rem -= pay;
+  });
+  // Apply date filter for display
+  let sOrders = allOrders;
+  const from = document.getElementById('sd-date-from').value;
+  const to = document.getElementById('sd-date-to').value;
+  if (from) sOrders = sOrders.filter(o => (o.date || '') >= from);
+  if (to) sOrders = sOrders.filter(o => (o.date || '') <= to);
+  sOrders.sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1);
+  const total = sOrders.reduce((t, o) => t + (o.total || 0), 0);
+  const totalPaid = sOrders.reduce((t, o) => t + (paidMap[o.id] || 0), 0);
+  const balance = total - totalPaid;
+  document.getElementById('sd-stats').innerHTML = `
+    <div class="stat-card stat-blue"><div class="stat-lbl">Orders</div><div class="stat-val">${sOrders.length}</div></div>
+    <div class="stat-card stat-amber"><div class="stat-lbl">Total Ordered</div><div class="stat-val">${fmtKSh(total)}</div></div>
+    <div class="stat-card stat-green"><div class="stat-lbl">Total Paid</div><div class="stat-val">${fmtKSh(totalPaid)}</div></div>
+    <div class="stat-card ${balance > 0 ? 'stat-red' : 'stat-green'}"><div class="stat-lbl">Balance</div><div class="stat-val">${fmtKSh(balance)}</div></div>`;
+  document.getElementById('sd-body').innerHTML = sOrders.map(o => {
+    const op = paidMap[o.id] || 0;
+    const ob = (o.total || 0) - op;
+    return `<tr>
+      <td style="font-size:12px">${fmtDate(o.date)}</td>
+      <td><strong>${o.medicine}</strong></td>
+      <td>${o.qty}</td>
+      <td>${fmtKSh(o.buy || 0)}</td>
+      <td>${fmtKSh(o.sell || 0)}</td>
+      <td><strong>${fmtKSh(o.total)}</strong></td>
+      <td style="color:var(--green);font-weight:600;">${fmtKSh(op)}</td>
+      <td style="font-weight:600;${ob > 0 ? 'color:var(--red)' : 'color:var(--green)'};">${fmtKSh(ob)}</td>
+      <td style="font-size:12px;color:var(--text3)">${o.invoice_number || '—'}</td>
+      <td>${ob > 0 ? `<button class="btn btn-ghost btn-sm" onclick="openPayModal('${o.id}')" style="font-size:11px;padding:3px 6px;"><i class="bi bi-cash"></i></button>` : ''}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10"><div class="empty">No orders found</div></td></tr>';
+}
+
+function openPayModal(orderId) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  document.getElementById('pay-order-id').value = orderId;
+  const bal = (o.total || 0) - (o.paid || 0);
+  document.getElementById('pay-order-info').innerHTML = `
+    <strong>${o.medicine}</strong> · ${o.supplier_name}<br>
+    Total: <strong>${fmtKSh(o.total)}</strong> · Paid: <strong style="color:var(--green)">${fmtKSh(o.paid || 0)}</strong><br>
+    Balance Due: <strong style="color:var(--red)">${fmtKSh(bal)}</strong>`;
+  document.getElementById('pay-amount').value = bal > 0 ? bal.toFixed(2) : '';
+  openModal('modal-pay');
+}
+
+async function confirmPayment() {
+  const id = document.getElementById('pay-order-id').value;
+  const amt = parseFloat(document.getElementById('pay-amount').value) || 0;
+  if (amt <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const o = orders.find(x => x.id === id);
+  if (!o) { toast('Order not found', 'error'); return; }
+  const newPaid = (o.paid || 0) + amt;
+  if (newPaid > (o.total || 0)) { toast('Payment exceeds the total amount', 'error'); return; }
+  await sbUpdate('orders', id, { paid: newPaid });
+  o.paid = newPaid;
+  // Also update supplier-level paid if it exists
+  const s = suppliers.find(x => x.id === o.supplier_id);
+  if (s) {
+    const newSupPaid = (s.paid || 0) + amt;
+    await sbUpdate('suppliers', s.id, { paid: newSupPaid });
+    s.paid = newSupPaid;
+  }
+  closeModal('modal-pay');
+  renderOrders();
+  if (detailSupplierId && detailSupplierId === o.supplier_id) renderSupplierDetail();
+  renderSuppliers();
+  toast('Payment recorded', 'success');
+}
+
+function openPaySupplier(id) {
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+  const sOrders = orders.filter(o => o.supplier_id === id);
+  const total = sOrders.reduce((t, o) => t + (o.total || 0), 0);
+  const paid = s.paid || 0;
+  const bal = total - paid;
+  document.getElementById('pay-supplier-id').value = id;
+  document.getElementById('pay-supplier-info').innerHTML = `
+    <strong>${s.name}</strong><br>
+    Total Ordered: <strong>${fmtKSh(total)}</strong><br>
+    Previously Paid: <strong style="color:var(--green)">${fmtKSh(paid)}</strong><br>
+    Balance Due: <strong style="color:var(--red)">${fmtKSh(bal)}</strong>`;
+  document.getElementById('pay-supplier-amount').value = bal > 0 ? bal.toFixed(2) : '';
+  openModal('modal-pay-supplier');
+}
+
+async function confirmSupplierPayment() {
+  const id = document.getElementById('pay-supplier-id').value;
+  const amt = parseFloat(document.getElementById('pay-supplier-amount').value) || 0;
+  if (amt <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const s = suppliers.find(x => x.id === id);
+  if (!s) { toast('Supplier not found', 'error'); return; }
+  const newPaid = (s.paid || 0) + amt;
+  const totalOrdered = orders.filter(o => o.supplier_id === id).reduce((t, o) => t + (o.total || 0), 0);
+  if (newPaid > totalOrdered) { toast('Payment exceeds total ordered amount', 'error'); return; }
+  try {
+    await sbUpdate('suppliers', id, { paid: newPaid });
+    s.paid = newPaid;
+    // Distribute payment across unpaid orders (oldest first)
+    let remaining = amt;
+    const unpaidOrders = orders.filter(o => o.supplier_id === id && (o.paid || 0) < (o.total || 0))
+      .sort((a, b) => (a.date || '') > (b.date || '') ? 1 : -1);
+    for (const o of unpaidOrders) {
+      if (remaining <= 0) break;
+      const due = (o.total || 0) - (o.paid || 0);
+      const payNow = Math.min(remaining, due);
+      const newOrderPaid = (o.paid || 0) + payNow;
+      await sbUpdate('orders', o.id, { paid: newOrderPaid });
+      o.paid = newOrderPaid;
+      remaining -= payNow;
+    }
+    closeModal('modal-pay-supplier');
+    renderSuppliers();
+    if (detailSupplierId === id) renderSupplierDetail();
+    toast('Payment to ' + s.name + ' recorded', 'success');
+  } catch(e) {
+    toast('Payment failed: ' + (e.message || 'Unknown error'), 'error');
+  }
 }
 
 // Med datalist for order rows

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ruhena Healthcare Limited — Login</title>
+<title>Ruhena Healthcare — Login</title>
 <link rel="stylesheet" href="shared.css">
 <style>
 body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:var(--bg);}
@@ -163,10 +163,20 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 
 if(getSession()) window.location.href = 'dashboard.html';
 
-// Hide First Time Setup if users already exist
-db.collection('users').limit(1).get().then(snap => {
-  if (!snap.empty) document.querySelector('.setup-link')?.remove();
-});
+(async function() {
+  let hide = false;
+  try {
+    const doc = await db.collection('_config').doc('setup').get();
+    if (doc.exists && doc.data().done) hide = true;
+  } catch(e) {}
+  if (!hide) {
+    try { if (await checkHasUsers()) hide = true; } catch(e) {}
+  }
+  if (hide) {
+    const link = document.querySelector('.setup-link');
+    if (link) link.style.display = 'none';
+  }
+})();
 
 function toggleLoginTheme() {
   const isLight = document.body.classList.toggle('light-mode');
