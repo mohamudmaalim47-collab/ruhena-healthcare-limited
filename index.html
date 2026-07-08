@@ -163,6 +163,11 @@ body{display:grid;grid-template-columns:1fr 480px;min-height:100vh;background:va
 
 if(getSession()) window.location.href = 'dashboard.html';
 
+// Hide First Time Setup if users already exist
+db.collection('users').limit(1).get().then(snap => {
+  if (!snap.empty) document.querySelector('.setup-link')?.remove();
+});
+
 function toggleLoginTheme() {
   const isLight = document.body.classList.toggle('light-mode');
   document.getElementById('theme-btn').textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';

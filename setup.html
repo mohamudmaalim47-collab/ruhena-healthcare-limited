@@ -144,6 +144,11 @@ const session = requireAuth();
 applyTheme();
 buildDrawerNav('settings');
 
+// One-time setup guard: redirect if an owner/admin already exists
+db.collection('users').where('role', 'in', ['owner', 'admin']).limit(1).get().then(snap => {
+  if (!snap.empty) window.location.href = 'index.html';
+});
+
 function showError(msg) {
   const el = document.getElementById('err-msg');
   el.textContent = msg;

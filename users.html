@@ -353,6 +353,11 @@ async function sendResetPassword() {
 
 async function deleteUser(id) {
   const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!isOwner()) { toast('Only owners can delete users', 'error'); return; }
+  if (session && session.id === id) { toast('You cannot delete your own account', 'error'); return; }
+  const adminCount = users.filter(x => x.role === 'owner' || x.role === 'admin').length;
+  if ((u.role === 'owner' || u.role === 'admin') && adminCount <= 1) { toast('Cannot delete the last admin account', 'error'); return; }
   if (!confirm(`Delete user "${u.name}"? This cannot be undone.`)) return;
   if (users.length <= 1) { toast('Cannot delete the only user', 'error'); return; }
   await sbDelete('users', id);
