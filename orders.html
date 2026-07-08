@@ -112,7 +112,7 @@
     <div style="text-align:right;font-size:14px;margin-bottom:4px;">Grand Total Cost: <strong style="color:var(--green);">KSh <span id="order-grand-total">0</span></strong></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-order')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveBatchOrder()">Save & Update Inventory</button>
+      <button class="btn btn-primary" id="btn-save-order" onclick="saveBatchOrder()">Save & Update Inventory</button>
     </div>
   </div>
 </div>
@@ -218,6 +218,8 @@ function openOrderModal() {
   document.getElementById('order-rows').innerHTML = '';
   orderRowCount = 0;
   addOrderRow();
+  // Generate unique batch ID for duplicate detection
+  window._orderBatchId = 'ord-batch-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
   openModal('modal-order');
 }
 
@@ -259,14 +261,44 @@ function recalcGrand() {
 }
 
 async function saveBatchOrder() {
+  const btn = document.getElementById('btn-save-order');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
   const session = getSession();
   const suppId = document.getElementById('or-supplier').value;
   const date = document.getElementById('or-date').value;
-  if (!suppId || !date) { toast('Select supplier and date', 'error'); return; }
+  if (!suppId || !date) { toast('Select supplier and date', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
   const rows = document.querySelectorAll('#order-rows > div');
+  const invoiceNumber = document.getElementById('or-invoice').value.trim();
+
+  // Validate rows
+  let validRows = 0;
+  for (const row of rows) {
+    const inputs = row.querySelectorAll('input');
+    const med = inputs[0]?.value.trim();
+    const qty = parseFloat(row.querySelectorAll('input[type="number"]')[0]?.value) || 0;
+    const buy = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
+    if (med && qty > 0 && buy > 0) validRows++;
+  }
+  if (!validRows) { toast('Add at least one complete order line', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
+
+  // Duplicate check: query Firestore for this batch ID
+  const batchId = window._orderBatchId;
+  if (batchId) {
+    try {
+      const existing = await db.collection('orders').where('batch_id', '==', batchId).limit(1).get();
+      if (!existing.empty) { toast('This order has already been saved', 'error'); btn.disabled = false; btn.textContent = 'Save & Update Inventory'; return; }
+    } catch(e) {}
+  }
+
   const supplier = suppliers.find(s => s.id === suppId);
   const ref = 'ORD-' + Date.now();
-  let saved = 0;
+  const batch = db.batch();
+  const now = new Date().toISOString();
+  const savedOrders = [];
+  let count = 0;
+
   for (const row of rows) {
     const inputs = row.querySelectorAll('input');
     const med = inputs[0]?.value.trim();
@@ -275,24 +307,37 @@ async function saveBatchOrder() {
     const sell = parseFloat(row.querySelectorAll('input[type="number"]')[2]?.value) || 0;
     if (!med || qty <= 0 || buy <= 0) continue;
     const total = qty * buy;
-    const orderItem = { id: uid(), date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: document.getElementById('or-invoice').value.trim(), added_by: session.name, added_at: new Date().toISOString(), paid: 0, balance: total, paymentHistory: [], status: 'unpaid' };
-    await sbInsert('orders', orderItem);
-    orders.unshift(orderItem);
+    const orderId = uid();
+    const orderData = { id: orderId, date, supplier_id: suppId, supplier_name: supplier?.name || '', medicine: med, qty, buy, sell, total, profit: qty * (sell - buy), notes: '', order_ref: ref, invoice_number: invoiceNumber, added_by: session.name, added_at: now, paid: 0, balance: total, paymentHistory: [], status: 'unpaid', batch_id: batchId };
+    batch.set(db.collection('orders').doc(orderId), { ...orderData, id: orderId });
+    savedOrders.push(orderData);
     const inv = inventory.find(i => i.name.toLowerCase() === med.toLowerCase());
     if (inv) {
-      await sbUpdate('inventory', inv.id, { stock: inv.stock + qty, unit_cost: buy, price: sell || inv.price });
+      batch.update(db.collection('inventory').doc(inv.id), { stock: inv.stock + qty, unit_cost: buy, price: sell || inv.price });
       inv.stock += qty; inv.unit_cost = buy; if (sell) inv.price = sell;
     } else {
-      const newItem = { id: uid(), name: med, category: 'Other', price: sell || buy, stock: qty, alert_at: 10, unit_cost: buy, created_at: new Date().toISOString() };
-      await sbInsert('inventory', newItem);
+      const newId = uid();
+      const newItem = { id: newId, name: med, category: 'Other', price: sell || buy, stock: qty, alert_at: 10, unit_cost: buy, created_at: now };
+      batch.set(db.collection('inventory').doc(newId), { ...newItem, id: newId });
       inventory.push(newItem);
     }
-    saved++;
+    count++;
   }
-  if (!saved) { toast('Add at least one complete order line', 'error'); return; }
-  closeModal('modal-order');
-  renderOrders();
-  toast(`Batch saved — ${saved} medicines updated ✅`);
+
+  try {
+    await batch.commit();
+    // Update local orders array with the saved order data
+    savedOrders.forEach(o => orders.unshift(o));
+    closeModal('modal-order');
+    renderOrders();
+    toast('Order saved successfully', 'success');
+    // Keep button disabled for 2 seconds then reset
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Save & Update Inventory'; }, 2000);
+  } catch(e) {
+    toast('Order save failed: ' + (e.message || 'Unknown error'), 'error');
+    btn.disabled = false;
+    btn.textContent = 'Save & Update Inventory';
+  }
 }
 
 async function deleteOrder(id) {
