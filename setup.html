@@ -144,12 +144,13 @@ const session = getSession();
 if (session) { window.location.href = 'dashboard.html'; }
 
 (async function checkExisting() {
+  if (localStorage.getItem('rhl_setup_done') === '1') { window.location.href = 'index.html'; return; }
   try {
     const doc = await db.collection('_config').doc('setup').get();
-    if (doc.exists && doc.data().done) { window.location.href = 'index.html'; return; }
+    if (doc.exists && doc.data().done) { localStorage.setItem('rhl_setup_done', '1'); window.location.href = 'index.html'; return; }
   } catch(e) {}
   try {
-    if (await checkHasUsers()) { window.location.href = 'index.html'; }
+    if (await checkHasUsers()) { localStorage.setItem('rhl_setup_done', '1'); window.location.href = 'index.html'; }
   } catch(e) {}
 })();
 
@@ -190,10 +191,12 @@ async function createAdmin() {
     // Double-check: ensure no admin already exists
     const existsCheck = await db.collection('_config').doc('setup').get();
     if (existsCheck.exists && existsCheck.data().done) {
+      localStorage.setItem('rhl_setup_done', '1');
       throw new Error('An admin account already exists. Setup is locked.');
     }
     try {
       if (await checkHasUsers()) {
+        localStorage.setItem('rhl_setup_done', '1');
         throw new Error('An admin account already exists. Setup is locked.');
       }
     } catch(e) {
@@ -225,6 +228,7 @@ async function createAdmin() {
 
     await db.collection('_config').doc('setup').set({ done: true });
 
+    localStorage.setItem('rhl_setup_done', '1');
     setSession({ id: uid, name, email, role: 'owner' });
 
     setStatus(false);

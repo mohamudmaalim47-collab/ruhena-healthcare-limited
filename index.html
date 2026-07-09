@@ -165,12 +165,16 @@ if(getSession()) window.location.href = 'dashboard.html';
 
 (async function() {
   let hide = false;
-  try {
-    const doc = await db.collection('_config').doc('setup').get();
-    if (doc.exists && doc.data().done) hide = true;
-  } catch(e) {}
+  // localStorage is fastest and works without auth
+  if (localStorage.getItem('rhl_setup_done') === '1') { hide = true; }
   if (!hide) {
-    try { if (await checkHasUsers()) hide = true; } catch(e) {}
+    try {
+      const doc = await db.collection('_config').doc('setup').get();
+      if (doc.exists && doc.data().done) { hide = true; localStorage.setItem('rhl_setup_done', '1'); }
+    } catch(e) {}
+  }
+  if (!hide) {
+    try { if (await checkHasUsers()) { hide = true; localStorage.setItem('rhl_setup_done', '1'); } } catch(e) {}
   }
   if (hide) {
     const link = document.querySelector('.setup-link');
