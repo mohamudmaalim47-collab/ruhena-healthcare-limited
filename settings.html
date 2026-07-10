@@ -174,6 +174,15 @@
       </div>
     </div>
 
+    <!-- Security -->
+    <div class="settings-section" style="border-color:rgba(2,132,199,0.3);">
+      <h3><i class="bi bi-shield-lock" style="color:var(--blue);"></i> Security</h3>
+      <div class="setting-row">
+        <div><div class="sr-label">Password</div><div class="sr-desc">Change your login password (no email required)</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="openChangePassModal()"><i class="bi bi-key"></i> Change Password</button>
+      </div>
+    </div>
+
     <!-- Danger Zone -->
     <div class="settings-section" style="border-color:rgba(220,38,38,0.3);">
       <h3 style="color:var(--red);">⚠️ Danger Zone</h3>
@@ -181,6 +190,22 @@
         <div><div class="sr-label">Reset All Data</div><div class="sr-desc">Permanently delete all pharmacy data</div></div>
         <button class="btn btn-danger btn-sm" onclick="if(confirm('Are you sure? This cannot be undone.')) toast('Contact support to reset data','warning')">Reset</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="modal-change-pass">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title">Change Password</div>
+    <div id="cp-error" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none;"></div>
+    <div class="form-group"><label class="form-label">Current Password *</label><input class="form-input" type="password" id="cp-current" placeholder="Enter current password"></div>
+    <div class="form-group"><label class="form-label">New Password * (min 6)</label><input class="form-input" type="password" id="cp-new" placeholder="Enter new password"></div>
+    <div class="form-group"><label class="form-label">Confirm New Password *</label><input class="form-input" type="password" id="cp-confirm" placeholder="Repeat new password"></div>
+    <div id="cp-match" style="font-size:12px;margin-bottom:10px;min-height:16px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-change-pass');resetPassForm()">Cancel</button>
+      <button class="btn btn-primary" id="btn-change-pass" onclick="changePassword()">Update Password</button>
     </div>
   </div>
 </div>
@@ -280,6 +305,76 @@ function resetReceiptDesign() {
 }
 
 loadReceiptDesign();
+
+// ── Password Change ──
+
+function openChangePassModal() {
+  document.getElementById('cp-current').value = '';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  document.getElementById('cp-error').style.display = 'none';
+  document.getElementById('cp-match').textContent = '';
+  document.getElementById('btn-change-pass').disabled = false;
+  document.getElementById('btn-change-pass').textContent = 'Update Password';
+  openModal('modal-change-pass');
+  setTimeout(() => document.getElementById('cp-current').focus(), 300);
+}
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'cp-new' || e.target.id === 'cp-confirm') {
+    const p1 = document.getElementById('cp-new').value;
+    const p2 = document.getElementById('cp-confirm').value;
+    const el = document.getElementById('cp-match');
+    if (!p2) { el.textContent = ''; return; }
+    if (p1 === p2) { el.textContent = '✅ Passwords match'; el.style.color = 'var(--green)'; }
+    else { el.textContent = '❌ Passwords do not match'; el.style.color = 'var(--red)'; }
+  }
+});
+
+function resetPassForm() {
+  document.getElementById('cp-error').style.display = 'none';
+  document.getElementById('cp-match').textContent = '';
+}
+
+async function changePassword() {
+  const current = document.getElementById('cp-current').value;
+  const newPass = document.getElementById('cp-new').value;
+  const confirm = document.getElementById('cp-confirm').value;
+  const errEl = document.getElementById('cp-error');
+  const btn = document.getElementById('btn-change-pass');
+
+  if (!current) { showCpErr('Enter your current password.'); return; }
+  if (!newPass || newPass.length < 6) { showCpErr('New password must be at least 6 characters.'); return; }
+  if (newPass !== confirm) { showCpErr('New passwords do not match.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Updating...';
+
+  try {
+    const user = auth.currentUser;
+    if (!user) { showCpErr('You must be logged in.'); btn.disabled = false; btn.textContent = 'Update Password'; return; }
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, current);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(newPass);
+    closeModal('modal-change-pass');
+    toast('Password updated successfully!', 'success');
+    resetPassForm();
+  } catch(e) {
+    const msg = e.code === 'auth/wrong-password' ? 'Current password is incorrect.'
+      : e.code === 'auth/weak-password' ? 'New password is too weak.'
+      : e.code === 'auth/requires-recent-login' ? 'Please log out and log in again, then try once more.'
+      : e.message || 'Failed to update password.';
+    showCpErr(msg);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Update Password';
+}
+
+function showCpErr(msg) {
+  const el = document.getElementById('cp-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
 </script>
 </body>
 </html>
